@@ -126,6 +126,7 @@ export class AssetPicker extends LitElement {
   private _initFailed = false;
   private _loadId = 0;
   private _loadMoreId = 0;
+  private _loadDataTimer: ReturnType<typeof setTimeout> | null = null;
 
   @property({ type: Object }) config?: AssetPickerConfig;
 
@@ -434,6 +435,14 @@ export class AssetPicker extends LitElement {
     }
   }
 
+  private _debouncedLoadData(delay = 120) {
+    if (this._loadDataTimer) clearTimeout(this._loadDataTimer);
+    this._loadDataTimer = setTimeout(() => {
+      this._loadDataTimer = null;
+      this._loadData();
+    }, delay);
+  }
+
   private _handleCancel(reason: string) {
     const state = this.store.getState();
     if (state.isPreviewOpen) {
@@ -651,7 +660,7 @@ export class AssetPicker extends LitElement {
 
     this.store.setState({ filters, offset: 0, assets: [], folders: [] });
     this.selectionCtrl.resetRange();
-    this._loadData();
+    this._debouncedLoadData();
   }
 
   private _handleFilterRemove(e: CustomEvent) {
@@ -666,7 +675,7 @@ export class AssetPicker extends LitElement {
     }
     this.store.setState({ filters, offset: 0, assets: [], folders: [] });
     this.selectionCtrl.resetRange();
-    this._loadData();
+    this._debouncedLoadData();
   }
 
   private _handleMetadataFilterChange(e: CustomEvent) {
@@ -700,7 +709,7 @@ export class AssetPicker extends LitElement {
     filters.metadata = metadata;
     this.store.setState({ filters, offset: 0, assets: [], folders: [] });
     this.selectionCtrl.resetRange();
-    this._loadData();
+    this._debouncedLoadData();
   }
 
   private _handleMetadataFieldToggle(e: CustomEvent) {
@@ -715,10 +724,6 @@ export class AssetPicker extends LitElement {
       }
     } else {
       metadata.visible = metadata.visible.filter((k: string) => k !== fieldKey);
-      // Also remove applied filter when hiding
-      const applied = { ...metadata.applied };
-      delete applied[fieldKey];
-      metadata.applied = applied;
     }
 
     filters.metadata = metadata;
@@ -739,7 +744,7 @@ export class AssetPicker extends LitElement {
     filters.metadata = metadata;
     this.store.setState({ filters, offset: 0, assets: [], folders: [] });
     this.selectionCtrl.resetRange();
-    this._loadData();
+    this._debouncedLoadData();
   }
 
   private _handleFilterPin(e: CustomEvent) {
@@ -805,7 +810,53 @@ export class AssetPicker extends LitElement {
       folders: [],
     });
     this.selectionCtrl.resetRange();
-    this._loadData();
+    this._debouncedLoadData();
+  }
+
+  private _handleFilterDeactivate(e: CustomEvent) {
+    const key = e.detail.key as AnyFilterKey;
+    const state = this.store.getState();
+    const filters = { ...state.filters };
+    filters.visible = filters.visible.filter((k: AnyFilterKey) => k !== key);
+    this.store.setState({ filters });
+  }
+
+  private _handleMetadataFieldDeactivate(e: CustomEvent) {
+    const { fieldKey } = e.detail;
+    const state = this.store.getState();
+    const filters = { ...state.filters };
+    const metadata = { ...filters.metadata };
+    metadata.visible = metadata.visible.filter((k: string) => k !== fieldKey);
+    filters.metadata = metadata;
+    this.store.setState({ filters });
+  }
+
+  private _handleFiltersSet(e: CustomEvent) {
+    const { applied, metadata } = e.detail as {
+      applied: Record<AnyFilterKey, AnyFilter>;
+      metadata?: { applied: Record<string, AnyFilter> };
+    };
+    const state = this.store.getState();
+    const filters = { ...state.filters };
+
+    // Replace applied filters
+    filters.applied = applied;
+    // Recompute visible as union of pinned + keys of applied
+    const appliedKeys = Object.keys(applied) as AnyFilterKey[];
+    filters.visible = [...new Set([...filters.pinned, ...appliedKeys])];
+
+    // Same for metadata if provided
+    if (metadata) {
+      const meta = { ...filters.metadata };
+      meta.applied = metadata.applied;
+      const metaAppliedKeys = Object.keys(metadata.applied);
+      meta.visible = [...new Set([...meta.pinned, ...metaAppliedKeys])];
+      filters.metadata = meta;
+    }
+
+    this.store.setState({ filters, offset: 0, assets: [], folders: [] });
+    this.selectionCtrl.resetRange();
+    this._debouncedLoadData();
   }
 
   // ── Search Notation Builder ──────────────────────────────────────────
@@ -874,10 +925,13 @@ export class AssetPicker extends LitElement {
               .pinnedMetadata=${s.filters.metadata.pinned}
               .metadataFields=${s.metadataFields}
               @filter-remove=${this._handleFilterRemove}
+              @filter-deactivate=${this._handleFilterDeactivate}
               @metadata-filter-remove=${this._handleMetadataFilterRemove}
+              @metadata-field-deactivate=${this._handleMetadataFieldDeactivate}
               @filter-pin=${this._handleFilterPin}
               @metadata-pin=${this._handleMetadataPin}
               @filters-clear-all=${this._handleFiltersClearAll}
+              @filters-set=${this._handleFiltersSet}
             ></ap-filters-bar>
 
             ${s.isLoading && s.assets.length === 0 && s.folders.length === 0
