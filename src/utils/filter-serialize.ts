@@ -19,6 +19,7 @@ import {
 } from '../types/filter.types';
 
 import { resolvePresetToRange } from './filter-date';
+import { validateFilter } from './filter-validate';
 
 import {
   IMAGE_FILTER_KEY_INDEX,
@@ -35,12 +36,14 @@ export function serializeFilters(
 
   for (const [key, filter] of Object.entries(filters)) {
     if (!filter) continue;
+    if (!validateFilter(key, filter)) continue;
     const serialized = serializeSingleFilter(key, filter);
     result.push(...serialized);
   }
 
   for (const [key, filter] of Object.entries(metadataFilters)) {
     if (!filter) continue;
+    if (!validateFilter(key, filter)) continue;
     const serialized = serializeMetadataFilter(key, filter);
     result.push(...serialized);
   }
