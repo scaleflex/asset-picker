@@ -1,0 +1,20 @@
+@import "tailwindcss";
+@import "./theme.css";
+@import "./animations.css";
+
+@theme {
+  --color-primary: var(--ap-primary);
+  --color-primary-foreground: var(--ap-primary-foreground);
+  --color-background: var(--ap-background);
+  --color-foreground: var(--ap-foreground);
+  --color-card: var(--ap-card);
+  --color-border: var(--ap-border);
+  --color-muted: var(--ap-muted);
+  --color-muted-foreground: var(--ap-muted-foreground);
+  --color-ring: var(--ap-ring);
+  --color-selection: var(--ap-selection-bg);
+  --radius-DEFAULT: var(--ap-radius);
+  --radius-sm: var(--ap-radius-sm);
+  --radius-lg: var(--ap-radius-lg);
+  --font-family-sans: var(--ap-font-family);
+}

@@ -1,0 +1,1 @@
+{"version":3,"file":"ap-skeleton.d.ts","sourceRoot":"","sources":["../../../src/components/views/ap-skeleton.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,UAAU,EAAa,MAAM,KAAK,CAAC;AAG5C,qBACa,UAAW,SAAQ,UAAU;IACxC,MAAM,CAAC,MAAM,0BAgCX;IAEU,OAAO,EAAE,MAAM,GAAG,MAAM,CAAU;IAE9C,MAAM;CAYP;AAED,OAAO,CAAC,MAAM,CAAC;IACb,UAAU,qBAAqB;QAC7B,aAAa,EAAE,UAAU,CAAC;KAC3B;CACF"}

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asset Picker - Dev Playground</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #fafafa;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #09090b;
+      margin-bottom: 8px;
+    }
+    p {
+      color: #71717a;
+      margin-bottom: 24px;
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    button {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 150ms;
+    }
+    .btn-primary {
+      background: oklch(0.65 0.19 258);
+      color: #fff;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-secondary {
+      background: #f4f4f5;
+      color: #09090b;
+      border: 1px solid #e4e4e7;
+    }
+    .btn-secondary:hover { background: #e4e4e7; }
+    .config-panel {
+      margin-top: 32px;
+      padding: 20px;
+      background: #fff;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 100%;
+    }
+    .config-panel h2 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #09090b;
+      margin-bottom: 12px;
+    }
+    .form-group {
+      margin-bottom: 12px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #71717a;
+      margin-bottom: 4px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #e4e4e7;
+      border-radius: 6px;
+      font-size: 0.875rem;
+    }
+    #output {
+      margin-top: 16px;
+      padding: 12px;
+      background: #f4f4f5;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.8125rem;
+      color: #09090b;
+      white-space: pre-wrap;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>@scaleflex/asset-picker</h1>
+  <p>Dev playground for testing the Asset Picker component</p>
+
+  <div class="controls">
+    <button class="btn-primary" id="openBtn">Open Asset Picker</button>
+    <button class="btn-secondary" id="openSingleBtn">Open (Single Select)</button>
+  </div>
+
+  <div class="config-panel">
+    <h2>Configuration</h2>
+    <div class="form-group">
+      <label>Project Token</label>
+      <input type="text" id="projectToken" placeholder="your-project-token" value="fbmjmuoeb" />
+    </div>
+    <div class="form-group">
+      <label>Security Template Key</label>
+      <input type="text" id="secTemplateKey" placeholder="your-security-template-key" value="SECU_47D57B3106A841F7A1FEA951846CC5F3" />
+    </div>
+    <div id="output">Ready. Enter credentials and click "Open Asset Picker".</div>
+  </div>
+
+  <asset-picker id="picker"></asset-picker>
+
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>
