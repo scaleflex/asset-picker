@@ -39,7 +39,7 @@ export const DEFAULT_FILTER_OPERATOR = FILTER_OPERATORS.IS;
 
 // ── Color Defaults ──────────────────────────────────────────────────
 
-export const DEFAULT_COLOR_COVERAGE = '20';
+export const DEFAULT_COLOR_COVERAGE = '30';
 export const DEFAULT_COLOR_TOLERANCE = '1';
 
 // ── Metadata Model ──────────────────────────────────────────────────
