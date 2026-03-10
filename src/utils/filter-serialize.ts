@@ -11,6 +11,7 @@ import {
   METADATA_FIELD_TYPES,
   METADATA_PREFIXES,
   DATE_KINDS,
+  DATE_PRESETS,
   type AnyFilter,
   type StringFilter,
   type DateFilter,
@@ -45,7 +46,36 @@ export function serializeFilters(
     result.push(...serialized);
   }
 
-  return result;
+  // Merge type and mimetype entries if both exist
+  return mergeTypeMime(result);
+}
+
+// ── Type+MIME Merge ─────────────────────────────────────────────────
+
+function mergeTypeMime(entries: string[]): string[] {
+  const typeEntries: string[] = [];
+  const mimeEntries: string[] = [];
+  const rest: string[] = [];
+
+  for (const entry of entries) {
+    if (entry.startsWith('type:') || entry.startsWith('type=')) {
+      typeEntries.push(entry);
+    } else if (entry.startsWith('mimetype:') || entry.startsWith('mimetype=')) {
+      mimeEntries.push(entry);
+    } else {
+      rest.push(entry);
+    }
+  }
+
+  if (typeEntries.length > 0 && mimeEntries.length > 0) {
+    // Merge into one entry joined with ' , '
+    const merged = [...typeEntries, ...mimeEntries].join(' , ');
+    rest.push(merged);
+  } else {
+    rest.push(...typeEntries, ...mimeEntries);
+  }
+
+  return rest;
 }
 
 // ── Single Filter Serialization ─────────────────────────────────────
@@ -65,7 +95,7 @@ function serializeSingleFilter(key: string, filter: AnyFilter): string[] {
       return serializeRange(key, values, '..');
 
     case FILTER_KEYS.FACES:
-      return serializeSimple(key, operator, values, ',', logic);
+      return serializeFaces(key, operator, values);
 
     case FILTER_KEYS.TAGS:
       return serializeSimple(key, operator, stripHashes(values), ',', logic);
@@ -99,8 +129,23 @@ function serializeDateFilter(key: string, filter: DateFilter): string[] {
   const field = filter.field || 'created';
 
   if (filter.kind === DATE_KINDS.PRESET && filter.preset) {
+    // Handle empty/non-empty presets
+    if (filter.preset === DATE_PRESETS.EMPTY) {
+      return [`${field}:"empty"`];
+    }
+    if (filter.preset === DATE_PRESETS.NOT_EMPTY) {
+      return [`${field}:"non-empty"`];
+    }
+
     const range = resolvePresetToRange(filter.preset);
     if (!range) return [];
+
+    if (range.to === null) {
+      // last_* and today presets: serialize as greater-than
+      return [`${field}>"${range.from}"`];
+    }
+
+    // within_* presets: serialize as range
     return [`${field}:"${range.from}..${range.to}"`];
   }
 
@@ -128,6 +173,12 @@ function serializeDateFilter(key: string, filter: DateFilter): string[] {
 function serializeRange(key: string, values: string[], separator: string): string[] {
   if (values.length === 0) return [];
   return [`${key}:"${values.join(separator)}"`];
+}
+
+function serializeFaces(key: string, operator: string, values: string[]): string[] {
+  if (values.length === 0) return [];
+  // Join values inside single quote pair: faces:"1,2"
+  return [`${key}${operator}"${values.join(',')}"`];
 }
 
 function serializeSimple(
@@ -181,13 +232,15 @@ function serializeImageFilter(values: unknown): string[] {
     const faces = obj.faces;
 
     if (resolution?.length) {
-      result.push(...resolution.map((v) => `resolution:"${v}"`));
+      // Join multiple values with comma inside quotes: resolution:"small,medium"
+      result.push(`resolution:"${resolution.join(',')}"`);
     }
     if (orientation?.length) {
-      result.push(...orientation.map((v) => `orientation:"${v}"`));
+      result.push(`orientation:"${orientation.join(',')}"`);
     }
     if (faces?.length) {
-      result.push(...faces.map((v) => `faces:"${v}"`));
+      // Join values inside single quote pair: faces:"1,2"
+      result.push(`faces:"${faces.join(',')}"`);
     }
     return result;
   }
@@ -210,9 +263,10 @@ function serializeImageFilter(values: unknown): string[] {
 function serializeMetadataFilter(rawKey: string, filter: AnyFilter): string[] {
   // Strip the type prefix (e.g., text_description -> description)
   const fieldName = stripMetadataPrefix(rawKey);
+  const isDateType = isMetadataDateKey(rawKey);
 
   if (filter.type === 'date') {
-    return serializeDateFilter(fieldName, filter);
+    return serializeMetadataDateFilter(fieldName, filter, isDateType);
   }
 
   const stringFilter = filter as StringFilter;
@@ -220,13 +274,13 @@ function serializeMetadataFilter(rawKey: string, filter: AnyFilter): string[] {
 
   if (values.length === 0) return [];
 
-  // Numeric/Decimal2 range: remap '..' operator to ':' and join values with '..'
+  // Numeric/Decimal2 range: remap '..' operator to ':' and join values with ','
   if (
     (metadataType === METADATA_FIELD_TYPES.NUMERIC ||
       metadataType === METADATA_FIELD_TYPES.DECIMAL2) &&
     operator === FILTER_OPERATORS.RANGE
   ) {
-    return [`${fieldName}${FILTER_OPERATORS.IS}"${values.join('..')}"`];
+    return [`${fieldName}${FILTER_OPERATORS.IS}"${values.join('","')}"`];
   }
 
   // GeoPoint: append '~' to operator
@@ -235,6 +289,36 @@ function serializeMetadataFilter(rawKey: string, filter: AnyFilter): string[] {
   }
 
   return serializeSimple(fieldName, operator, values, ',', logic);
+}
+
+function serializeMetadataDateFilter(
+  fieldName: string,
+  filter: DateFilter,
+  wrapQuoted: boolean,
+): string[] {
+  // First serialize as normal date filter
+  const entries = serializeDateFilter(fieldName, filter);
+  if (!wrapQuoted || entries.length === 0) return entries;
+
+  // For metadata date fields, wrap entire expression in quotes: "fieldName:value"
+  return entries.map((entry) => {
+    // Entry format is like: fieldName:"value" or fieldName>:"value"
+    // Wrap the whole thing in quotes: "fieldName:value" (remove inner quotes, wrap outer)
+    // Find the operator position (first non-alphanumeric, non-underscore char)
+    const opIdx = entry.search(/[^a-zA-Z0-9_]/);
+    if (opIdx === -1) return `"${entry}"`;
+
+    const name = entry.slice(0, opIdx);
+    const rest = entry.slice(opIdx);
+    // rest starts with operator, then has quoted value(s)
+    // Strip quotes from inner value and wrap the whole thing
+    const unquoted = rest.replace(/"/g, '');
+    return `"${name}${unquoted}"`;
+  });
+}
+
+function isMetadataDateKey(rawKey: string): boolean {
+  return rawKey.startsWith('date_');
 }
 
 function stripMetadataPrefix(key: string): string {
