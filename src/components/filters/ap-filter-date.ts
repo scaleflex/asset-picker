@@ -152,7 +152,7 @@ export class ApFilterDate extends LitElement {
     const range = resolvePresetToRange(value);
     if (range) {
       this.from = range.from;
-      this.to = range.to;
+      this.to = range.to ?? '';
     }
 
     this._dispatchChange();
