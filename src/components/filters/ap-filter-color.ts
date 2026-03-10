@@ -122,11 +122,13 @@ export class ApFilterColor extends LitElement {
   private _handleCoverageInput(e: Event) {
     const value = (e.target as HTMLInputElement).value;
     const num = parseInt(value, 10);
-    if (!isNaN(num) && num >= 0 && num <= 100) {
+    if (!isNaN(num) && num >= 1 && num <= 100) {
       this.coverage = String(num);
       this._dispatchChange();
     }
   }
+
+  private static _HEX_RE = /^#[0-9A-Fa-f]{6}$/;
 
   private _dispatchChange() {
     if (!this.selected) {
@@ -139,6 +141,9 @@ export class ApFilterColor extends LitElement {
       );
       return;
     }
+
+    // Validate hex color before applying
+    if (!ApFilterColor._HEX_RE.test(this.selected)) return;
 
     const value = `${this.selected} ${this.tolerance} ${this.tolerance} ${this.coverage}`;
     this.dispatchEvent(
@@ -189,7 +194,7 @@ export class ApFilterColor extends LitElement {
           <input
             type="number"
             class="coverage-input"
-            min="0"
+            min="1"
             max="100"
             .value=${this.coverage}
             @change=${this._handleCoverageInput}

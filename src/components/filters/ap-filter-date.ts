@@ -5,7 +5,7 @@ import {
   DATE_RANGE_OPTIONS,
   LICENSE_DATE_RANGE_OPTIONS,
 } from './filters.constants';
-import { FILTER_KEYS, type DateField, type DateKind } from '../../types/filter.types';
+import { FILTER_KEYS, DATE_PRESETS, type DateField, type DateKind } from '../../types/filter.types';
 import { resolvePresetToRange } from '../../utils/filter-date';
 
 function toDateStr(d: Date): string {
@@ -105,6 +105,12 @@ export class ApFilterDate extends LitElement {
       color: var(--ap-muted-foreground, #71717a);
       font-size: 0.8125rem;
     }
+
+    .empty-options {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
   `;
 
   @property() filterKey: string = FILTER_KEYS.DATE;
@@ -120,6 +126,10 @@ export class ApFilterDate extends LitElement {
 
   private get _rangeOptions() {
     return this._isLicenseExpiry ? LICENSE_DATE_RANGE_OPTIONS : DATE_RANGE_OPTIONS;
+  }
+
+  private get _todayStr(): string {
+    return toDateStr(new Date());
   }
 
   /** Determine the DateKind from a preset/option value */
@@ -140,6 +150,14 @@ export class ApFilterDate extends LitElement {
     this.kind = kind;
     this.preset = value;
 
+    // Empty / Not empty: emit immediately with no date range
+    if (value === DATE_PRESETS.EMPTY || value === DATE_PRESETS.NOT_EMPTY) {
+      this.from = '';
+      this.to = '';
+      this._dispatchChange();
+      return;
+    }
+
     // Manual-input kinds: clear dates and wait for user input
     if (['before', 'after', 'between', 'specific'].includes(value)) {
       this.from = '';
@@ -159,14 +177,29 @@ export class ApFilterDate extends LitElement {
   }
 
   private _dispatchChange() {
+    // Auto-correct "between" when only one date is filled
+    let effectiveKind = this.kind;
+    let effectivePreset = this.preset;
+    if (this.kind === 'between') {
+      const hasFrom = !!this.from;
+      const hasTo = !!this.to;
+      if (hasFrom && !hasTo) {
+        effectiveKind = 'after';
+        effectivePreset = 'after';
+      } else if (!hasFrom && hasTo) {
+        effectiveKind = 'before';
+        effectivePreset = 'before';
+      }
+    }
+
     this.dispatchEvent(
       new CustomEvent('filter-change', {
         detail: {
           key: this.filterKey,
           values: {
             field: this.field,
-            kind: this.kind,
-            preset: this.preset,
+            kind: effectiveKind,
+            preset: effectivePreset,
             from: this.from,
             to: this.to,
           },
@@ -228,12 +261,14 @@ export class ApFilterDate extends LitElement {
 
     const fromStr = this.from ? toDateStr(new Date(this.from)) : '';
     const toStr = this.to ? toDateStr(new Date(this.to)) : '';
+    const today = this._todayStr;
 
     if (p === 'specific') {
       return html`
         <div class="date-inputs">
           <input
             type="date"
+            max=${today}
             .value=${fromStr}
             @change=${(e: Event) => this._handleDateInput('from', e)}
           />
@@ -247,6 +282,7 @@ export class ApFilterDate extends LitElement {
           <span class="separator">Before</span>
           <input
             type="date"
+            max=${today}
             .value=${toStr}
             @change=${(e: Event) => this._handleDateInput('to', e)}
           />
@@ -260,6 +296,7 @@ export class ApFilterDate extends LitElement {
           <span class="separator">After</span>
           <input
             type="date"
+            max=${today}
             .value=${fromStr}
             @change=${(e: Event) => this._handleDateInput('from', e)}
           />
@@ -272,12 +309,15 @@ export class ApFilterDate extends LitElement {
       <div class="date-inputs">
         <input
           type="date"
+          max=${toStr || today}
           .value=${fromStr}
           @change=${(e: Event) => this._handleDateInput('from', e)}
         />
         <span class="separator">to</span>
         <input
           type="date"
+          min=${fromStr}
+          max=${today}
           .value=${toStr}
           @change=${(e: Event) => this._handleDateInput('to', e)}
         />
@@ -288,6 +328,20 @@ export class ApFilterDate extends LitElement {
   render() {
     return html`
       ${this._renderFieldTabs()}
+      <div class="empty-options">
+        <button
+          class="preset ${this.preset === DATE_PRESETS.EMPTY ? 'active' : ''}"
+          @click=${() => this._selectPreset(DATE_PRESETS.EMPTY)}
+        >
+          Empty
+        </button>
+        <button
+          class="preset ${this.preset === DATE_PRESETS.NOT_EMPTY ? 'active' : ''}"
+          @click=${() => this._selectPreset(DATE_PRESETS.NOT_EMPTY)}
+        >
+          Not empty
+        </button>
+      </div>
       <div class="presets">
         ${this._rangeOptions.map(
           (opt) => html`
