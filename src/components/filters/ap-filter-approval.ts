@@ -7,7 +7,7 @@ import {
 import {
   APPROVAL_STATUS_OPTIONS,
   APPROVAL_OPERATOR_OPTIONS,
-  DATE_RANGE_OPTIONS,
+  WITHIN_DATE_RANGE_OPTIONS,
   EMPTY_OPTIONS,
 } from './filters.constants';
 
@@ -104,7 +104,7 @@ export class ApFilterApproval extends LitElement {
 
   // Selected values for each sub-filter
   @property({ type: Array }) selectedStatus: string[] = [];
-  @property() statusOperator: string = ':';
+  @property() statusOperator: string = ':=';
   @property() approverValue: string = '';
   @property() approverOperator: string = ':';
   @property() requesterValue: string = '';
@@ -274,7 +274,7 @@ export class ApFilterApproval extends LitElement {
               >${opt.label}</button>
             `
           )}
-          ${DATE_RANGE_OPTIONS.map(
+          ${WITHIN_DATE_RANGE_OPTIONS.map(
             (opt) => html`
               <button
                 class="date-option ${this.dueDatePreset === opt.value ? 'selected' : ''}"
@@ -283,13 +283,13 @@ export class ApFilterApproval extends LitElement {
             `
           )}
         </div>
-        ${this.dueDatePreset === 'before' || this.dueDatePreset === 'after' || this.dueDatePreset === 'between'
+        ${this.dueDatePreset === 'before' || this.dueDatePreset === 'after' || this.dueDatePreset === 'between' || this.dueDatePreset === 'specific'
           ? html`
             <div class="date-input-row">
               ${this.dueDatePreset !== 'before'
                 ? html`<input class="date-input" type="date" .value=${this.dueDateFrom} @change=${this._handleDueDateFrom} />`
                 : nothing}
-              ${this.dueDatePreset !== 'after'
+              ${this.dueDatePreset !== 'after' && this.dueDatePreset !== 'specific'
                 ? html`<input class="date-input" type="date" .value=${this.dueDateTo} @change=${this._handleDueDateTo} />`
                 : nothing}
             </div>

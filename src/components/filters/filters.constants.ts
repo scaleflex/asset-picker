@@ -39,7 +39,7 @@ export const DEFAULT_FILTER_OPERATOR = FILTER_OPERATORS.IS;
 
 // ── Color Defaults ──────────────────────────────────────────────────
 
-export const DEFAULT_COLOR_COVERAGE = '20';
+export const DEFAULT_COLOR_COVERAGE = '30';
 export const DEFAULT_COLOR_TOLERANCE = '1';
 
 // ── Metadata Model ──────────────────────────────────────────────────
@@ -177,12 +177,26 @@ export const LICENSE_DATE_RANGE_OPTIONS = [
   { value: 'specific', label: 'Specific date' },
 ];
 
+export const WITHIN_DATE_RANGE_OPTIONS = [
+  { value: 'today', label: 'Today' },
+  { value: 'before', label: 'Before date' },
+  { value: 'within_week', label: 'Within week' },
+  { value: 'after', label: 'After date' },
+  { value: 'within_month', label: 'Within month' },
+  { value: 'between', label: 'Between dates' },
+  { value: 'within_year', label: 'Within year' },
+  { value: 'specific', label: 'Specific date' },
+];
+
 // ── Approval Filter Options ─────────────────────────────────────────
 
 export const APPROVAL_STATUS_OPTIONS = [
-  { value: 'approved', label: 'Approved' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'rejected', label: 'Rejected' },
+  { value: 'APPROVED', label: 'Approved' },
+  { value: 'PENDING', label: 'Pending' },
+  { value: 'REJECTED', label: 'Rejected' },
+  { value: 'CANCELLED', label: 'Cancelled' },
+  { value: EMPTY_VALUE, label: 'Empty' },
+  { value: NOT_EMPTY_VALUE, label: 'Not empty' },
 ];
 
 // ── Color Palette ───────────────────────────────────────────────────
@@ -234,8 +248,8 @@ export const PRODUCTS_OPERATOR_OPTIONS = [
 ];
 
 export const APPROVAL_OPERATOR_OPTIONS = [
-  { label: 'Contains', value: FILTER_OPERATORS.IS },
-  { label: 'Does not contain', value: FILTER_OPERATORS.IS_NOT },
+  { label: 'Is', value: FILTER_OPERATORS.IS_EXACT },
+  { label: 'Is not', value: FILTER_OPERATORS.IS_NOT },
 ];
 
 // ── Empty / Special Values ──────────────────────────────────────────
