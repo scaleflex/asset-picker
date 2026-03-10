@@ -52,15 +52,21 @@ function parseOperatorAndValues(raw: string): { operator: string; rest: string }
 }
 
 function parseValuesAndLogic(rest: string): { values: string[]; logic: FilterLogic } {
-  // '+' separated = AND logic, ',' separated = OR logic
+  // ',' separated = OR logic (higher priority), '+' separated = AND logic
+  if (rest.includes(',')) {
+    return {
+      values: rest.split(',').map(stripQuotes).map(s => s.trim()),
+      logic: FILTER_LOGIC.OR,
+    };
+  }
   if (rest.includes('+')) {
     return {
-      values: rest.split('+').map(stripQuotes),
+      values: rest.split('+').map(stripQuotes).map(s => s.trim()),
       logic: FILTER_LOGIC.AND,
     };
   }
   return {
-    values: rest.split(',').map(stripQuotes),
+    values: [stripQuotes(rest).trim()],
     logic: FILTER_LOGIC.OR,
   };
 }
@@ -129,12 +135,19 @@ export function getFiltersFromUrl(
         const { operator, rest } = parseOperatorAndValues(value);
         const { values, logic } = parseValuesAndLogic(rest);
 
-        filters[filterKey] = {
-          type: 'string',
-          operator,
-          logic,
-          values: values.filter(Boolean),
-        } as StringFilter;
+        const existing = filters[filterKey];
+        if (existing && existing.type === 'string') {
+          // Merge duplicate params: combine arrays and deduplicate
+          const merged = [...(existing as StringFilter).values, ...values];
+          (existing as StringFilter).values = [...new Set(merged)];
+        } else {
+          filters[filterKey] = {
+            type: 'string',
+            operator,
+            logic,
+            values,
+          } as StringFilter;
+        }
       }
     }
 
@@ -153,18 +166,38 @@ export function getFiltersFromUrl(
         const { operator, rest } = parseOperatorAndValues(value);
         const { values, logic } = parseValuesAndLogic(rest);
 
-        metadataFields[rawKey] = {
-          type: 'string',
-          operator,
-          logic,
-          values: values.filter(Boolean),
-          metadataType: meta?.type,
-        } as StringFilter;
+        const existing = metadataFields[rawKey];
+        if (existing && existing.type === 'string') {
+          // Merge duplicate params: combine arrays and deduplicate
+          const merged = [...(existing as StringFilter).values, ...values];
+          (existing as StringFilter).values = [...new Set(merged)];
+        } else {
+          metadataFields[rawKey] = {
+            type: 'string',
+            operator,
+            logic,
+            values,
+            metadataType: meta?.type,
+          } as StringFilter;
+        }
       }
     }
   });
 
   return { filters, metadataFields };
+}
+
+/**
+ * Strip metadata type prefix from a key before writing to URL.
+ * E.g. "date_created" -> "created", "multi_tags" -> "tags".
+ */
+function stripMetadataPrefix(key: string): string {
+  for (const prefix of METADATA_PREFIXES) {
+    if (key.startsWith(prefix)) {
+      return key.slice(prefix.length);
+    }
+  }
+  return key;
 }
 
 export function prepareFilterForUrl(key: string, filter: AnyFilter): string {
@@ -200,11 +233,12 @@ export function setFiltersToUrl(
     result.searchParams.set(paramKey, prepareFilterForUrl(key, filter));
   }
 
-  // Set metadata filters
+  // Set metadata filters (strip type prefix from key for cleaner URLs)
   for (const [key, filter] of Object.entries(metadataFilters)) {
     if (!filter) continue;
-    const paramKey = `${METADATA_FILTER_URL_PREFIX}${key}`;
-    result.searchParams.set(paramKey, prepareFilterForUrl(key, filter));
+    const strippedKey = stripMetadataPrefix(key);
+    const paramKey = `${METADATA_FILTER_URL_PREFIX}${strippedKey}`;
+    result.searchParams.set(paramKey, prepareFilterForUrl(strippedKey, filter));
   }
 
   return result;
