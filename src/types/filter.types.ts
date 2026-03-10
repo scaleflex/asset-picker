@@ -72,7 +72,7 @@ export const METADATA_FIELD_TYPES = {
   SUPERTAGS: 'tags',
   DATE: 'date',
   BOOLEAN: 'boolean',
-  ATTACHMENTS_ASSETS: 'attachments_assets',
+  ATTACHMENTS_ASSETS: 'attachments-assets',
   ATTACHMENT_URI: 'attachment-uri',
   GEO_POINT: 'geopoint',
   DECIMAL2: 'decimal2',
