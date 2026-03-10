@@ -15,6 +15,7 @@ import {
   FILTER_LABELS,
   ALL_FILTER_ITEMS,
 } from '../filters/filters.constants';
+import { MAIN_SORT_OPTIONS, type SortOption } from './sort.constants';
 
 import '../filters/ap-filter-popover';
 import '../filters/ap-filter-type';
@@ -212,6 +213,7 @@ export class ApContentToolbar extends LitElement {
   @property({ type: Boolean }) isLoading = false;
   @property() sortBy: SortBy = 'created_at';
   @property() sortDirection: SortDirection = 'desc';
+  @property({ type: Array }) sortOptions: SortOption[] = MAIN_SORT_OPTIONS;
   @property({ type: Object }) filters: FiltersState = {
     metadata: { pinned: [], visible: [], applied: {} },
     pinned: [],
@@ -487,13 +489,7 @@ export class ApContentToolbar extends LitElement {
             variant="borderless"
             label="Sort"
             .value=${this.sortBy}
-            .options=${[
-              { value: 'name', label: 'Name' },
-              { value: 'created_at', label: 'Date created' },
-              { value: 'modified_at', label: 'Date modified' },
-              { value: 'size', label: 'Size' },
-              { value: 'type', label: 'Type' },
-            ]}
+            .options=${this.sortOptions}
             @ap-change=${this._handleSort}
             @dropdown-open=${this._handleSortOpen}
           ></ap-dropdown>

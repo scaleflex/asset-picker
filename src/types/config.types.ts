@@ -19,7 +19,7 @@ export type AuthConfig = SessionAuth | SecurityTemplateAuth;
 
 export type ViewMode = 'grid' | 'list';
 
-export type SortBy = 'name' | 'created_at' | 'modified_at' | 'size' | 'type';
+export type SortBy = 'name' | 'created_at' | 'modified_at' | 'size' | 'type' | 'relevance' | 'title' | 'color' | 'uploaded' | 'updated_at' | 'files_count_recursive' | 'files_size_recursive';
 export type SortDirection = 'asc' | 'desc';
 
 export type TabKey = 'assets' | 'folders';

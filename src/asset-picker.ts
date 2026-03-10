@@ -28,6 +28,13 @@ import type { GetFilesParams } from './types/api.types';
 import { getMetadataSettings } from './services/filters.service';
 import { serializeFilters } from './utils/filter-serialize';
 import { loadPinnedFilters, savePinnedFilters, savePinnedMetadata } from './utils/filter-pin-storage';
+import { loadSortPreference, saveSortPreference } from './utils/sort-storage';
+import {
+  MAIN_SORT_OPTIONS,
+  SEARCH_SORT_OPTIONS,
+  FOLDERS_SORT_OPTIONS,
+  type SortOption,
+} from './components/toolbar/sort.constants';
 
 // Import all components
 import './components/modal/ap-modal';
@@ -173,12 +180,17 @@ export class AssetPicker extends LitElement {
   }
 
   private async _doInit(config: AssetPickerConfig) {
+    // Load persisted sort preference, falling back to config defaults
+    const savedSort = loadSortPreference();
+    const sortBy = config.defaultSortBy ?? savedSort.sortBy;
+    const sortDirection = config.defaultSortDirection ?? savedSort.sortDirection;
+
     this.store.setState({
       config,
       projectToken: config.auth.projectToken,
       viewMode: config.defaultViewMode ?? 'grid',
-      sortBy: config.defaultSortBy ?? 'created_at',
-      sortDirection: config.defaultSortDirection ?? 'desc',
+      sortBy,
+      sortDirection,
       currentFolder: config.rootFolderUuid ?? null,
     });
 
@@ -478,23 +490,29 @@ export class AssetPicker extends LitElement {
   }
 
   private _handleSortChange(e: CustomEvent) {
+    const newSortBy = e.detail.value as SortBy;
+    const state = this.store.getState();
     this.store.setState({
-      sortBy: e.detail.value as SortBy,
+      sortBy: newSortBy,
       offset: 0,
       assets: [],
       folders: [],
     });
+    saveSortPreference(newSortBy, state.sortDirection);
     this.selectionCtrl.resetRange();
     this._loadData();
   }
 
   private _handleSortDirectionChange(e: CustomEvent) {
+    const newDirection = e.detail.value as 'asc' | 'desc';
+    const state = this.store.getState();
     this.store.setState({
-      sortDirection: e.detail.value as 'asc' | 'desc',
+      sortDirection: newDirection,
       offset: 0,
       assets: [],
       folders: [],
     });
+    saveSortPreference(state.sortBy, newDirection);
     this.selectionCtrl.resetRange();
     this._loadData();
   }
@@ -859,6 +877,19 @@ export class AssetPicker extends LitElement {
     this._debouncedLoadData();
   }
 
+  // ── Sort Options ────────────────────────────────────────────────────
+
+  private _getSortOptions(): SortOption[] {
+    const state = this.store.getState();
+    if (state.searchQuery) {
+      return SEARCH_SORT_OPTIONS;
+    }
+    if (state.activeTab === 'folders') {
+      return FOLDERS_SORT_OPTIONS;
+    }
+    return MAIN_SORT_OPTIONS;
+  }
+
   // ── Search Notation Builder ──────────────────────────────────────────
 
   private _buildSearchNotation(): string {
@@ -908,6 +939,7 @@ export class AssetPicker extends LitElement {
               .totalFolderCount=${s.totalFolderCount}
               .sortBy=${s.sortBy}
               .sortDirection=${s.sortDirection}
+              .sortOptions=${this._getSortOptions()}
               .filters=${s.filters}
               .labels=${s.labels}
               .metadataFields=${s.metadataFields}
