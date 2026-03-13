@@ -29,7 +29,8 @@
   "scripts": {
     "dev": "vite serve dev",
     "build": "vite build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:demo": "vite build --config vite.demo.config.ts"
   },
   "dependencies": {
     "hls.js": "^1.6.15",

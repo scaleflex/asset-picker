@@ -1,123 +1,89 @@
 import { LitElement, html, css, nothing } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import {
   APPROVAL_FILTER_KEYS,
+  EMPTY_VALUE,
+  NOT_EMPTY_VALUE,
   type ApprovalFilterKey,
 } from '../../types/filter.types';
 import {
-  APPROVAL_STATUS_OPTIONS,
   APPROVAL_OPERATOR_OPTIONS,
-  WITHIN_DATE_RANGE_OPTIONS,
+  APPROVAL_PERSON_OPERATOR_OPTIONS,
+  APPROVAL_STATUS_ONLY_OPTIONS,
   EMPTY_OPTIONS,
+  WITHIN_DATE_RANGE_OPTIONS,
 } from './filters.constants';
+import { filterPopoverStyles } from './shared/filter-styles';
 
 @customElement('ap-filter-approval')
 export class ApFilterApproval extends LitElement {
-  static styles = css`
-    :host {
-      display: block;
+  static styles = [filterPopoverStyles, css`
+    .options-list.short {
+      max-height: none;
     }
-    .section {
-      margin-bottom: 16px;
-    }
-    .section:last-child {
-      margin-bottom: 0;
-    }
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-    .section-title {
-      font-size: 0.8125rem;
-      font-weight: 600;
-      color: var(--ap-foreground, #09090b);
-    }
-    .options {
+    .date-input-col {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
     }
-    .text-input {
+    .date-input-col input[type="date"] {
       width: 100%;
-      padding: 6px 10px;
-      border: 1px solid var(--ap-border, #e4e4e7);
-      border-radius: var(--ap-radius-sm, 6px);
-      font-size: 0.8125rem;
-      background: var(--ap-background, #fff);
-      color: var(--ap-foreground, #09090b);
-      outline: none;
       box-sizing: border-box;
     }
-    .text-input:focus {
-      border-color: var(--ap-primary, oklch(0.65 0.19 258));
-      box-shadow: 0 0 0 2px var(--ap-primary-10, oklch(0.65 0.19 258 / 0.1));
-    }
-    .operator-row {
+    .condition-label {
+      font-weight: 500;
       margin-bottom: 6px;
     }
-    .date-options {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
+    .mt-12 {
+      margin-top: 12px;
     }
-    .date-option {
-      display: flex;
-      align-items: center;
-      padding: 6px 10px;
-      border: 1px solid var(--ap-border, #e4e4e7);
-      border-radius: var(--ap-radius-sm, 6px);
-      font-size: 0.8125rem;
-      background: var(--ap-background, #fff);
-      color: var(--ap-foreground, #09090b);
-      cursor: pointer;
-      transition: all 150ms;
-    }
-    .date-option:hover {
-      background: var(--ap-muted, #f4f4f5);
-    }
-    .date-option.selected {
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.1));
-      border-color: var(--ap-primary-20, oklch(0.65 0.19 258 / 0.25));
-      color: var(--ap-primary, oklch(0.65 0.19 258));
-    }
-    .date-input-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 8px;
-    }
-    .date-input {
-      flex: 1;
-      padding: 6px 10px;
-      border: 1px solid var(--ap-border, #e4e4e7);
-      border-radius: var(--ap-radius-sm, 6px);
-      font-size: 0.8125rem;
-      background: var(--ap-background, #fff);
-      color: var(--ap-foreground, #09090b);
-      outline: none;
-    }
-    .date-input:focus {
-      border-color: var(--ap-primary, oklch(0.65 0.19 258));
-    }
-  `;
+  `];
 
-  // Selected values for each sub-filter
+  // Status
   @property({ type: Array }) selectedStatus: string[] = [];
   @property() statusOperator: string = ':=';
+
+  // Approver
   @property() approverValue: string = '';
-  @property() approverOperator: string = ':';
+  @property() approverOperator: string = '~';
+
+  // Requester
   @property() requesterValue: string = '';
-  @property() requesterOperator: string = ':';
+  @property() requesterOperator: string = '~';
+
+  // Due Date
   @property() dueDatePreset: string = '';
   @property() dueDateFrom: string = '';
   @property() dueDateTo: string = '';
 
-  @state() private _expandedSection: ApprovalFilterKey | null = null;
+  // ── Computed ────────────────────────────────────────────────────────
 
-  private _toggleSection(key: ApprovalFilterKey) {
-    this._expandedSection = this._expandedSection === key ? null : key;
+  private get _hasAnySelection(): boolean {
+    return (
+      this.selectedStatus.length > 0 ||
+      !!this.approverValue ||
+      !!this.requesterValue ||
+      !!this.dueDatePreset ||
+      !!this.dueDateFrom ||
+      !!this.dueDateTo
+    );
   }
+
+  private get _statusHasEmptyValue(): boolean {
+    return this.selectedStatus.includes(EMPTY_VALUE) || this.selectedStatus.includes(NOT_EMPTY_VALUE);
+  }
+
+  private get _statusHasOnlyEmptyValues(): boolean {
+    return this.selectedStatus.length > 0 && this.selectedStatus.every(
+      (v) => v === EMPTY_VALUE || v === NOT_EMPTY_VALUE,
+    );
+  }
+
+  private get _dueDateNeedsInputs(): boolean {
+    return ['before', 'after', 'between', 'specific'].includes(this.dueDatePreset);
+  }
+
+  // ── Status handlers ────────────────────────────────────────────────
 
   private _toggleStatus(value: string) {
     const newSelected = this.selectedStatus.includes(value)
@@ -131,6 +97,12 @@ export class ApFilterApproval extends LitElement {
     this._emitChange(APPROVAL_FILTER_KEYS.STATUS, this.selectedStatus, operator);
   }
 
+  private _clearStatus() {
+    this._emitChange(APPROVAL_FILTER_KEYS.STATUS, [], this.statusOperator);
+  }
+
+  // ── Approver handlers ──────────────────────────────────────────────
+
   private _handleApproverInput(e: Event) {
     const value = (e.target as HTMLInputElement).value;
     this._emitChange(APPROVAL_FILTER_KEYS.APPROVER, value ? [value] : [], this.approverOperator);
@@ -140,6 +112,12 @@ export class ApFilterApproval extends LitElement {
     const operator = e.detail.value;
     this._emitChange(APPROVAL_FILTER_KEYS.APPROVER, this.approverValue ? [this.approverValue] : [], operator);
   }
+
+  private _clearApprover() {
+    this._emitChange(APPROVAL_FILTER_KEYS.APPROVER, [], this.approverOperator);
+  }
+
+  // ── Requester handlers ─────────────────────────────────────────────
 
   private _handleRequesterInput(e: Event) {
     const value = (e.target as HTMLInputElement).value;
@@ -151,7 +129,14 @@ export class ApFilterApproval extends LitElement {
     this._emitChange(APPROVAL_FILTER_KEYS.REQUESTOR, this.requesterValue ? [this.requesterValue] : [], operator);
   }
 
-  private _handleDueDatePreset(preset: string) {
+  private _clearRequester() {
+    this._emitChange(APPROVAL_FILTER_KEYS.REQUESTOR, [], this.requesterOperator);
+  }
+
+  // ── Due Date handlers ──────────────────────────────────────────────
+
+  private _handleDueDatePreset(e: CustomEvent) {
+    const preset = e.detail.value;
     const newPreset = this.dueDatePreset === preset ? '' : preset;
     this._emitChange(APPROVAL_FILTER_KEYS.DUE_DATE, newPreset ? [newPreset] : [], ':');
   }
@@ -164,6 +149,18 @@ export class ApFilterApproval extends LitElement {
   private _handleDueDateTo(e: Event) {
     const to = (e.target as HTMLInputElement).value;
     this._emitDateChange(this.dueDateFrom, to);
+  }
+
+  private _clearDueDate() {
+    this.dispatchEvent(new CustomEvent('filter-change', {
+      detail: {
+        key: APPROVAL_FILTER_KEYS.DUE_DATE,
+        values: [],
+        operator: ':',
+      },
+      bubbles: true,
+      composed: true,
+    }));
   }
 
   private _emitDateChange(from: string, to: string) {
@@ -181,6 +178,8 @@ export class ApFilterApproval extends LitElement {
     }));
   }
 
+  // ── Shared emit ────────────────────────────────────────────────────
+
   private _emitChange(key: ApprovalFilterKey, values: string[], operator: string) {
     this.dispatchEvent(new CustomEvent('filter-change', {
       detail: { key, values, operator },
@@ -189,112 +188,207 @@ export class ApFilterApproval extends LitElement {
     }));
   }
 
-  render() {
+  // ── Render ─────────────────────────────────────────────────────────
+
+  private _renderStatusSection() {
+    const hasStatus = this.selectedStatus.length > 0;
+
     return html`
-      <!-- Approval Status -->
-      <div class="section">
-        <div class="section-header">
-          <span class="section-title">Status</span>
-        </div>
-        <div class="operator-row">
-          <ap-dropdown
-            variant="borderless"
-            .value=${this.statusOperator}
-            .options=${APPROVAL_OPERATOR_OPTIONS}
-            @ap-change=${this._handleStatusOperator}
-          ></ap-dropdown>
-        </div>
-        <div class="options">
-          ${APPROVAL_STATUS_OPTIONS.map(
+      <div class="filter-section">
+        <button
+          class="clear-btn"
+          ?disabled=${!hasStatus}
+          @click=${this._clearStatus}
+        >Clear all</button>
+
+        <span class="section-label">Status</span>
+
+        <!-- Condition -->
+        <span class="section-label condition-label">Condition</span>
+        <ap-radio-group
+          direction="horizontal"
+          .options=${APPROVAL_OPERATOR_OPTIONS}
+          .value=${this.statusOperator}
+          ?disabled=${this._statusHasOnlyEmptyValues}
+          @ap-change=${this._handleStatusOperator}
+        ></ap-radio-group>
+
+        <!-- Empty / Not empty checkboxes -->
+        <div class="options-list short mt-12">
+          ${EMPTY_OPTIONS.map(
             (opt) => html`
               <ap-checkbox
                 ?checked=${this.selectedStatus.includes(opt.value)}
                 @ap-toggle=${() => this._toggleStatus(opt.value)}
               >${opt.label}</ap-checkbox>
-            `
+            `,
+          )}
+        </div>
+
+        <div class="separator"></div>
+
+        <!-- Status options -->
+        <div class="options-list short">
+          ${APPROVAL_STATUS_ONLY_OPTIONS.map(
+            (opt) => html`
+              <ap-checkbox
+                ?checked=${this.selectedStatus.includes(opt.value)}
+                @ap-toggle=${() => this._toggleStatus(opt.value)}
+              >${opt.label}</ap-checkbox>
+            `,
           )}
         </div>
       </div>
+    `;
+  }
 
-      <!-- Task Approver -->
-      <div class="section">
-        <div class="section-header">
-          <span class="section-title">Approver</span>
-        </div>
-        <div class="operator-row">
-          <ap-dropdown
-            variant="borderless"
-            .value=${this.approverOperator}
-            .options=${APPROVAL_OPERATOR_OPTIONS}
-            @ap-change=${this._handleApproverOperator}
-          ></ap-dropdown>
-        </div>
+  private _renderApproverSection() {
+    const hasApprover = !!this.approverValue;
+
+    return html`
+      <div class="filter-section">
+        <button
+          class="clear-btn"
+          ?disabled=${!hasApprover}
+          @click=${this._clearApprover}
+        >Clear all</button>
+
+        <span class="section-label">Approver</span>
+
+        <!-- Condition -->
+        <span class="section-label condition-label">Condition</span>
+        <ap-radio-group
+          direction="horizontal"
+          .options=${APPROVAL_PERSON_OPERATOR_OPTIONS}
+          .value=${this.approverOperator}
+          @ap-change=${this._handleApproverOperator}
+        ></ap-radio-group>
+
         <input
-          class="text-input"
+          class="filter-input mt-12"
           type="text"
           placeholder="Enter approver name..."
           .value=${this.approverValue}
           @input=${this._handleApproverInput}
         />
       </div>
+    `;
+  }
 
-      <!-- Task Requester -->
-      <div class="section">
-        <div class="section-header">
-          <span class="section-title">Requester</span>
-        </div>
-        <div class="operator-row">
-          <ap-dropdown
-            variant="borderless"
-            .value=${this.requesterOperator}
-            .options=${APPROVAL_OPERATOR_OPTIONS}
-            @ap-change=${this._handleRequesterOperator}
-          ></ap-dropdown>
-        </div>
+  private _renderRequesterSection() {
+    const hasRequester = !!this.requesterValue;
+
+    return html`
+      <div class="filter-section">
+        <button
+          class="clear-btn"
+          ?disabled=${!hasRequester}
+          @click=${this._clearRequester}
+        >Clear all</button>
+
+        <span class="section-label">Requester</span>
+
+        <!-- Condition -->
+        <span class="section-label condition-label">Condition</span>
+        <ap-radio-group
+          direction="horizontal"
+          .options=${APPROVAL_PERSON_OPERATOR_OPTIONS}
+          .value=${this.requesterOperator}
+          @ap-change=${this._handleRequesterOperator}
+        ></ap-radio-group>
+
         <input
-          class="text-input"
+          class="filter-input mt-12"
           type="text"
           placeholder="Enter requester name..."
           .value=${this.requesterValue}
           @input=${this._handleRequesterInput}
         />
       </div>
+    `;
+  }
 
-      <!-- Task Due Date -->
-      <div class="section">
-        <div class="section-header">
-          <span class="section-title">Due date</span>
-        </div>
-        <div class="date-options">
-          ${EMPTY_OPTIONS.map(
-            (opt) => html`
-              <button
-                class="date-option ${this.dueDatePreset === opt.value ? 'selected' : ''}"
-                @click=${() => this._handleDueDatePreset(opt.value)}
-              >${opt.label}</button>
-            `
-          )}
-          ${WITHIN_DATE_RANGE_OPTIONS.map(
-            (opt) => html`
-              <button
-                class="date-option ${this.dueDatePreset === opt.value ? 'selected' : ''}"
-                @click=${() => this._handleDueDatePreset(opt.value)}
-              >${opt.label}</button>
-            `
-          )}
-        </div>
-        ${this.dueDatePreset === 'before' || this.dueDatePreset === 'after' || this.dueDatePreset === 'between' || this.dueDatePreset === 'specific'
+  private _renderDueDateSection() {
+    const hasDueDate = !!this.dueDatePreset || !!this.dueDateFrom || !!this.dueDateTo;
+
+    return html`
+      <div class="filter-section">
+        <button
+          class="clear-btn"
+          ?disabled=${!hasDueDate}
+          @click=${this._clearDueDate}
+        >Clear all</button>
+
+        <span class="section-label">Due date</span>
+
+        <!-- Empty / Not empty radio buttons -->
+        <ap-radio-group
+          .options=${EMPTY_OPTIONS}
+          .value=${this.dueDatePreset === EMPTY_VALUE || this.dueDatePreset === NOT_EMPTY_VALUE
+            ? this.dueDatePreset
+            : ''}
+          @ap-change=${this._handleDueDatePreset}
+        ></ap-radio-group>
+
+        <div class="separator"></div>
+
+        <!-- Date range options -->
+        <ap-radio-group
+          columns="2"
+          .options=${WITHIN_DATE_RANGE_OPTIONS}
+          .value=${this.dueDatePreset !== EMPTY_VALUE && this.dueDatePreset !== NOT_EMPTY_VALUE
+            ? this.dueDatePreset
+            : ''}
+          @ap-change=${this._handleDueDatePreset}
+        ></ap-radio-group>
+
+        <!-- Date inputs -->
+        ${this._dueDateNeedsInputs
           ? html`
-            <div class="date-input-row">
+            <div class="grid-2 mt-12">
               ${this.dueDatePreset !== 'before'
-                ? html`<input class="date-input" type="date" .value=${this.dueDateFrom} @change=${this._handleDueDateFrom} />`
+                ? html`
+                  <div class="date-input-col">
+                    <span class="input-label">Start date</span>
+                    <input
+                      class="filter-input"
+                      type="date"
+                      .value=${this.dueDateFrom}
+                      @change=${this._handleDueDateFrom}
+                    />
+                  </div>
+                `
                 : nothing}
               ${this.dueDatePreset !== 'after' && this.dueDatePreset !== 'specific'
-                ? html`<input class="date-input" type="date" .value=${this.dueDateTo} @change=${this._handleDueDateTo} />`
+                ? html`
+                  <div class="date-input-col">
+                    <span class="input-label">End date</span>
+                    <input
+                      class="filter-input"
+                      type="date"
+                      .value=${this.dueDateTo}
+                      @change=${this._handleDueDateTo}
+                    />
+                  </div>
+                `
                 : nothing}
             </div>
           `
           : nothing}
+      </div>
+    `;
+  }
+
+  render() {
+    return html`
+      <div class="filter-content">
+        ${this._renderStatusSection()}
+        <div class="separator"></div>
+        ${this._renderApproverSection()}
+        <div class="separator"></div>
+        ${this._renderRequesterSection()}
+        <div class="separator"></div>
+        ${this._renderDueDateSection()}
       </div>
     `;
   }

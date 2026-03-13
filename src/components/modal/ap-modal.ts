@@ -15,6 +15,7 @@ export class ApModal extends LitElement {
       inset: 0;
       width: 100%;
       max-width: var(--ap-modal-max-width, 1200px);
+      height: var(--ap-modal-height, 85vh);
       max-height: var(--ap-modal-max-height, 85vh);
       margin: auto;
       padding: 0;
@@ -53,6 +54,7 @@ export class ApModal extends LitElement {
     .modal-body {
       display: flex;
       flex-direction: column;
+      height: 100%;
       height: 100%;
       max-height: var(--ap-modal-max-height, 85vh);
     }

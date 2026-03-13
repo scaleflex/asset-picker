@@ -75,8 +75,8 @@ export const APPROVAL_FILTER_ITEM: FilterItemConfig = {
 };
 
 export const ALL_FILTER_ITEMS: FilterItemConfig[] = [
-  ...FILTER_ITEMS,
   METADATA_FILTER_ITEM,
+  ...FILTER_ITEMS,
   APPROVAL_FILTER_ITEM,
 ];
 
@@ -250,6 +250,18 @@ export const PRODUCTS_OPERATOR_OPTIONS = [
 export const APPROVAL_OPERATOR_OPTIONS = [
   { label: 'Is', value: FILTER_OPERATORS.IS_EXACT },
   { label: 'Is not', value: FILTER_OPERATORS.IS_NOT },
+];
+
+export const APPROVAL_PERSON_OPERATOR_OPTIONS = [
+  { label: 'Contains', value: FILTER_OPERATORS.CONTAINS },
+  { label: 'Does not contain', value: FILTER_OPERATORS.IS_NOT },
+];
+
+export const APPROVAL_STATUS_ONLY_OPTIONS = [
+  { value: 'APPROVED', label: 'Approved' },
+  { value: 'PENDING', label: 'Pending' },
+  { value: 'REJECTED', label: 'Rejected' },
+  { value: 'CANCELLED', label: 'Cancelled' },
 ];
 
 // ── Empty / Special Values ──────────────────────────────────────────

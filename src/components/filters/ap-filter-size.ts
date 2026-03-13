@@ -1,116 +1,40 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { FILTER_KEYS, FILTER_OPERATORS } from '../../types/filter.types';
+import { filterPopoverStyles } from './shared/filter-styles';
+import type { DropdownOption } from '../shared/ap-dropdown';
 
-type SizeUnit = 'MB' | 'GB';
+type SizeUnit = 'KB' | 'MB' | 'GB';
 
-/** v5 API uses KB-based sizing; 1 MB = 1000 KB */
+/** v5 API expects MB; 1 GB = 1000 MB, 1 KB = 1/1000 MB */
 const MULTIPLIER: Record<SizeUnit, number> = {
-  MB: 1_000,
-  GB: 1_000_000,
+  KB: 1 / 1_000,
+  MB: 1,
+  GB: 1_000,
 };
+
+const UNIT_OPTIONS: DropdownOption[] = [
+  // KB disabled until backend supports sub-MB precision
+  { value: 'MB', label: 'MB' },
+  { value: 'GB', label: 'GB' },
+];
 
 @customElement('ap-filter-size')
 export class ApFilterSize extends LitElement {
-  static styles = css`
-    :host {
-      display: block;
-    }
-
-    .range-inputs {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      flex: 1;
-    }
-
-    .input-label {
-      font-size: 0.75rem;
-      color: var(--ap-muted-foreground, #71717a);
-      font-weight: 500;
-    }
-
-    .input-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    input[type='number'] {
-      width: 100%;
-      min-width: 0;
-      padding: 6px 8px;
-      border: 1px solid var(--ap-border, #e4e4e7);
-      border-radius: var(--ap-radius-sm, 6px);
-      font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
-      background: var(--ap-background, #fff);
-      outline: none;
-      transition: border-color 150ms;
-      box-sizing: border-box;
-      -moz-appearance: textfield;
-    }
-
-    input[type='number']::-webkit-inner-spin-button,
-    input[type='number']::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-
-    input[type='number']:focus {
-      border-color: var(--ap-primary, #3b82f6);
-    }
-
-    input[type='number']::placeholder {
-      color: var(--ap-muted-foreground, #71717a);
-    }
-
-    .unit {
-      font-size: 0.8125rem;
-      color: var(--ap-muted-foreground, #71717a);
-      flex-shrink: 0;
-    }
-
-    .separator {
-      font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-muted-foreground, #71717a);
-      padding-top: 18px;
-    }
-
-    .unit-toggle {
-      display: inline-flex;
-      border: 1px solid var(--ap-border, #e4e4e7);
-      border-radius: var(--ap-radius-sm, 6px);
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-
-    .unit-btn {
-      padding: 4px 8px;
-      border: none;
-      background: none;
-      font-size: 0.75rem;
-      cursor: pointer;
-      color: var(--ap-foreground, #09090b);
-      font-family: var(--ap-font-family, system-ui, sans-serif);
-      transition: background 150ms, color 150ms;
-    }
-
-    .unit-btn:not(:last-child) {
-      border-right: 1px solid var(--ap-border, #e4e4e7);
-    }
-
-    .unit-btn.active {
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.1));
-      color: var(--ap-primary, oklch(0.65 0.19 258));
-    }
-  `;
+  static styles = [
+    filterPopoverStyles,
+    css`
+      /* Hide number input spinners */
+      .filter-input[type='number']::-webkit-inner-spin-button,
+      .filter-input[type='number']::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      .filter-input[type='number'] {
+        -moz-appearance: textfield;
+      }
+    `,
+  ];
 
   @property({ type: Number }) min = 0;
   @property({ type: Number }) max = 0;
@@ -128,23 +52,33 @@ export class ApFilterSize extends LitElement {
     }
   }
 
-  private _setUnit(unit: SizeUnit) {
-    this._unit = unit;
+  private get _hasFilter(): boolean {
+    return this._minVal !== '' || this._maxVal !== '';
+  }
+
+  private _clearAll() {
+    this._minVal = '';
+    this._maxVal = '';
+    this._emitChange();
+  }
+
+  private _setUnit(e: CustomEvent) {
+    this._unit = e.detail.value as SizeUnit;
     this._emitChange();
   }
 
   private _emitChange() {
     const mult = MULTIPLIER[this._unit];
-    const minBytes = this._minVal !== '' ? Math.round(parseFloat(this._minVal) * mult) : null;
-    const maxBytes = this._maxVal !== '' ? Math.round(parseFloat(this._maxVal) * mult) : null;
+    const minMB = this._minVal !== '' ? parseFloat((parseFloat(this._minVal) * mult).toFixed(2)).toString() : null;
+    const maxMB = this._maxVal !== '' ? parseFloat((parseFloat(this._maxVal) * mult).toFixed(2)).toString() : null;
 
     let rangeValue: string;
-    if (minBytes !== null && maxBytes !== null) {
-      rangeValue = `${minBytes}..${maxBytes}`;
-    } else if (minBytes !== null) {
-      rangeValue = `${minBytes}..`;
-    } else if (maxBytes !== null) {
-      rangeValue = `..${maxBytes}`;
+    if (minMB !== null && maxMB !== null) {
+      rangeValue = `${minMB}..${maxMB}`;
+    } else if (minMB !== null) {
+      rangeValue = `${minMB}..`;
+    } else if (maxMB !== null) {
+      rangeValue = `..${maxMB}`;
     } else {
       // Both empty — clear the filter
       this.dispatchEvent(
@@ -186,11 +120,19 @@ export class ApFilterSize extends LitElement {
 
   render() {
     return html`
-      <div class="range-inputs">
-        <div class="input-group">
-          <span class="input-label">Min</span>
-          <div class="input-wrapper">
+      <div class="filter-content">
+        <span class="section-label">Size</span>
+        <button
+          class="clear-btn"
+          ?disabled=${!this._hasFilter}
+          @click=${this._clearAll}
+        >Clear all</button>
+
+        <div class="grid-3">
+          <div>
+            <span class="input-label">From</span>
             <input
+              class="filter-input"
               type="number"
               placeholder="0"
               min="0"
@@ -198,25 +140,11 @@ export class ApFilterSize extends LitElement {
               .value=${this._minVal}
               @change=${this._onMinInput}
             />
-            <div class="unit-toggle">
-              <button
-                class="unit-btn ${this._unit === 'MB' ? 'active' : ''}"
-                @click=${() => this._setUnit('MB')}
-              >MB</button>
-              <button
-                class="unit-btn ${this._unit === 'GB' ? 'active' : ''}"
-                @click=${() => this._setUnit('GB')}
-              >GB</button>
-            </div>
           </div>
-        </div>
-
-        <span class="separator">&ndash;</span>
-
-        <div class="input-group">
-          <span class="input-label">Max</span>
-          <div class="input-wrapper">
+          <div>
+            <span class="input-label">To</span>
             <input
+              class="filter-input"
               type="number"
               placeholder="Any"
               min="0"
@@ -224,7 +152,14 @@ export class ApFilterSize extends LitElement {
               .value=${this._maxVal}
               @change=${this._onMaxInput}
             />
-            <span class="unit">${this._unit}</span>
+          </div>
+          <div>
+            <span class="input-label">Unit</span>
+            <ap-dropdown
+              .options=${UNIT_OPTIONS}
+              .value=${this._unit}
+              @ap-change=${this._setUnit}
+            ></ap-dropdown>
           </div>
         </div>
       </div>

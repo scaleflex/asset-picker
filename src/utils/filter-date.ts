@@ -3,12 +3,13 @@
  * Converts preset strings (e.g. 'today', 'last_week') into date ranges.
  */
 
-function startOfDayUtc(date: Date): Date {
-  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+function formatDateOnly(d: Date): string {
+  // Use en-CA locale which produces YYYY-MM-DD format
+  return d.toLocaleDateString('en-CA');
 }
 
-function formatDateOnly(d: Date): string {
-  return d.toLocaleDateString('en-CA');
+function todayStr(): string {
+  return formatDateOnly(new Date());
 }
 
 export function resolvePresetToRange(
@@ -19,63 +20,45 @@ export function resolvePresetToRange(
   switch (preset) {
     case 'today': {
       return {
-        from: formatDateOnly(startOfDayUtc(now)),
+        from: todayStr(),
         to: null,
       };
     }
 
     case 'last_week': {
-      const weekAgo = new Date(now);
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      return {
-        from: formatDateOnly(weekAgo),
-        to: null,
-      };
+      const d = new Date(now);
+      d.setDate(d.getDate() - 7);
+      return { from: formatDateOnly(d), to: null };
     }
 
     case 'within_week': {
-      const weekLater = new Date(now);
-      weekLater.setDate(weekLater.getDate() + 7);
-      return {
-        from: formatDateOnly(startOfDayUtc(now)),
-        to: formatDateOnly(weekLater),
-      };
+      const d = new Date(now);
+      d.setDate(d.getDate() + 7);
+      return { from: todayStr(), to: formatDateOnly(d) };
     }
 
     case 'last_month': {
-      const monthAgo = new Date(now);
-      monthAgo.setDate(monthAgo.getDate() - 30);
-      return {
-        from: formatDateOnly(monthAgo),
-        to: null,
-      };
+      const d = new Date(now);
+      d.setDate(d.getDate() - 30);
+      return { from: formatDateOnly(d), to: null };
     }
 
     case 'within_month': {
-      const monthLater = new Date(now);
-      monthLater.setDate(monthLater.getDate() + 30);
-      return {
-        from: formatDateOnly(startOfDayUtc(now)),
-        to: formatDateOnly(monthLater),
-      };
+      const d = new Date(now);
+      d.setDate(d.getDate() + 30);
+      return { from: todayStr(), to: formatDateOnly(d) };
     }
 
     case 'last_year': {
-      const yearAgo = new Date(now);
-      yearAgo.setDate(yearAgo.getDate() - 365);
-      return {
-        from: formatDateOnly(yearAgo),
-        to: null,
-      };
+      const d = new Date(now);
+      d.setDate(d.getDate() - 365);
+      return { from: formatDateOnly(d), to: null };
     }
 
     case 'within_year': {
-      const yearLater = new Date(now);
-      yearLater.setDate(yearLater.getDate() + 365);
-      return {
-        from: formatDateOnly(startOfDayUtc(now)),
-        to: formatDateOnly(yearLater),
-      };
+      const d = new Date(now);
+      d.setDate(d.getDate() + 365);
+      return { from: todayStr(), to: formatDateOnly(d) };
     }
 
     default:

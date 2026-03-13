@@ -23,6 +23,7 @@ import {
   DATE_RANGE_OPTIONS,
   type MetadataFilterUIType,
 } from './filters.constants';
+import { filterPopoverStyles } from './shared/filter-styles';
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -41,11 +42,7 @@ interface MetadataFilterValue {
 
 @customElement('ap-filter-metadata')
 export class ApFilterMetadata extends LitElement {
-  static styles = css`
-    :host {
-      display: block;
-    }
-
+  static styles = [filterPopoverStyles, css`
     /* ── Field selection panel ─────────────────────────────── */
 
     .add-field-btn {
@@ -124,6 +121,7 @@ export class ApFilterMetadata extends LitElement {
     .field-list {
       max-height: 260px;
       overflow-y: auto;
+      overscroll-behavior: contain;
       padding: 4px 0;
     }
 
@@ -249,138 +247,6 @@ export class ApFilterMetadata extends LitElement {
       display: none;
     }
 
-    /* ── Shared controls ───────────────────────────────────── */
-
-    .operator-select {
-      padding: 5px 8px;
-      border: 1px solid var(--ap-border, #e4e4e7);
-      border-radius: var(--ap-radius-sm, 6px);
-      font-size: 0.8125rem;
-      color: var(--ap-foreground, #09090b);
-      background: var(--ap-background, #fff);
-      font-family: var(--ap-font-family, system-ui, sans-serif);
-      cursor: pointer;
-    }
-
-    .text-input, .number-input {
-      width: 100%;
-      padding: 6px 10px;
-      border: 1px solid var(--ap-border, #e4e4e7);
-      border-radius: var(--ap-radius-sm, 6px);
-      font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
-      background: var(--ap-background, #fff);
-      box-sizing: border-box;
-      outline: none;
-      font-family: var(--ap-font-family, system-ui, sans-serif);
-      transition: border-color 150ms;
-    }
-
-    .text-input:focus, .number-input:focus {
-      border-color: var(--ap-primary, oklch(0.65 0.19 258));
-    }
-
-    .text-input::placeholder, .number-input::placeholder {
-      color: var(--ap-muted-foreground, #71717a);
-    }
-
-    .range-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .range-row .number-input {
-      flex: 1;
-    }
-
-    .range-separator {
-      font-size: 0.8125rem;
-      color: var(--ap-muted-foreground, #71717a);
-      flex-shrink: 0;
-    }
-
-    /* ── Options list (boolean, empty/non-empty, etc.) ──── */
-
-    .options-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .option-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 0;
-      cursor: pointer;
-      font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
-    }
-
-    .radio-dot {
-      width: 16px;
-      height: 16px;
-      border: 2px solid var(--ap-border, #e4e4e7);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: border-color 150ms;
-    }
-
-    .radio-dot.active {
-      border-color: var(--ap-primary, oklch(0.65 0.19 258));
-    }
-
-    .radio-dot-inner {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--ap-primary, oklch(0.65 0.19 258));
-      display: none;
-    }
-
-    .radio-dot.active .radio-dot-inner {
-      display: block;
-    }
-
-    /* ── Select dropdown for select-one ─────────────────── */
-
-    .value-select {
-      width: 100%;
-      padding: 6px 10px;
-      border: 1px solid var(--ap-border, #e4e4e7);
-      border-radius: var(--ap-radius-sm, 6px);
-      font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
-      background: var(--ap-background, #fff);
-      font-family: var(--ap-font-family, system-ui, sans-serif);
-      box-sizing: border-box;
-      cursor: pointer;
-    }
-
-    /* ── Multi-select checkboxes ────────────────────────── */
-
-    .multi-options {
-      max-height: 180px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .multi-option {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 0;
-      cursor: pointer;
-      font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
-    }
-
     /* ── Tags input ─────────────────────────────────────── */
 
     .tags-container {
@@ -439,75 +305,38 @@ export class ApFilterMetadata extends LitElement {
 
     .geo-row {
       display: flex;
-      gap: 8px;
+      gap: 12px;
     }
 
-    .geo-field {
+    .geo-location {
+      flex: 2;
+    }
+
+    .geo-radius {
       flex: 1;
+    }
+
+    /* ── Select option items ────────────────────────────── */
+
+    .option-item {
       display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .geo-label {
-      font-size: 0.6875rem;
-      color: var(--ap-muted-foreground, #71717a);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    /* ── Date presets ───────────────────────────────────── */
-
-    .presets {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .preset {
-      padding: 4px 10px;
-      border: 1px solid var(--ap-border, #e4e4e7);
-      border-radius: 9999px;
-      background: none;
-      font-size: 0.8125rem;
-      cursor: pointer;
-      color: var(--ap-foreground, #09090b);
-      font-family: var(--ap-font-family, system-ui, sans-serif);
-    }
-
-    .preset:hover, .preset.active {
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.1));
-      border-color: var(--ap-primary, oklch(0.65 0.19 258));
-      color: var(--ap-primary, oklch(0.65 0.19 258));
-    }
-
-    .date-inputs {
-      display: flex;
-      gap: 8px;
       align-items: center;
-      margin-top: 4px;
-    }
-
-    input[type="date"] {
+      gap: 8px;
       padding: 6px 8px;
-      border: 1px solid var(--ap-border, #e4e4e7);
       border-radius: var(--ap-radius-sm, 6px);
+      cursor: pointer;
       font-size: var(--ap-font-size-sm, 0.875rem);
       color: var(--ap-foreground, #09090b);
-      font-family: var(--ap-font-family, system-ui, sans-serif);
+      transition: background 150ms;
     }
 
-    .separator {
-      color: var(--ap-muted-foreground, #71717a);
-      font-size: 0.8125rem;
+    .option-item:hover:not(.disabled) {
+      background: var(--ap-muted, #f4f4f5);
     }
 
-    /* ── Divider ────────────────────────────────────────── */
-
-    .divider {
-      height: 1px;
-      background: var(--ap-border, #e4e4e7);
-      margin: 4px 0;
+    .option-item.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
     }
 
     /* ── Chevron ────────────────────────────────────────── */
@@ -519,7 +348,61 @@ export class ApFilterMetadata extends LitElement {
     .chevron.expanded {
       transform: rotate(90deg);
     }
-  `;
+
+    /* ── Selector mode ─────────────────────────────────── */
+
+    .field-item-label {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .field-item-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ap-primary, oklch(0.65 0.19 258));
+      flex-shrink: 0;
+    }
+
+    .field-item-pin {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+      color: var(--ap-muted-foreground, #71717a);
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-left: auto;
+      opacity: 0;
+      transition: all 150ms;
+    }
+
+    .field-item:hover .field-item-pin,
+    .field-item-pin.pinned {
+      opacity: 1;
+    }
+
+    .field-item-pin:hover {
+      color: var(--ap-primary, oklch(0.65 0.19 258));
+      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.08));
+    }
+
+    .field-item-pin.pinned {
+      color: var(--ap-primary, oklch(0.65 0.19 258));
+    }
+
+    .field-item.has-filter {
+      color: var(--ap-primary, oklch(0.65 0.19 258));
+    }
+  `];
 
   // ── Public properties ────────────────────────────────────────────
 
@@ -532,6 +415,14 @@ export class ApFilterMetadata extends LitElement {
   @property({ type: Array })
   visibleFields: string[] = [];
 
+  @property() mode: 'full' | 'selector' | 'field' = 'full';
+
+  @property() activeFieldKey = '';
+
+  @property({ type: Array }) pinnedFields: string[] = [];
+
+  @property({ type: Object }) appliedMetadata: Record<string, MetadataFilterValue> = {};
+
   // ── Internal state ───────────────────────────────────────────────
 
   @state() private _showFieldSelection = false;
@@ -542,6 +433,7 @@ export class ApFilterMetadata extends LitElement {
   @state() private _dateFroms: Record<string, string> = {};
   @state() private _dateTos: Record<string, string> = {};
   @state() private _specificModeFields: Set<string> = new Set();
+  @state() private _selectSearches: Record<string, string> = {};
 
   // ── Computed helpers ─────────────────────────────────────────────
 
@@ -558,12 +450,23 @@ export class ApFilterMetadata extends LitElement {
   }
 
   private _getApplied(prefixedKey: string): MetadataFilterValue {
-    return this.appliedFilters[prefixedKey] || {};
+    return this.appliedMetadata[prefixedKey] || this.appliedFilters[prefixedKey] || {};
   }
 
   private _isSpecialValue(values: string[] | undefined): boolean {
     if (!values || values.length !== 1) return false;
     return values[0] === EMPTY_VALUE || values[0] === NOT_EMPTY_VALUE;
+  }
+
+  /** Get the "content" mode for a field: 'empty', 'not-empty', or 'specific' */
+  private _getContentMode(prefixedKey: string): string {
+    const applied = this._getApplied(prefixedKey);
+    if (applied.values?.[0] === EMPTY_VALUE) return EMPTY_VALUE;
+    if (applied.values?.[0] === NOT_EMPTY_VALUE) return NOT_EMPTY_VALUE;
+    if (this._specificModeFields.has(prefixedKey)) return SPECIFIC_VALUE;
+    // If there are actual values, treat as specific
+    if (applied.values && applied.values.length > 0) return SPECIFIC_VALUE;
+    return '';
   }
 
   // ── Event dispatchers ────────────────────────────────────────────
@@ -593,6 +496,33 @@ export class ApFilterMetadata extends LitElement {
     this.dispatchEvent(
       new CustomEvent('metadata-field-toggle', {
         detail: { fieldKey: prefixedKey, visible },
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
+  private _emitFieldSelect(field: MetadataModelField) {
+    const prefixedKey = getPrefixedKey(field);
+    // Enforce limit for new fields
+    if (!this.visibleFields.includes(prefixedKey) && this._atFieldLimit) return;
+    // Also make sure it's visible
+    if (!this.visibleFields.includes(prefixedKey)) {
+      this._emitFieldToggle(field, true);
+    }
+    this.dispatchEvent(
+      new CustomEvent('metadata-field-select', {
+        detail: { fieldKey: prefixedKey },
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
+  private _emitPin(prefixedKey: string, pinned: boolean) {
+    this.dispatchEvent(
+      new CustomEvent('metadata-pin', {
+        detail: { fieldKey: prefixedKey, pinned },
         bubbles: true,
         composed: true,
       }),
@@ -634,13 +564,63 @@ export class ApFilterMetadata extends LitElement {
     this._collapsedFields = next;
   }
 
-  // ── Operator change ──────────────────────────────────────────────
+  // ── Operator change (via radio group) ─────────────────────────────
 
-  private _onOperatorChange(field: MetadataModelField, e: Event) {
-    const operator = (e.target as HTMLSelectElement).value;
+  private _onOperatorChange(field: MetadataModelField, value: string) {
     const applied = this._getApplied(getPrefixedKey(field));
     const values = applied.values || [];
-    this._emitFilterChange(field, operator, values);
+    this._emitFilterChange(field, value, values);
+  }
+
+  // ── Content mode change ─────────────────────────────────────────
+
+  private _onContentModeChange(field: MetadataModelField, mode: string) {
+    const prefixedKey = getPrefixedKey(field);
+    if (mode === SPECIFIC_VALUE) {
+      const newSet = new Set(this._specificModeFields);
+      newSet.add(prefixedKey);
+      this._specificModeFields = newSet;
+      // Clear empty/not-empty value, keep operator
+      const applied = this._getApplied(prefixedKey);
+      if (this._isSpecialValue(applied.values)) {
+        this._emitFilterChange(field, applied.operator, []);
+      }
+    } else {
+      // Exit specific mode
+      if (this._specificModeFields.has(prefixedKey)) {
+        const newSet = new Set(this._specificModeFields);
+        newSet.delete(prefixedKey);
+        this._specificModeFields = newSet;
+      }
+      this._onEmptyOption(field, mode);
+    }
+  }
+
+  // ── Clear field filter ──────────────────────────────────────────
+
+  private _clearFieldFilter(field: MetadataModelField) {
+    const prefixedKey = getPrefixedKey(field);
+    // Exit specific mode
+    if (this._specificModeFields.has(prefixedKey)) {
+      const newSet = new Set(this._specificModeFields);
+      newSet.delete(prefixedKey);
+      this._specificModeFields = newSet;
+    }
+    // Clear date state
+    const { [prefixedKey]: _dp, ...restPresets } = this._datePresets;
+    this._datePresets = restPresets;
+    const { [prefixedKey]: _df, ...restFroms } = this._dateFroms;
+    this._dateFroms = restFroms;
+    const { [prefixedKey]: _dt, ...restTos } = this._dateTos;
+    this._dateTos = restTos;
+    // Clear search
+    const { [prefixedKey]: _s, ...restSearches } = this._selectSearches;
+    this._selectSearches = restSearches;
+    // Clear tag inputs
+    const { [prefixedKey]: _ti, ...restTagInputs } = this._tagInputs;
+    this._tagInputs = restTagInputs;
+
+    this._emitFilterChange(field, undefined, []);
   }
 
   // ── Text filter ──────────────────────────────────────────────────
@@ -695,11 +675,18 @@ export class ApFilterMetadata extends LitElement {
 
   // ── Select-one filter ────────────────────────────────────────────
 
-  private _onSelectOneChange(field: MetadataModelField, e: Event) {
-    const value = (e.target as HTMLSelectElement).value;
-    const applied = this._getApplied(getPrefixedKey(field));
+  private _onSelectOneToggle(field: MetadataModelField, value: string) {
+    const prefixedKey = getPrefixedKey(field);
+    const applied = this._getApplied(prefixedKey);
     const operator = applied.operator || SINGLE_SELECT_OPERATOR_OPTIONS[0].value;
-    this._emitFilterChange(field, operator, value ? [value] : []);
+    const current = applied.values || [];
+
+    // For select-one, toggle: if already selected, deselect; otherwise set
+    if (current.length === 1 && current[0] === value) {
+      this._emitFilterChange(field, operator, []);
+    } else {
+      this._emitFilterChange(field, operator, [value]);
+    }
   }
 
   // ── Multi-select filter ──────────────────────────────────────────
@@ -872,28 +859,46 @@ export class ApFilterMetadata extends LitElement {
 
   // ── Geo filter ───────────────────────────────────────────────────
 
-  private _onGeoInput(field: MetadataModelField) {
+  private _onGeoLocationInput(field: MetadataModelField, e: Event) {
+    const raw = (e.target as HTMLInputElement).value.trim();
     const prefixedKey = getPrefixedKey(field);
-    const latEl = this.shadowRoot?.querySelector<HTMLInputElement>(
-      `[data-geo-lat="${prefixedKey}"]`,
-    );
-    const lngEl = this.shadowRoot?.querySelector<HTMLInputElement>(
-      `[data-geo-lng="${prefixedKey}"]`,
-    );
     const radiusEl = this.shadowRoot?.querySelector<HTMLInputElement>(
       `[data-geo-radius="${prefixedKey}"]`,
     );
-
-    const lat = latEl?.value || '';
-    const lng = lngEl?.value || '';
     const radius = radiusEl?.value || '';
 
-    if (!lat && !lng) {
+    if (!raw) {
       this._emitFilterChange(field, undefined, []);
       return;
     }
 
+    // Parse "lat, lng" format
+    const parts = raw.split(',').map((s) => s.trim());
+    if (parts.length !== 2 || parts.some((p) => isNaN(Number(p)) || p === '')) {
+      // Invalid format, don't emit but keep the input
+      return;
+    }
+
+    const [lat, lng] = parts;
     let value = `${lat},${lng}`;
+    if (radius) {
+      value += `..${radius}`;
+    }
+
+    this._emitFilterChange(field, FILTER_OPERATORS.IS, [value]);
+  }
+
+  private _onGeoRadiusInput(field: MetadataModelField, e: Event) {
+    const radius = (e.target as HTMLInputElement).value;
+    const prefixedKey = getPrefixedKey(field);
+    const applied = this._getApplied(prefixedKey);
+
+    if (!applied.values?.[0]) return;
+
+    const val = applied.values[0];
+    const [coords] = val.split('..');
+
+    let value = coords;
     if (radius) {
       value += `..${radius}`;
     }
@@ -991,72 +996,75 @@ export class ApFilterMetadata extends LitElement {
     `;
   }
 
-  // ── Render: Operator selector ────────────────────────────────────
-
-  private _renderOperator(
-    field: MetadataModelField,
-    options: { label: string; value: string }[],
-  ) {
-    const applied = this._getApplied(getPrefixedKey(field));
-    const current = applied.operator || options[0].value;
-    return html`
-      <select
-        class="operator-select"
-        .value=${current}
-        @change=${(e: Event) => this._onOperatorChange(field, e)}
-      >
-        ${options.map(
-          (opt) =>
-            html`<option value=${opt.value} ?selected=${current === opt.value}>
-              ${opt.label}
-            </option>`,
-        )}
-      </select>
-    `;
-  }
-
-  // ── Render: Empty/non-empty options ──────────────────────────────
-
-  private _renderEmptyOptions(field: MetadataModelField) {
-    const applied = this._getApplied(getPrefixedKey(field));
-    const currentValue = applied.values?.[0];
-    return html`
-      <div class="divider"></div>
-      <div class="options-list">
-        ${EMPTY_OPTIONS.map(
-          (opt) => html`
-            <div
-              class="option-item"
-              @click=${() => this._onEmptyOption(field, opt.value)}
-            >
-              <div class="radio-dot ${currentValue === opt.value ? 'active' : ''}">
-                <div class="radio-dot-inner"></div>
-              </div>
-              <span>${opt.label}</span>
-            </div>
-          `,
-        )}
-      </div>
-    `;
-  }
-
   // ── Render: Text filter ──────────────────────────────────────────
 
   private _renderTextFilter(field: MetadataModelField) {
-    const applied = this._getApplied(getPrefixedKey(field));
+    const prefixedKey = getPrefixedKey(field);
+    const applied = this._getApplied(prefixedKey);
     const isSpecial = this._isSpecialValue(applied.values);
     const textValue = isSpecial ? '' : (applied.values?.[0] || '');
+    const contentMode = this._getContentMode(prefixedKey);
+    const isEmptyMode = contentMode === EMPTY_VALUE || contentMode === NOT_EMPTY_VALUE;
+    const operator = applied.operator || TEXT_OPERATOR_OPTIONS[0].value;
+    const isTextArea = field.type === METADATA_FIELD_TYPES.TEXT_AREA;
 
     return html`
-      ${this._renderOperator(field, TEXT_OPERATOR_OPTIONS)}
-      <input
-        class="text-input"
-        type="text"
-        placeholder="Enter value..."
-        .value=${textValue}
-        @change=${(e: Event) => this._onTextInput(field, e)}
-      />
-      ${this._renderEmptyOptions(field)}
+      <div class="filter-content" style="position: relative;">
+        <button
+          class="clear-btn"
+          ?disabled=${!applied.values?.length && !applied.operator}
+          @click=${() => this._clearFieldFilter(field)}
+        >Clear all</button>
+
+        <div class="filter-section">
+          <span class="section-label">Operator</span>
+          <ap-radio-group
+            direction="horizontal"
+            .options=${TEXT_OPERATOR_OPTIONS}
+            .value=${operator}
+            ?disabled=${isEmptyMode}
+            @ap-change=${(e: CustomEvent) => this._onOperatorChange(field, e.detail.value)}
+          ></ap-radio-group>
+        </div>
+
+        <div class="filter-section">
+          <span class="section-label">Content</span>
+          <ap-radio-group
+            .options=${EMPTY_AND_SPECIFIC_OPTIONS}
+            .value=${contentMode}
+            @ap-change=${(e: CustomEvent) => this._onContentModeChange(field, e.detail.value)}
+          ></ap-radio-group>
+        </div>
+
+        ${contentMode === SPECIFIC_VALUE
+          ? html`
+              <div class="filter-section">
+                <span class="section-label">Value</span>
+                ${isTextArea
+                  ? html`
+                      <textarea
+                        class="filter-input"
+                        placeholder="Enter value..."
+                        .value=${textValue}
+                        @change=${(e: Event) => this._onTextInput(field, e)}
+                      ></textarea>
+                    `
+                  : html`
+                      <input
+                        class="filter-input"
+                        type="text"
+                        placeholder="Enter value..."
+                        .value=${textValue}
+                        @change=${(e: Event) => this._onTextInput(field, e)}
+                        @keydown=${(e: KeyboardEvent) => {
+                          if (e.key === 'Enter') e.preventDefault();
+                        }}
+                      />
+                    `}
+              </div>
+            `
+          : nothing}
+      </div>
     `;
   }
 
@@ -1067,7 +1075,11 @@ export class ApFilterMetadata extends LitElement {
     const applied = this._getApplied(prefixedKey);
     const operator = applied.operator || NUMBER_OPERATOR_OPTIONS[0].value;
     const isSpecial = this._isSpecialValue(applied.values);
-    const isRange = operator === '..';
+    const contentMode = this._getContentMode(prefixedKey);
+    const isEmptyMode = contentMode === EMPTY_VALUE || contentMode === NOT_EMPTY_VALUE;
+    const isRange = operator === FILTER_OPERATORS.RANGE;
+    const isGreaterThan = operator === FILTER_OPERATORS.GREATER_THAN_OR_EQUAL;
+    const isLessThan = operator === FILTER_OPERATORS.LESS_THAN_OR_EQUAL;
     const isDecimal = field.type === METADATA_FIELD_TYPES.DECIMAL2;
     const step = isDecimal ? '0.01' : '1';
     const placeholder = isDecimal ? '0.00' : '0';
@@ -1075,41 +1087,76 @@ export class ApFilterMetadata extends LitElement {
     const val0 = isSpecial ? '' : (applied.values?.[0] || '');
     const val1 = isSpecial ? '' : (applied.values?.[1] || '');
 
+    // Label logic: "Value" for exact (Is/Is not), "Min"/"Max" for range/greater/less
+    const showTwoColumns = isRange || isGreaterThan || isLessThan;
+    const minLabel = isRange || isGreaterThan || isLessThan ? 'Min' : 'Value';
+    const maxLabel = 'Max';
+
     return html`
-      ${this._renderOperator(field, NUMBER_OPERATOR_OPTIONS)}
-      ${isRange
-        ? html`
-            <div class="range-row">
-              <input
-                class="number-input"
-                type="number"
-                step=${step}
-                placeholder=${placeholder}
-                .value=${val0}
-                @change=${(e: Event) => this._onNumberInput(field, e, 0)}
-              />
-              <span class="range-separator">to</span>
-              <input
-                class="number-input"
-                type="number"
-                step=${step}
-                placeholder=${placeholder}
-                .value=${val1}
-                @change=${(e: Event) => this._onNumberInput(field, e, 1)}
-              />
-            </div>
-          `
-        : html`
-            <input
-              class="number-input"
-              type="number"
-              step=${step}
-              placeholder=${placeholder}
-              .value=${val0}
-              @change=${(e: Event) => this._onNumberInput(field, e, 0)}
-            />
-          `}
-      ${this._renderEmptyOptions(field)}
+      <div class="filter-content" style="position: relative;">
+        <button
+          class="clear-btn"
+          ?disabled=${!applied.values?.length && !applied.operator}
+          @click=${() => this._clearFieldFilter(field)}
+        >Clear all</button>
+
+        <div class="filter-section">
+          <span class="section-label">Condition</span>
+          <ap-radio-group
+            columns="2"
+            .options=${NUMBER_OPERATOR_OPTIONS}
+            .value=${operator}
+            ?disabled=${isEmptyMode}
+            @ap-change=${(e: CustomEvent) => this._onOperatorChange(field, e.detail.value)}
+          ></ap-radio-group>
+        </div>
+
+        <div class="filter-section">
+          <span class="section-label">Content</span>
+          <ap-radio-group
+            .options=${EMPTY_AND_SPECIFIC_OPTIONS}
+            .value=${contentMode}
+            @ap-change=${(e: CustomEvent) => this._onContentModeChange(field, e.detail.value)}
+          ></ap-radio-group>
+        </div>
+
+        ${contentMode === SPECIFIC_VALUE
+          ? html`
+              <div class="filter-section">
+                <div class="grid-2">
+                  <div>
+                    <span class="input-label" aria-disabled=${isLessThan ? 'true' : nothing}>${minLabel}</span>
+                    <input
+                      class="filter-input"
+                      type="number"
+                      step=${step}
+                      placeholder=${placeholder}
+                      .value=${val0}
+                      ?disabled=${isLessThan}
+                      @change=${(e: Event) => this._onNumberInput(field, e, 0)}
+                    />
+                  </div>
+                  ${showTwoColumns
+                    ? html`
+                        <div>
+                          <span class="input-label" aria-disabled=${isGreaterThan ? 'true' : nothing}>${maxLabel}</span>
+                          <input
+                            class="filter-input"
+                            type="number"
+                            step=${step}
+                            placeholder=${placeholder}
+                            .value=${val1}
+                            ?disabled=${isGreaterThan}
+                            @change=${(e: Event) => this._onNumberInput(field, e, 1)}
+                          />
+                        </div>
+                      `
+                    : nothing}
+                </div>
+              </div>
+            `
+          : nothing}
+      </div>
     `;
   }
 
@@ -1117,23 +1164,24 @@ export class ApFilterMetadata extends LitElement {
 
   private _renderBooleanFilter(field: MetadataModelField) {
     const applied = this._getApplied(getPrefixedKey(field));
-    const currentValue = applied.values?.[0];
+    const currentValue = applied.values?.[0] || '';
 
     return html`
-      <div class="options-list">
-        ${BOOLEAN_OPTIONS.map(
-          (opt) => html`
-            <div
-              class="option-item"
-              @click=${() => this._onBooleanSelect(field, opt.value)}
-            >
-              <div class="radio-dot ${currentValue === opt.value ? 'active' : ''}">
-                <div class="radio-dot-inner"></div>
-              </div>
-              <span>${opt.label}</span>
-            </div>
-          `,
-        )}
+      <div class="filter-content" style="position: relative;">
+        <button
+          class="clear-btn"
+          ?disabled=${!applied.values?.length}
+          @click=${() => this._clearFieldFilter(field)}
+        >Clear all</button>
+
+        <div class="filter-section">
+          <span class="section-label">Value</span>
+          <ap-radio-group
+            .options=${BOOLEAN_OPTIONS}
+            .value=${currentValue}
+            @ap-change=${(e: CustomEvent) => this._onBooleanSelect(field, e.detail.value)}
+          ></ap-radio-group>
+        </div>
       </div>
     `;
   }
@@ -1144,75 +1192,128 @@ export class ApFilterMetadata extends LitElement {
     const prefixedKey = getPrefixedKey(field);
     const applied = this._getApplied(prefixedKey);
     const isSpecial = this._isSpecialValue(applied.values);
-    const isSpecificMode = this._specificModeFields.has(prefixedKey);
-    const currentValue = isSpecial ? '' : (applied.values?.[0] || '');
+    const selectedValues = isSpecial ? [] : (applied.values || []);
     const options = field.possible_values || [];
+    const operator = applied.operator || SINGLE_SELECT_OPERATOR_OPTIONS[0].value;
+    const search = (this._selectSearches[prefixedKey] || '').toLowerCase();
+    const isSearching = search.length > 0;
+    const hasFilter = selectedValues.length > 0 || isSpecial;
+
+    const filteredOptions = search
+      ? options.filter((o) => o.label.toLowerCase().includes(search))
+      : options;
+
+    const atLimit = selectedValues.length >= SELECTED_METADATA_FIELDS_LIMIT;
 
     return html`
-      ${this._renderOperator(field, SINGLE_SELECT_OPERATOR_OPTIONS)}
-      ${isSpecificMode
-        ? html`
+      <div class="filter-content" style="position: relative;">
+        <button
+          class="clear-btn"
+          ?disabled=${!hasFilter && !applied.operator}
+          @click=${() => this._clearFieldFilter(field)}
+        >Clear all</button>
+
+        <!-- Search input -->
+        <div class="search-wrapper">
           <input
-            class="text-input"
+            class="search-input"
             type="text"
-            placeholder="Enter custom value..."
-            .value=${currentValue}
-            @change=${(e: Event) => {
-              const v = (e.target as HTMLInputElement).value;
-              const operator = applied.operator || SINGLE_SELECT_OPERATOR_OPTIONS[0].value;
-              this._emitFilterChange(field, operator, v ? [v] : []);
+            placeholder="Search options..."
+            .value=${this._selectSearches[prefixedKey] || ''}
+            @input=${(e: Event) => {
+              this._selectSearches = {
+                ...this._selectSearches,
+                [prefixedKey]: (e.target as HTMLInputElement).value,
+              };
             }}
           />
-        `
-        : html`
-          <select
-            class="value-select"
-            .value=${currentValue}
-            @change=${(e: Event) => this._onSelectOneChange(field, e)}
-          >
-            <option value="">Select...</option>
-            ${options.map(
-              (opt) =>
-                html`<option value=${opt.api_value} ?selected=${currentValue === opt.api_value}>
-                  ${opt.label}
-                </option>`,
-            )}
-          </select>
-        `
-      }
-      <div class="divider"></div>
-      <div class="options-list">
-        ${EMPTY_AND_SPECIFIC_OPTIONS.map(
-          (opt) => html`
-            <div
-              class="option-item"
-              @click=${() => {
-                if (opt.value === SPECIFIC_VALUE) {
-                  const newSet = new Set(this._specificModeFields);
-                  newSet.add(prefixedKey);
-                  this._specificModeFields = newSet;
-                } else {
-                  // Exit specific mode when selecting empty/non-empty
-                  if (this._specificModeFields.has(prefixedKey)) {
-                    const newSet = new Set(this._specificModeFields);
-                    newSet.delete(prefixedKey);
-                    this._specificModeFields = newSet;
-                  }
-                  this._onEmptyOption(field, opt.value);
-                }
-              }}
-            >
-              <div class="radio-dot ${
-                (opt.value === SPECIFIC_VALUE && isSpecificMode) ||
-                (opt.value !== SPECIFIC_VALUE && applied.values?.[0] === opt.value)
-                  ? 'active' : ''
-              }">
-                <div class="radio-dot-inner"></div>
+          ${isSearching
+            ? html`
+                <button class="search-clear" @click=${() => {
+                  this._selectSearches = { ...this._selectSearches, [prefixedKey]: '' };
+                }}>
+                  <ap-icon name="close" .size=${12}></ap-icon>
+                </button>
+              `
+            : nothing}
+        </div>
+
+        ${!isSearching
+          ? html`
+              <!-- Operator -->
+              <div class="filter-section">
+                <span class="section-label">Operator</span>
+                <ap-radio-group
+                  direction="horizontal"
+                  .options=${SINGLE_SELECT_OPERATOR_OPTIONS}
+                  .value=${operator}
+                  @ap-change=${(e: CustomEvent) => this._onOperatorChange(field, e.detail.value)}
+                ></ap-radio-group>
               </div>
-              <span>${opt.label}</span>
-            </div>
-          `,
-        )}
+
+              <!-- Selected chips -->
+              ${selectedValues.length > 0
+                ? html`
+                    <div class="filter-section">
+                      <div class="chips-wrap">
+                        ${selectedValues.map((val) => {
+                          const opt = options.find((o) => o.api_value === val);
+                          return html`
+                            <div class="chip">
+                              <span class="chip-label">${opt?.label || val}</span>
+                              <button class="chip-remove" @click=${() => this._onSelectOneToggle(field, val)}>
+                                <ap-icon name="close" .size=${10}></ap-icon>
+                              </button>
+                            </div>
+                          `;
+                        })}
+                      </div>
+                    </div>
+                  `
+                : nothing}
+            `
+          : nothing}
+
+        <!-- Options list -->
+        <div class="filter-section">
+          <span class="section-label">All options</span>
+
+          <!-- Empty/Not empty checkboxes -->
+          <div class="options-list short">
+            ${EMPTY_OPTIONS.map(
+              (opt) => html`
+                <div
+                  class="option-item"
+                  @click=${() => this._onEmptyOption(field, opt.value)}
+                >
+                  <ap-checkbox ?checked=${applied.values?.[0] === opt.value}></ap-checkbox>
+                  <span>${opt.label}</span>
+                </div>
+              `,
+            )}
+          </div>
+
+          <div class="separator"></div>
+
+          <!-- Regular options -->
+          <div class="options-list">
+            ${filteredOptions.length === 0
+              ? html`<div class="no-results">No options found</div>`
+              : filteredOptions.map((opt) => {
+                  const isSelected = selectedValues.includes(opt.api_value);
+                  const isDisabled = !isSelected && atLimit;
+                  return html`
+                    <div
+                      class="option-item ${isDisabled ? 'disabled' : ''}"
+                      @click=${() => !isDisabled && this._onSelectOneToggle(field, opt.api_value)}
+                    >
+                      <ap-checkbox ?checked=${isSelected}></ap-checkbox>
+                      <span>${opt.label}</span>
+                    </div>
+                  `;
+                })}
+          </div>
+        </div>
       </div>
     `;
   }
@@ -1220,29 +1321,132 @@ export class ApFilterMetadata extends LitElement {
   // ── Render: Multi-select filter ──────────────────────────────────
 
   private _renderMultiSelectFilter(field: MetadataModelField) {
-    const applied = this._getApplied(getPrefixedKey(field));
+    const prefixedKey = getPrefixedKey(field);
+    const applied = this._getApplied(prefixedKey);
     const isSpecial = this._isSpecialValue(applied.values);
     const selectedValues = isSpecial ? [] : (applied.values || []);
     const options = field.possible_values || [];
+    const operator = applied.operator || MULTI_SELECT_OPERATOR_OPTIONS[0].value;
+    const search = (this._selectSearches[prefixedKey] || '').toLowerCase();
+    const isSearching = search.length > 0;
+    const hasFilter = selectedValues.length > 0 || isSpecial;
+
+    const filteredOptions = search
+      ? options.filter((o) => o.label.toLowerCase().includes(search))
+      : options;
+
+    const atLimit = selectedValues.length >= SELECTED_METADATA_FIELDS_LIMIT;
 
     return html`
-      ${this._renderOperator(field, MULTI_SELECT_OPERATOR_OPTIONS)}
-      <div class="multi-options">
-        ${options.map(
-          (opt) => html`
-            <div
-              class="multi-option"
-              @click=${() => this._onMultiSelectToggle(field, opt.api_value)}
-            >
-              <ap-checkbox
-                ?checked=${selectedValues.includes(opt.api_value)}
-              ></ap-checkbox>
-              <span>${opt.label}</span>
-            </div>
-          `,
-        )}
+      <div class="filter-content" style="position: relative;">
+        <button
+          class="clear-btn"
+          ?disabled=${!hasFilter && !applied.operator}
+          @click=${() => this._clearFieldFilter(field)}
+        >Clear all</button>
+
+        <!-- Search input -->
+        <div class="search-wrapper">
+          <input
+            class="search-input"
+            type="text"
+            placeholder="Search options..."
+            .value=${this._selectSearches[prefixedKey] || ''}
+            @input=${(e: Event) => {
+              this._selectSearches = {
+                ...this._selectSearches,
+                [prefixedKey]: (e.target as HTMLInputElement).value,
+              };
+            }}
+          />
+          ${isSearching
+            ? html`
+                <button class="search-clear" @click=${() => {
+                  this._selectSearches = { ...this._selectSearches, [prefixedKey]: '' };
+                }}>
+                  <ap-icon name="close" .size=${12}></ap-icon>
+                </button>
+              `
+            : nothing}
+        </div>
+
+        ${!isSearching
+          ? html`
+              <!-- Operator -->
+              <div class="filter-section">
+                <span class="section-label">Operator</span>
+                <ap-radio-group
+                  direction="horizontal"
+                  .options=${MULTI_SELECT_OPERATOR_OPTIONS}
+                  .value=${operator}
+                  @ap-change=${(e: CustomEvent) => this._onOperatorChange(field, e.detail.value)}
+                ></ap-radio-group>
+              </div>
+
+              <!-- Selected chips -->
+              ${selectedValues.length > 0
+                ? html`
+                    <div class="filter-section">
+                      <div class="chips-wrap">
+                        ${selectedValues.map((val) => {
+                          const opt = options.find((o) => o.api_value === val);
+                          return html`
+                            <div class="chip">
+                              <span class="chip-label">${opt?.label || val}</span>
+                              <button class="chip-remove" @click=${() => this._onMultiSelectToggle(field, val)}>
+                                <ap-icon name="close" .size=${10}></ap-icon>
+                              </button>
+                            </div>
+                          `;
+                        })}
+                      </div>
+                    </div>
+                  `
+                : nothing}
+            `
+          : nothing}
+
+        <!-- Options list -->
+        <div class="filter-section">
+          <span class="section-label">All options</span>
+
+          <!-- Empty/Not empty checkboxes -->
+          <div class="options-list short">
+            ${EMPTY_OPTIONS.map(
+              (opt) => html`
+                <div
+                  class="option-item"
+                  @click=${() => this._onEmptyOption(field, opt.value)}
+                >
+                  <ap-checkbox ?checked=${applied.values?.[0] === opt.value}></ap-checkbox>
+                  <span>${opt.label}</span>
+                </div>
+              `,
+            )}
+          </div>
+
+          <div class="separator"></div>
+
+          <!-- Regular options -->
+          <div class="options-list">
+            ${filteredOptions.length === 0
+              ? html`<div class="no-results">No options found</div>`
+              : filteredOptions.map((opt) => {
+                  const isSelected = selectedValues.includes(opt.api_value);
+                  const isDisabled = !isSelected && atLimit;
+                  return html`
+                    <div
+                      class="option-item ${isDisabled ? 'disabled' : ''}"
+                      @click=${() => !isDisabled && this._onMultiSelectToggle(field, opt.api_value)}
+                    >
+                      <ap-checkbox ?checked=${isSelected}></ap-checkbox>
+                      <span>${opt.label}</span>
+                    </div>
+                  `;
+                })}
+          </div>
+        </div>
       </div>
-      ${this._renderEmptyOptions(field)}
     `;
   }
 
@@ -1256,31 +1460,47 @@ export class ApFilterMetadata extends LitElement {
     const inputValue = this._tagInputs[prefixedKey] || '';
 
     return html`
-      ${this._renderOperator(field, MULTI_SELECT_OPERATOR_OPTIONS)}
-      <div class="tags-container">
-        ${tags.map(
-          (tag) => html`
-            <span class="tag-chip">
-              ${tag}
-              <button
-                class="tag-chip-remove"
-                @click=${() => this._removeTag(field, tag)}
-              >
-                <ap-icon name="close" .size=${12}></ap-icon>
-              </button>
-            </span>
-          `,
-        )}
-        <input
-          class="tag-input"
-          type="text"
-          placeholder=${tags.length > 0 ? 'Add tag...' : 'Type and press Enter...'}
-          .value=${inputValue}
-          @input=${(e: Event) => this._onTagInput(prefixedKey, e)}
-          @keydown=${(e: KeyboardEvent) => this._onTagKeydown(field, e)}
-        />
+      <div class="filter-content" style="position: relative;">
+        <button
+          class="clear-btn"
+          ?disabled=${tags.length === 0 && !isSpecial}
+          @click=${() => this._clearFieldFilter(field)}
+        >Clear all</button>
+
+        <!-- Tag chips -->
+        ${tags.length > 0
+          ? html`
+              <div class="filter-section">
+                <div class="chips-wrap">
+                  ${tags.map(
+                    (tag) => html`
+                      <div class="chip">
+                        <span class="chip-label">${tag}</span>
+                        <button class="chip-remove" @click=${() => this._removeTag(field, tag)}>
+                          <ap-icon name="close" .size=${10}></ap-icon>
+                        </button>
+                      </div>
+                    `,
+                  )}
+                </div>
+              </div>
+            `
+          : nothing}
+
+        <!-- Tag input -->
+        <div class="filter-section">
+          <div class="tags-container">
+            <input
+              class="tag-input"
+              type="text"
+              placeholder=${tags.length > 0 ? 'Add tag...' : 'Type and press Enter...'}
+              .value=${inputValue}
+              @input=${(e: Event) => this._onTagInput(prefixedKey, e)}
+              @keydown=${(e: KeyboardEvent) => this._onTagKeydown(field, e)}
+            />
+          </div>
+        </div>
       </div>
-      ${this._renderEmptyOptions(field)}
     `;
   }
 
@@ -1295,8 +1515,7 @@ export class ApFilterMetadata extends LitElement {
     const isSpecial = this._isSpecialValue(applied.values);
     const activePreset = isSpecial ? (applied.values?.[0] || '') : preset;
 
-    const presetOptions = [
-      ...DATE_RANGE_OPTIONS,
+    const emptyOptions = [
       { value: 'empty', label: 'Empty' },
       { value: 'non-empty', label: 'Not empty' },
     ];
@@ -1311,58 +1530,83 @@ export class ApFilterMetadata extends LitElement {
     const needsDateInput = ['before', 'after', 'between'].includes(activePreset);
 
     return html`
-      <div class="presets">
-        ${presetOptions.map(
-          (p) => html`
-            <button
-              class="preset ${activePreset === p.value ? 'active' : ''}"
-              @click=${() => this._onDatePreset(field, p.value)}
-            >
-              ${p.label}
-            </button>
-          `,
-        )}
+      <div class="filter-content" style="position: relative;">
+        <button
+          class="clear-btn"
+          ?disabled=${!activePreset && !applied.values?.length}
+          @click=${() => this._clearFieldFilter(field)}
+        >Clear all</button>
+
+        <div class="filter-section">
+          <ap-radio-group
+            .options=${emptyOptions}
+            .value=${activePreset === 'empty' || activePreset === 'non-empty' ? activePreset : ''}
+            @ap-change=${(e: CustomEvent) => this._onDatePreset(field, e.detail.value)}
+          ></ap-radio-group>
+
+          <div class="separator"></div>
+
+          <ap-radio-group
+            columns="2"
+            .options=${DATE_RANGE_OPTIONS}
+            .value=${activePreset !== 'empty' && activePreset !== 'non-empty' ? activePreset : ''}
+            @ap-change=${(e: CustomEvent) => this._onDatePreset(field, e.detail.value)}
+          ></ap-radio-group>
+        </div>
+
+        ${needsDateInput
+          ? html`
+              <div class="filter-section">
+                <div class="grid-2">
+                  ${activePreset === 'before'
+                    ? html`
+                        <div>
+                          <span class="input-label">End date</span>
+                          <input
+                            type="date"
+                            class="filter-input"
+                            .value=${toStr}
+                            @change=${(e: Event) => this._onDateInput(field, 'to', e)}
+                          />
+                        </div>
+                      `
+                    : activePreset === 'after'
+                      ? html`
+                          <div>
+                            <span class="input-label">Start date</span>
+                            <input
+                              type="date"
+                              class="filter-input"
+                              .value=${fromStr}
+                              @change=${(e: Event) => this._onDateInput(field, 'from', e)}
+                            />
+                          </div>
+                        `
+                      : html`
+                          <div>
+                            <span class="input-label">Start date</span>
+                            <input
+                              type="date"
+                              class="filter-input"
+                              .value=${fromStr}
+                              @change=${(e: Event) => this._onDateInput(field, 'from', e)}
+                            />
+                          </div>
+                          <div>
+                            <span class="input-label">End date</span>
+                            <input
+                              type="date"
+                              class="filter-input"
+                              .value=${toStr}
+                              @change=${(e: Event) => this._onDateInput(field, 'to', e)}
+                            />
+                          </div>
+                        `}
+                </div>
+              </div>
+            `
+          : nothing}
       </div>
-      ${needsDateInput
-        ? html`
-            <div class="date-inputs">
-              ${activePreset === 'before'
-                ? html`
-                    <span class="separator">Before</span>
-                    <input
-                      type="date"
-                      .value=${toStr}
-                      @change=${(e: Event) => this._onDateInput(field, 'to', e)}
-                    />
-                  `
-                : activePreset === 'after'
-                  ? html`
-                      <span class="separator">After</span>
-                      <input
-                        type="date"
-                        .value=${fromStr}
-                        @change=${(e: Event) =>
-                          this._onDateInput(field, 'from', e)}
-                      />
-                    `
-                  : html`
-                      <input
-                        type="date"
-                        .value=${fromStr}
-                        @change=${(e: Event) =>
-                          this._onDateInput(field, 'from', e)}
-                      />
-                      <span class="separator">to</span>
-                      <input
-                        type="date"
-                        .value=${toStr}
-                        @change=${(e: Event) =>
-                          this._onDateInput(field, 'to', e)}
-                      />
-                    `}
-            </div>
-          `
-        : nothing}
     `;
   }
 
@@ -1372,57 +1616,73 @@ export class ApFilterMetadata extends LitElement {
     const prefixedKey = getPrefixedKey(field);
     const applied = this._getApplied(prefixedKey);
     const isSpecial = this._isSpecialValue(applied.values);
+    const contentMode = this._getContentMode(prefixedKey);
 
     // Parse "lat,lng" or "lat,lng..radius"
-    let lat = '';
-    let lng = '';
+    let locationStr = '';
     let radius = '';
     if (!isSpecial && applied.values?.[0]) {
       const val = applied.values[0];
       const [coords, rad] = val.split('..');
-      const [la, ln] = coords.split(',');
-      lat = la || '';
-      lng = ln || '';
+      locationStr = coords || '';
       radius = rad || '';
     }
 
+    // Validate location format for error display
+    const hasLocationInput = locationStr.length > 0;
+    const parts = locationStr.split(',').map((s) => s.trim());
+    const isValidLocation = !hasLocationInput || (parts.length === 2 && parts.every((p) => !isNaN(Number(p)) && p !== ''));
+
     return html`
-      <div class="geo-row">
-        <div class="geo-field">
-          <span class="geo-label">Latitude</span>
-          <input
-            class="text-input"
-            type="text"
-            placeholder="e.g. 48.8566"
-            data-geo-lat=${prefixedKey}
-            .value=${lat}
-            @change=${() => this._onGeoInput(field)}
-          />
+      <div class="filter-content" style="position: relative;">
+        <button
+          class="clear-btn"
+          ?disabled=${!applied.values?.length}
+          @click=${() => this._clearFieldFilter(field)}
+        >Clear all</button>
+
+        <div class="filter-section">
+          <span class="section-label">Content</span>
+          <ap-radio-group
+            .options=${EMPTY_AND_SPECIFIC_OPTIONS}
+            .value=${contentMode}
+            @ap-change=${(e: CustomEvent) => this._onContentModeChange(field, e.detail.value)}
+          ></ap-radio-group>
         </div>
-        <div class="geo-field">
-          <span class="geo-label">Longitude</span>
-          <input
-            class="text-input"
-            type="text"
-            placeholder="e.g. 2.3522"
-            data-geo-lng=${prefixedKey}
-            .value=${lng}
-            @change=${() => this._onGeoInput(field)}
-          />
-        </div>
+
+        ${contentMode === SPECIFIC_VALUE
+          ? html`
+              <div class="filter-section">
+                <div class="geo-row">
+                  <div class="geo-location">
+                    <span class="input-label">Location</span>
+                    <input
+                      class="filter-input"
+                      type="text"
+                      placeholder="Latitude, longitude"
+                      .value=${locationStr}
+                      @change=${(e: Event) => this._onGeoLocationInput(field, e)}
+                    />
+                    ${hasLocationInput && !isValidLocation
+                      ? html`<div class="error-text">Enter coordinates as "latitude, longitude"</div>`
+                      : nothing}
+                  </div>
+                  <div class="geo-radius">
+                    <span class="input-label">Max radius (&deg;)</span>
+                    <input
+                      class="filter-input"
+                      type="number"
+                      placeholder="0"
+                      data-geo-radius=${prefixedKey}
+                      .value=${radius}
+                      @change=${(e: Event) => this._onGeoRadiusInput(field, e)}
+                    />
+                  </div>
+                </div>
+              </div>
+            `
+          : nothing}
       </div>
-      <div class="geo-field">
-        <span class="geo-label">Radius (optional)</span>
-        <input
-          class="number-input"
-          type="number"
-          placeholder="km"
-          data-geo-radius=${prefixedKey}
-          .value=${radius}
-          @change=${() => this._onGeoInput(field)}
-        />
-      </div>
-      ${this._renderEmptyOptions(field)}
     `;
   }
 
@@ -1430,23 +1690,23 @@ export class ApFilterMetadata extends LitElement {
 
   private _renderAttachmentFilter(field: MetadataModelField) {
     const applied = this._getApplied(getPrefixedKey(field));
-    const currentValue = applied.values?.[0];
+    const currentValue = applied.values?.[0] || '';
 
     return html`
-      <div class="options-list">
-        ${EMPTY_OPTIONS.map(
-          (opt) => html`
-            <div
-              class="option-item"
-              @click=${() => this._onEmptyOption(field, opt.value)}
-            >
-              <div class="radio-dot ${currentValue === opt.value ? 'active' : ''}">
-                <div class="radio-dot-inner"></div>
-              </div>
-              <span>${opt.label}</span>
-            </div>
-          `,
-        )}
+      <div class="filter-content" style="position: relative;">
+        <button
+          class="clear-btn"
+          ?disabled=${!applied.values?.length}
+          @click=${() => this._clearFieldFilter(field)}
+        >Clear all</button>
+
+        <div class="filter-section">
+          <ap-radio-group
+            .options=${EMPTY_OPTIONS}
+            .value=${currentValue}
+            @ap-change=${(e: CustomEvent) => this._onEmptyOption(field, e.detail.value)}
+          ></ap-radio-group>
+        </div>
       </div>
     `;
   }
@@ -1460,26 +1720,34 @@ export class ApFilterMetadata extends LitElement {
     const operator = applied.operator || FILTER_OPERATORS.IS;
 
     return html`
-      <div class="field-filter">
-        <ap-dropdown
-          variant="borderless"
-          .value=${operator}
-          .options=${SINGLE_SELECT_OPERATOR_OPTIONS}
-          @ap-change=${(e: CustomEvent) => this._emitFilterChange(field, e.detail.value, values)}
-        ></ap-dropdown>
-        <input
-          class="text-input"
-          type="text"
-          placeholder="Search faces..."
-          .value=${values.join(', ')}
-          @change=${(e: Event) => {
-            const raw = (e.target as HTMLInputElement).value;
-            const newValues = raw.split(',').map((v) => v.trim()).filter(Boolean);
-            this._emitFilterChange(field, operator, newValues);
-          }}
-        />
+      <div class="filter-content" style="position: relative;">
+        <button
+          class="clear-btn"
+          ?disabled=${values.length === 0}
+          @click=${() => this._clearFieldFilter(field)}
+        >Clear all</button>
+
+        <div class="filter-section">
+          <span class="section-label">Condition</span>
+          <ap-radio-group
+            direction="horizontal"
+            .options=${SINGLE_SELECT_OPERATOR_OPTIONS}
+            .value=${operator}
+            @ap-change=${(e: CustomEvent) => this._emitFilterChange(field, e.detail.value, values)}
+          ></ap-radio-group>
+          <input
+            class="filter-input"
+            type="text"
+            placeholder="Search faces..."
+            .value=${values.join(', ')}
+            @change=${(e: Event) => {
+              const raw = (e.target as HTMLInputElement).value;
+              const newValues = raw.split(',').map((v) => v.trim()).filter(Boolean);
+              this._emitFilterChange(field, operator, newValues);
+            }}
+          />
+        </div>
       </div>
-      ${this._renderEmptyOptions(field)}
     `;
   }
 
@@ -1558,9 +1826,106 @@ export class ApFilterMetadata extends LitElement {
     `;
   }
 
+  // ── Selector mode render ─────────────────────────────────────────
+
+  private _renderSelectorMode() {
+    const search = this._fieldSearch.toLowerCase();
+    const filtered = this.fields.filter((f) =>
+      f.label.toLowerCase().includes(search),
+    );
+
+    const rootFields = filtered.filter(
+      (f) => !f.group || f.group === 'root',
+    );
+    const productFields = filtered.filter((f) => f.group === 'product');
+
+    const renderGroup = (label: string, fields: MetadataModelField[]) => {
+      if (fields.length === 0) return nothing;
+      return html`
+        <div class="field-group-label">${label}</div>
+        ${fields.map((field) => {
+          const prefixedKey = getPrefixedKey(field);
+          const isVisible = this.visibleFields.includes(prefixedKey);
+          const hasFilter = !!this.appliedMetadata[prefixedKey] || !!this.appliedFilters[prefixedKey];
+          const isPinned = this.pinnedFields.includes(prefixedKey);
+          const isDisabled = !isVisible && this._atFieldLimit;
+          return html`
+            <div
+              class="field-item ${hasFilter ? 'has-filter' : ''} ${isDisabled ? 'disabled' : ''}"
+              @click=${() => !isDisabled && this._emitFieldSelect(field)}
+            >
+              <span class="field-item-label">${field.label}</span>
+              ${hasFilter
+                ? html`<span class="field-item-dot"></span>`
+                : nothing}
+              <button
+                class="field-item-pin ${isPinned ? 'pinned' : ''}"
+                @click=${(e: Event) => {
+                  e.stopPropagation();
+                  this._emitPin(prefixedKey, !isPinned);
+                }}
+                title=${isPinned ? 'Unpin field' : 'Pin field'}
+              >
+                <ap-icon name=${isPinned ? 'pin-off' : 'pin'} .size=${12}></ap-icon>
+              </button>
+            </div>
+          `;
+        })}
+      `;
+    };
+
+    return html`
+      <input
+        class="field-search"
+        type="text"
+        placeholder="Search fields..."
+        .value=${this._fieldSearch}
+        @input=${(e: Event) => {
+          this._fieldSearch = (e.target as HTMLInputElement).value;
+        }}
+      />
+      <div class="field-list">
+        ${filtered.length === 0
+          ? html`<div class="empty-msg">No fields found</div>`
+          : html`
+              ${renderGroup('Root fields', rootFields)}
+              ${renderGroup('Product fields', productFields)}
+            `}
+      </div>
+      ${this.visibleFields.length > 0
+        ? html`
+            <div
+              class="limit-note ${this._atFieldLimit ? 'at-limit' : ''}"
+            >
+              ${this.visibleFields.length} / ${SELECTED_METADATA_FIELDS_LIMIT} fields selected
+            </div>
+          `
+        : nothing}
+    `;
+  }
+
+  // ── Field mode render ──────────────────────────────────────────
+
+  private _renderFieldMode() {
+    const field = this._getField(this.activeFieldKey);
+    if (!field) return html`<div class="empty-msg">Field not found</div>`;
+    return this._renderFieldControl(field);
+  }
+
   // ── Main render ──────────────────────────────────────────────────
 
   render() {
+    // Selector mode: just field list for picking a field
+    if (this.mode === 'selector') {
+      return this._renderSelectorMode();
+    }
+
+    // Field mode: single field filter
+    if (this.mode === 'field') {
+      return this._renderFieldMode();
+    }
+
+    // Full mode (original behavior)
     const hasVisibleFields = this.visibleFields.length > 0;
 
     return html`

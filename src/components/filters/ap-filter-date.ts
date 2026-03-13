@@ -5,7 +5,8 @@ import {
   DATE_RANGE_OPTIONS,
   LICENSE_DATE_RANGE_OPTIONS,
 } from './filters.constants';
-import { FILTER_KEYS, DATE_PRESETS, type DateField, type DateKind } from '../../types/filter.types';
+import { filterPopoverStyles } from './shared/filter-styles';
+import { FILTER_KEYS, type DateField, type DateKind } from '../../types/filter.types';
 import { resolvePresetToRange } from '../../utils/filter-date';
 
 function toDateStr(d: Date): string {
@@ -14,104 +15,11 @@ function toDateStr(d: Date): string {
 
 @customElement('ap-filter-date')
 export class ApFilterDate extends LitElement {
-  static styles = css`
-    :host {
-      display: block;
-    }
-
-    .field-tabs {
-      display: flex;
-      gap: 0;
-      margin-bottom: 12px;
-      border: 1px solid var(--ap-border, #e4e4e7);
-      border-radius: var(--ap-radius-sm, 6px);
-      overflow: hidden;
-    }
-
-    .field-tab {
-      flex: 1;
-      padding: 6px 12px;
-      border: none;
-      background: none;
-      font-size: var(--ap-font-size-sm, 0.875rem);
-      font-family: var(--ap-font-family, system-ui, sans-serif);
-      cursor: pointer;
-      color: var(--ap-foreground, #09090b);
-      transition: background 150ms, color 150ms;
-    }
-
-    .field-tab:not(:last-child) {
-      border-right: 1px solid var(--ap-border, #e4e4e7);
-    }
-
-    .field-tab:hover {
-      background: var(--ap-muted, #f4f4f5);
-    }
-
-    .field-tab.active {
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.1));
-      color: var(--ap-primary, oklch(0.65 0.19 258));
-    }
-
-    .presets {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 12px;
-    }
-
-    .preset {
-      padding: 4px 10px;
-      border: 1px solid var(--ap-border, #e4e4e7);
-      border-radius: 9999px;
-      background: none;
-      font-size: 0.8125rem;
-      cursor: pointer;
-      color: var(--ap-foreground, #09090b);
-      font-family: var(--ap-font-family, system-ui, sans-serif);
-      transition: background 150ms, border-color 150ms, color 150ms;
-    }
-
-    .preset:hover,
-    .preset.active {
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.1));
-      border-color: var(--ap-primary, oklch(0.65 0.19 258));
-      color: var(--ap-primary, oklch(0.65 0.19 258));
-    }
-
+  static styles = [filterPopoverStyles, css`
     .date-inputs {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      margin-top: 8px;
+      margin-top: 4px;
     }
-
-    input[type='date'] {
-      padding: 6px 8px;
-      border: 1px solid var(--ap-border, #e4e4e7);
-      border-radius: var(--ap-radius-sm, 6px);
-      font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
-      font-family: var(--ap-font-family, system-ui, sans-serif);
-      background: var(--ap-background, #fff);
-    }
-
-    input[type='date']:focus {
-      outline: 2px solid var(--ap-primary, oklch(0.65 0.19 258));
-      outline-offset: -1px;
-    }
-
-    .separator {
-      color: var(--ap-muted-foreground, #71717a);
-      font-size: 0.8125rem;
-    }
-
-    .empty-options {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 8px;
-    }
-  `;
+  `];
 
   @property() filterKey: string = FILTER_KEYS.DATE;
   @property() field: DateField = 'created';
@@ -132,6 +40,10 @@ export class ApFilterDate extends LitElement {
     return toDateStr(new Date());
   }
 
+  private get _hasFilter(): boolean {
+    return !!(this.kind || this.preset || this.from || this.to);
+  }
+
   /** Determine the DateKind from a preset/option value */
   private _kindFromValue(value: string): DateKind {
     if (['before', 'after', 'between', 'specific'].includes(value)) {
@@ -149,14 +61,6 @@ export class ApFilterDate extends LitElement {
     const kind = this._kindFromValue(value);
     this.kind = kind;
     this.preset = value;
-
-    // Empty / Not empty: emit immediately with no date range
-    if (value === DATE_PRESETS.EMPTY || value === DATE_PRESETS.NOT_EMPTY) {
-      this.from = '';
-      this.to = '';
-      this._dispatchChange();
-      return;
-    }
 
     // Manual-input kinds: clear dates and wait for user input
     if (['before', 'after', 'between', 'specific'].includes(value)) {
@@ -176,30 +80,24 @@ export class ApFilterDate extends LitElement {
     this._dispatchChange();
   }
 
-  private _dispatchChange() {
-    // Auto-correct "between" when only one date is filled
-    let effectiveKind = this.kind;
-    let effectivePreset = this.preset;
-    if (this.kind === 'between') {
-      const hasFrom = !!this.from;
-      const hasTo = !!this.to;
-      if (hasFrom && !hasTo) {
-        effectiveKind = 'after';
-        effectivePreset = 'after';
-      } else if (!hasFrom && hasTo) {
-        effectiveKind = 'before';
-        effectivePreset = 'before';
-      }
-    }
+  private _clearAll() {
+    this.field = 'created';
+    this.kind = null;
+    this.preset = '';
+    this.from = '';
+    this.to = '';
+    this._dispatchChange();
+  }
 
+  private _dispatchChange() {
     this.dispatchEvent(
       new CustomEvent('filter-change', {
         detail: {
           key: this.filterKey,
           values: {
             field: this.field,
-            kind: effectiveKind,
-            preset: effectivePreset,
+            kind: this.kind,
+            preset: this.preset,
             from: this.from,
             to: this.to,
           },
@@ -236,21 +134,31 @@ export class ApFilterDate extends LitElement {
     this._dispatchChange();
   }
 
-  private _renderFieldTabs() {
+  private _renderDateTypeSection() {
     if (this._isLicenseExpiry) return nothing;
 
     return html`
-      <div class="field-tabs">
-        ${DATE_FIELD_OPTIONS.map(
-          (opt) => html`
-            <button
-              class="field-tab ${this.field === opt.value ? 'active' : ''}"
-              @click=${() => this._selectField(opt.value as DateField)}
-            >
-              ${opt.label}
-            </button>
-          `,
-        )}
+      <div class="filter-section">
+        <span class="section-label">Date type</span>
+        <ap-radio-group
+          .options=${DATE_FIELD_OPTIONS}
+          .value=${this.field}
+          @ap-change=${(e: CustomEvent) => this._selectField(e.detail.value as DateField)}
+        ></ap-radio-group>
+      </div>
+    `;
+  }
+
+  private _renderRangeSection() {
+    return html`
+      <div class="filter-section">
+        <span class="section-label">Range</span>
+        <ap-radio-group
+          columns="2"
+          .options=${this._rangeOptions}
+          .value=${this.preset}
+          @ap-change=${(e: CustomEvent) => this._selectPreset(e.detail.value)}
+        ></ap-radio-group>
       </div>
     `;
   }
@@ -265,96 +173,97 @@ export class ApFilterDate extends LitElement {
 
     if (p === 'specific') {
       return html`
-        <div class="date-inputs">
-          <input
-            type="date"
-            max=${today}
-            .value=${fromStr}
-            @change=${(e: Event) => this._handleDateInput('from', e)}
-          />
+        <div class="filter-section date-inputs">
+          <div>
+            <span class="input-label">Date</span>
+            <input
+              type="date"
+              class="filter-input"
+              max=${today}
+              .value=${fromStr}
+              @change=${(e: Event) => this._handleDateInput('from', e)}
+            />
+          </div>
         </div>
       `;
     }
 
     if (p === 'before') {
       return html`
-        <div class="date-inputs">
-          <span class="separator">Before</span>
-          <input
-            type="date"
-            max=${today}
-            .value=${toStr}
-            @change=${(e: Event) => this._handleDateInput('to', e)}
-          />
+        <div class="filter-section date-inputs">
+          <div>
+            <span class="input-label">End date</span>
+            <input
+              type="date"
+              class="filter-input"
+              max=${today}
+              .value=${toStr}
+              @change=${(e: Event) => this._handleDateInput('to', e)}
+            />
+          </div>
         </div>
       `;
     }
 
     if (p === 'after') {
       return html`
-        <div class="date-inputs">
-          <span class="separator">After</span>
-          <input
-            type="date"
-            max=${today}
-            .value=${fromStr}
-            @change=${(e: Event) => this._handleDateInput('from', e)}
-          />
+        <div class="filter-section date-inputs">
+          <div>
+            <span class="input-label">Start date</span>
+            <input
+              type="date"
+              class="filter-input"
+              max=${today}
+              .value=${fromStr}
+              @change=${(e: Event) => this._handleDateInput('from', e)}
+            />
+          </div>
         </div>
       `;
     }
 
     // between
     return html`
-      <div class="date-inputs">
-        <input
-          type="date"
-          max=${toStr || today}
-          .value=${fromStr}
-          @change=${(e: Event) => this._handleDateInput('from', e)}
-        />
-        <span class="separator">to</span>
-        <input
-          type="date"
-          min=${fromStr}
-          max=${today}
-          .value=${toStr}
-          @change=${(e: Event) => this._handleDateInput('to', e)}
-        />
+      <div class="filter-section date-inputs">
+        <div class="grid-2">
+          <div>
+            <span class="input-label">Start date</span>
+            <input
+              type="date"
+              class="filter-input"
+              max=${toStr || today}
+              .value=${fromStr}
+              @change=${(e: Event) => this._handleDateInput('from', e)}
+            />
+          </div>
+          <div>
+            <span class="input-label">End date</span>
+            <input
+              type="date"
+              class="filter-input"
+              min=${fromStr}
+              max=${today}
+              .value=${toStr}
+              @change=${(e: Event) => this._handleDateInput('to', e)}
+            />
+          </div>
+        </div>
       </div>
     `;
   }
 
   render() {
     return html`
-      ${this._renderFieldTabs()}
-      <div class="empty-options">
+      <div class="filter-content">
         <button
-          class="preset ${this.preset === DATE_PRESETS.EMPTY ? 'active' : ''}"
-          @click=${() => this._selectPreset(DATE_PRESETS.EMPTY)}
-        >
-          Empty
-        </button>
-        <button
-          class="preset ${this.preset === DATE_PRESETS.NOT_EMPTY ? 'active' : ''}"
-          @click=${() => this._selectPreset(DATE_PRESETS.NOT_EMPTY)}
-        >
-          Not empty
-        </button>
+          class="clear-btn"
+          ?disabled=${!this._hasFilter}
+          @click=${() => this._clearAll()}
+        >Clear all</button>
+        ${this._renderDateTypeSection()}
+        ${this._renderRangeSection()}
+        ${this._renderDateInputs()}
       </div>
-      <div class="presets">
-        ${this._rangeOptions.map(
-          (opt) => html`
-            <button
-              class="preset ${this.preset === opt.value ? 'active' : ''}"
-              @click=${() => this._selectPreset(opt.value)}
-            >
-              ${opt.label}
-            </button>
-          `,
-        )}
-      </div>
-      ${this._renderDateInputs()}
     `;
   }
 }

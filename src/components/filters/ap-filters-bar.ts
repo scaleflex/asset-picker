@@ -1,6 +1,7 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import {
+  FILTER_KEYS,
   METADATA_PREFIXES,
   type Filters,
   type MetadataFilters,
@@ -10,7 +11,7 @@ import {
   type DateFilter,
   type MetadataModelField,
 } from '../../types/filter.types';
-import { FILTER_LABELS } from './filters.constants';
+import { FILTER_LABELS, DATE_FIELD_OPTIONS, DATE_RANGE_OPTIONS, LICENSE_DATE_RANGE_OPTIONS, ASSET_TYPE_OPTIONS } from './filters.constants';
 
 @customElement('ap-filters-bar')
 export class ApFiltersBar extends LitElement {
@@ -56,6 +57,9 @@ export class ApFiltersBar extends LitElement {
     .chip:hover {
       background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.15));
     }
+    .chip.active {
+      background: var(--ap-primary-20, oklch(0.65 0.19 258 / 0.2));
+    }
     .chip-label {
       font-weight: 500;
     }
@@ -65,28 +69,22 @@ export class ApFiltersBar extends LitElement {
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .chip-actions {
+    .chip-remove {
       display: flex;
       align-items: center;
-      gap: 2px;
-    }
-    .chip-btn {
-      display: flex;
-      align-items: center;
+      justify-content: center;
       background: none;
       border: none;
       cursor: pointer;
-      padding: 0;
+      padding: 2px;
       color: inherit;
       opacity: 0.7;
       transition: opacity 150ms;
+      border-radius: 4px;
+      margin-left: 4px;
     }
-    .chip-btn:hover {
+    .chip-remove:hover {
       opacity: 1;
-    }
-    .chip-btn.pinned {
-      opacity: 1;
-      color: var(--ap-primary, oklch(0.65 0.19 258));
     }
     .clear-all {
       display: inline-flex;
@@ -106,28 +104,61 @@ export class ApFiltersBar extends LitElement {
       background: var(--ap-muted, #f4f4f5);
       color: var(--ap-foreground, #09090b);
     }
+    .chip.pinned-empty {
+      border-style: dashed;
+      background: transparent;
+      color: var(--ap-muted-foreground, #71717a);
+      border-color: var(--ap-border, #e4e4e7);
+    }
+    .chip.pinned-empty:hover {
+      background: var(--ap-muted, #f4f4f5);
+      color: var(--ap-foreground, #09090b);
+      border-color: var(--ap-muted-foreground, #a1a1aa);
+    }
+    .chip.pinned-empty.active {
+      border-style: solid;
+      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.1));
+      color: var(--ap-primary, oklch(0.65 0.19 258));
+      border-color: var(--ap-primary-20, oklch(0.65 0.19 258 / 0.25));
+    }
   `;
 
   @property({ type: Object }) appliedFilters: Filters = {};
   @property({ type: Object }) appliedMetadata: MetadataFilters = {};
-  @property({ type: Array }) pinnedFilters: AnyFilterKey[] = [];
-  @property({ type: Array }) pinnedMetadata: string[] = [];
   @property({ type: Array }) metadataFields: MetadataModelField[] = [];
+  @property({ type: Array }) pinnedFilters: AnyFilterKey[] = [];
+  @property({ type: Array }) pinnedMetadataFields: string[] = [];
+  @property() activeFilter: AnyFilterKey | null = null;
+  @property() activeMetadataField: string | null = null;
 
-  private _getFilterSummary(filter: AnyFilter): string {
+  private _mapTypeLabel(value: string): string {
+    return ASSET_TYPE_OPTIONS.find((o) => o.value === value)?.label || value;
+  }
+
+  private _getSizeSummary(sf: StringFilter): string {
+    if (sf.values.length === 0) return '';
+    const raw = sf.values[0];
+    const [minStr, maxStr] = raw.split('..');
+    const min = minStr ? parseFloat(minStr) : null;
+    const max = maxStr ? parseFloat(maxStr) : null;
+    const fmt = (v: number) => v >= 1000 ? `${(v / 1000).toFixed(v % 1000 === 0 ? 0 : 1)} GB` : `${v} MB`;
+    if (min !== null && max !== null) return `${fmt(min)} – ${fmt(max)}`;
+    if (min !== null) return `> ${fmt(min)}`;
+    if (max !== null) return `< ${fmt(max)}`;
+    return '';
+  }
+
+  private _getFilterSummary(filter: AnyFilter, key?: AnyFilterKey): string {
     if (filter.type === 'string') {
       const sf = filter as StringFilter;
       if (sf.values.length === 0) return '';
-      if (sf.values.length === 1) return sf.values[0];
-      return `${sf.values[0]} +${sf.values.length - 1}`;
+      if (key === FILTER_KEYS.SIZE) return this._getSizeSummary(sf);
+      const mapLabel = key === FILTER_KEYS.TYPE ? (v: string) => this._mapTypeLabel(v) : (v: string) => v;
+      if (sf.values.length === 1) return mapLabel(sf.values[0]);
+      return `${mapLabel(sf.values[0])} +${sf.values.length - 1}`;
     }
     if (filter.type === 'date') {
-      const df = filter as DateFilter;
-      if (df.preset) return df.preset;
-      if (df.from && df.to) return `${df.from} - ${df.to}`;
-      if (df.from) return `after ${df.from}`;
-      if (df.to) return `before ${df.to}`;
-      return '';
+      return this._getDateSummary(filter as DateFilter);
     }
     // Image filter: object with { resolution, orientation, faces }
     if (typeof filter === 'object' && 'resolution' in filter) {
@@ -142,6 +173,48 @@ export class ApFiltersBar extends LitElement {
       return `${parts[0]} +${parts.length - 1}`;
     }
     return '';
+  }
+
+  private _getDateSummary(df: DateFilter): string {
+    const fieldLabel = DATE_FIELD_OPTIONS.find((o) => o.value === df.field)?.label || df.field;
+    const allRangeOptions = [...DATE_RANGE_OPTIONS, ...LICENSE_DATE_RANGE_OPTIONS];
+    const presetLabel = df.preset
+      ? allRangeOptions.find((o) => o.value === df.preset)?.label || df.preset
+      : '';
+
+    const formatDate = (iso: string) => {
+      try { return iso.split('T')[0]; } catch { return iso; }
+    };
+
+    let value = '';
+    switch (df.kind) {
+      case 'preset':
+        value = presetLabel;
+        break;
+      case 'before':
+        value = df.to ? `Before ${formatDate(df.to)}` : presetLabel;
+        break;
+      case 'after':
+        value = df.from ? `After ${formatDate(df.from)}` : presetLabel;
+        break;
+      case 'between':
+        if (df.from && df.to) {
+          value = `${formatDate(df.from)} – ${formatDate(df.to)}`;
+        } else if (df.from) {
+          value = `After ${formatDate(df.from)}`;
+        } else if (df.to) {
+          value = `Before ${formatDate(df.to)}`;
+        }
+        break;
+      case 'specific':
+        value = df.from ? formatDate(df.from) : '';
+        break;
+      default:
+        value = presetLabel;
+    }
+
+    if (!value) return '';
+    return `${fieldLabel}: ${value}`;
   }
 
   private _getMetadataLabel(fieldKey: string): string {
@@ -174,26 +247,28 @@ export class ApFiltersBar extends LitElement {
     }));
   }
 
-  private _togglePin(key: AnyFilterKey) {
-    const pinned = this.pinnedFilters.includes(key);
-    this.dispatchEvent(new CustomEvent('filter-pin', {
-      detail: { key, pinned: !pinned },
-      bubbles: true,
-      composed: true,
-    }));
-  }
-
-  private _toggleMetadataPin(fieldKey: string) {
-    const pinned = this.pinnedMetadata.includes(fieldKey);
-    this.dispatchEvent(new CustomEvent('metadata-pin', {
-      detail: { fieldKey, pinned: !pinned },
-      bubbles: true,
-      composed: true,
-    }));
-  }
-
   private _clearAll() {
     this.dispatchEvent(new CustomEvent('filters-clear-all', {
+      bubbles: true,
+      composed: true,
+    }));
+  }
+
+  private _openFilter(key: AnyFilterKey, e: Event) {
+    const chip = e.currentTarget as HTMLElement;
+    const rect = chip.getBoundingClientRect();
+    this.dispatchEvent(new CustomEvent('filter-open', {
+      detail: { key, chipRect: { left: rect.left, right: rect.right, bottom: rect.bottom, width: rect.width } },
+      bubbles: true,
+      composed: true,
+    }));
+  }
+
+  private _openMetadataFilter(fieldKey: string, e: Event) {
+    const chip = e.currentTarget as HTMLElement;
+    const rect = chip.getBoundingClientRect();
+    this.dispatchEvent(new CustomEvent('metadata-filter-open', {
+      detail: { fieldKey, chipRect: { left: rect.left, right: rect.right, bottom: rect.bottom, width: rect.width } },
       bubbles: true,
       composed: true,
     }));
@@ -202,60 +277,65 @@ export class ApFiltersBar extends LitElement {
   render() {
     const filterEntries = Object.entries(this.appliedFilters) as [AnyFilterKey, AnyFilter][];
     const metadataEntries = Object.entries(this.appliedMetadata) as [string, AnyFilter][];
-    const totalCount = filterEntries.length + metadataEntries.length;
+    // Pinned filters that don't have an applied value
+    const pinnedEmpty = this.pinnedFilters.filter(
+      (key) => !(key in this.appliedFilters),
+    );
+    const pinnedMetadataEmpty = this.pinnedMetadataFields.filter(
+      (key) => !(key in this.appliedMetadata),
+    );
+    const totalCount = filterEntries.length + metadataEntries.length + pinnedEmpty.length + pinnedMetadataEmpty.length;
 
     if (totalCount === 0) return nothing;
 
     return html`
       <div class="chips-row">
         <div class="chips">
-          ${filterEntries.map(([key, filter]) => {
-            const isPinned = this.pinnedFilters.includes(key);
-            const summary = this._getFilterSummary(filter);
+          ${pinnedEmpty.map((key) => html`
+            <span class="chip pinned-empty ${key === this.activeFilter ? 'active' : ''}" @click=${(e: Event) => this._openFilter(key, e)}>
+              <span class="chip-label">${FILTER_LABELS[key] || key}</span>
+            </span>
+          `)}
+          ${pinnedMetadataEmpty.map((fieldKey) => {
+            const label = this._getMetadataLabel(fieldKey);
             return html`
-              <span class="chip">
-                <span class="chip-label">${FILTER_LABELS[key] || key}</span>
-                ${summary ? html`<span class="chip-summary">${summary}</span>` : nothing}
-                <span class="chip-actions">
-                  <button
-                    class="chip-btn ${isPinned ? 'pinned' : ''}"
-                    @click=${(e: Event) => { e.stopPropagation(); this._togglePin(key); }}
-                    title=${isPinned ? 'Unpin filter' : 'Pin filter'}
-                  >
-                    <ap-icon name=${isPinned ? 'pin-off' : 'pin'} .size=${12}></ap-icon>
-                  </button>
-                  <button class="chip-btn" @click=${() => this._removeFilter(key)}>
-                    <ap-icon name="close" .size=${12}></ap-icon>
-                  </button>
-                </span>
+              <span class="chip pinned-empty ${fieldKey === this.activeMetadataField ? 'active' : ''}" @click=${(e: Event) => this._openMetadataFilter(fieldKey, e)}>
+                <span class="chip-label">${label}</span>
+              </span>
+            `;
+          })}
+          ${filterEntries.map(([key, filter]) => {
+            const summary = this._getFilterSummary(filter, key);
+            const isDate = filter.type === 'date';
+            return html`
+              <span class="chip ${key === this.activeFilter ? 'active' : ''}" @click=${(e: Event) => this._openFilter(key, e)}>
+                ${(isDate || key === FILTER_KEYS.TYPE || key === FILTER_KEYS.SIZE) && summary
+                  ? html`<span class="chip-label">${summary}</span>`
+                  : html`
+                      <span class="chip-label">${FILTER_LABELS[key] || key}</span>
+                      ${summary ? html`<span class="chip-summary">${summary}</span>` : nothing}
+                    `}
+                <button class="chip-remove" @click=${(e: Event) => { e.stopPropagation(); this._removeFilter(key); }} title="Remove filter">
+                  <ap-icon name="close" .size=${12}></ap-icon>
+                </button>
               </span>
             `;
           })}
           ${metadataEntries.map(([fieldKey, filter]) => {
-            const isPinned = this.pinnedMetadata.includes(fieldKey);
             const summary = this._getFilterSummary(filter);
             const label = this._getMetadataLabel(fieldKey);
             return html`
-              <span class="chip">
+              <span class="chip ${fieldKey === this.activeMetadataField ? 'active' : ''}" @click=${(e: Event) => this._openMetadataFilter(fieldKey, e)}>
                 <span class="chip-label">${label}</span>
                 ${summary ? html`<span class="chip-summary">${summary}</span>` : nothing}
-                <span class="chip-actions">
-                  <button
-                    class="chip-btn ${isPinned ? 'pinned' : ''}"
-                    @click=${(e: Event) => { e.stopPropagation(); this._toggleMetadataPin(fieldKey); }}
-                    title=${isPinned ? 'Unpin filter' : 'Pin filter'}
-                  >
-                    <ap-icon name=${isPinned ? 'pin-off' : 'pin'} .size=${12}></ap-icon>
-                  </button>
-                  <button class="chip-btn" @click=${() => this._removeMetadataFilter(fieldKey)}>
-                    <ap-icon name="close" .size=${12}></ap-icon>
-                  </button>
-                </span>
+                <button class="chip-remove" @click=${(e: Event) => { e.stopPropagation(); this._removeMetadataFilter(fieldKey); }} title="Remove filter">
+                  <ap-icon name="close" .size=${12}></ap-icon>
+                </button>
               </span>
             `;
           })}
         </div>
-        ${totalCount > 1
+        ${filterEntries.length + metadataEntries.length > 1
           ? html`<button class="clear-all" @click=${this._clearAll}>Clear all</button>`
           : nothing}
       </div>

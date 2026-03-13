@@ -6,10 +6,8 @@
 import {
   FILTER_OPERATORS,
   FILTER_LOGIC,
-  METADATA_PREFIX_BY_TYPE,
   METADATA_TYPE_BY_PREFIX,
   METADATA_PREFIXES,
-  DATE_KINDS,
   type FilterLogic,
   type AnyFilter,
   type StringFilter,
@@ -25,15 +23,6 @@ import {
   METADATA_FILTER_URL_PREFIX,
   DEFAULT_FILTER_OPERATOR,
 } from '../components/filters/filters.constants';
-
-// ── Internal Types ──────────────────────────────────────────────────
-
-interface FilterRaw {
-  key?: string;
-  operator: string;
-  logic: FilterLogic;
-  values: string[];
-}
 
 // ── Operator Parsing ────────────────────────────────────────────────
 
@@ -78,14 +67,16 @@ function stripQuotes(value: string): string {
 // ── Date Value Parsing ──────────────────────────────────────────────
 
 function isDateFilterValue(value: string): boolean {
-  // Date values contain fields like 'field:', 'kind:', 'from:', 'to:', 'preset:'
+  // Date values use '|' separator and contain key:value segments
   return value.includes('field:') || value.includes('kind:');
 }
 
 function parseDateFilterValue(raw: string): DateFilter {
   const parts: Record<string, string> = {};
-  // Format: field:created,kind:preset,preset:today or field:created,kind:between,from:2024-01-01,to:2024-12-31
-  for (const segment of raw.split(',')) {
+  // Format: field:created|kind:preset|preset:today (pipe-separated to avoid collision with OR logic commas)
+  // Also support legacy comma-separated format for backwards compatibility
+  const separator = raw.includes('|') ? '|' : ',';
+  for (const segment of raw.split(separator)) {
     const colonIdx = segment.indexOf(':');
     if (colonIdx > -1) {
       parts[segment.slice(0, colonIdx)] = segment.slice(colonIdx + 1);
@@ -187,19 +178,6 @@ export function getFiltersFromUrl(
   return { filters, metadataFields };
 }
 
-/**
- * Strip metadata type prefix from a key before writing to URL.
- * E.g. "date_created" -> "created", "multi_tags" -> "tags".
- */
-function stripMetadataPrefix(key: string): string {
-  for (const prefix of METADATA_PREFIXES) {
-    if (key.startsWith(prefix)) {
-      return key.slice(prefix.length);
-    }
-  }
-  return key;
-}
-
 export function prepareFilterForUrl(key: string, filter: AnyFilter): string {
   if (filter.type === 'date') {
     return serializeDateToUrl(filter);
@@ -233,12 +211,11 @@ export function setFiltersToUrl(
     result.searchParams.set(paramKey, prepareFilterForUrl(key, filter));
   }
 
-  // Set metadata filters (strip type prefix from key for cleaner URLs)
+  // Set metadata filters (keep prefix in URL key for round-trip consistency)
   for (const [key, filter] of Object.entries(metadataFilters)) {
     if (!filter) continue;
-    const strippedKey = stripMetadataPrefix(key);
-    const paramKey = `${METADATA_FILTER_URL_PREFIX}${strippedKey}`;
-    result.searchParams.set(paramKey, prepareFilterForUrl(strippedKey, filter));
+    const paramKey = `${METADATA_FILTER_URL_PREFIX}${key}`;
+    result.searchParams.set(paramKey, prepareFilterForUrl(key, filter));
   }
 
   return result;
@@ -253,5 +230,6 @@ function serializeDateToUrl(filter: DateFilter): string {
   if (filter.preset) parts.push(`preset:${filter.preset}`);
   if (filter.from) parts.push(`from:${filter.from}`);
   if (filter.to) parts.push(`to:${filter.to}`);
-  return parts.join(',');
+  // Use '|' separator to avoid collision with ',' (OR logic) in parseValuesAndLogic
+  return parts.join('|');
 }

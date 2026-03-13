@@ -42,7 +42,7 @@ export class ApDropdown extends LitElement {
         background: var(--ap-muted, #f4f4f5);
       }
       .menu {
-        position: absolute;
+        position: fixed;
         z-index: 50;
         min-width: 160px;
         background: var(--ap-card, #fff);
@@ -51,16 +51,10 @@ export class ApDropdown extends LitElement {
         box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
         padding: 4px;
       }
-      .menu.below {
-        top: calc(100% + 4px);
-        bottom: auto;
-      }
-      .menu.above {
-        bottom: calc(100% + 4px);
-        top: auto;
-      }
-      .menu.align-left { left: 0; right: auto; }
-      .menu.align-right { right: 0; left: auto; }
+      .menu.below { bottom: auto; }
+      .menu.above { top: auto; }
+      .menu.align-left { right: auto; }
+      .menu.align-right { left: auto; }
       .option {
         display: flex;
         align-items: center;
@@ -94,6 +88,10 @@ export class ApDropdown extends LitElement {
   @state() private _focusedIndex = -1;
   @state() private _menuPosition: 'below' | 'above' = 'below';
   @state() private _menuAlign: 'align-left' | 'align-right' = 'align-left';
+  @state() private _menuTop = 0;
+  @state() private _menuBottom = 0;
+  @state() private _menuLeft = 0;
+  @state() private _menuRight = 0;
 
   close() {
     this._open = false;
@@ -120,6 +118,10 @@ export class ApDropdown extends LitElement {
         <div
           id=${menuId}
           class="menu ${this._menuPosition} ${this._menuAlign}"
+          style="
+            ${this._menuPosition === 'below' ? `top: ${this._menuTop}px` : `bottom: ${this._menuBottom}px`};
+            ${this._menuAlign === 'align-left' ? `left: ${this._menuLeft}px` : `right: ${this._menuRight}px`};
+          "
           role="listbox"
           @keydown=${this._handleMenuKeydown}
         >
@@ -168,8 +170,20 @@ export class ApDropdown extends LitElement {
     const menuHeight = Math.min(this.options.length * 36 + 8, 300);
     this._menuPosition = spaceBelow < menuHeight && spaceAbove > spaceBelow ? 'above' : 'below';
 
+    if (this._menuPosition === 'below') {
+      this._menuTop = rect.bottom + 4;
+    } else {
+      this._menuBottom = window.innerHeight - rect.top + 4;
+    }
+
     const spaceRight = window.innerWidth - rect.left;
     this._menuAlign = spaceRight < 200 ? 'align-right' : 'align-left';
+
+    if (this._menuAlign === 'align-left') {
+      this._menuLeft = rect.left;
+    } else {
+      this._menuRight = window.innerWidth - rect.right;
+    }
   }
 
   private _handleTriggerKeydown(e: KeyboardEvent) {

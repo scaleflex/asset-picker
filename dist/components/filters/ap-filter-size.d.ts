@@ -1,12 +1,16 @@
 import { LitElement } from 'lit';
 export declare class ApFilterSize extends LitElement {
-    static styles: import('lit').CSSResult;
+    static styles: import('lit').CSSResult[];
     min: number;
     max: number;
-    private _minMB;
-    private _maxMB;
+    private _minVal;
+    private _maxVal;
+    private _unit;
     private _initialized;
     willUpdate(changedProperties: Map<string, unknown>): void;
+    private get _hasFilter();
+    private _clearAll;
+    private _setUnit;
     private _emitChange;
     private _onMinInput;
     private _onMaxInput;

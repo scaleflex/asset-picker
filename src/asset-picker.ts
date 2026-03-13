@@ -20,6 +20,7 @@ import {
   APPROVAL_FILTER_KEYS,
   type AnyFilterKey,
   type AnyFilter,
+  type FilterKey,
   type StringFilter,
   type DateFilter,
   type FiltersState,
@@ -69,6 +70,7 @@ import './components/shared/ap-popover';
 import './components/shared/ap-dropdown';
 import './components/shared/ap-badge';
 import './components/shared/ap-tooltip';
+import './components/shared/ap-radio-group';
 
 export class AssetPicker extends LitElement {
   static styles = [
@@ -89,6 +91,10 @@ export class AssetPicker extends LitElement {
         flex: 1;
         min-width: 0;
         overflow-y: auto;
+      }
+      .toolbar-filters-wrapper {
+        position: relative;
+        z-index: 10;
       }
       .empty-state {
         display: flex;
@@ -180,10 +186,10 @@ export class AssetPicker extends LitElement {
   }
 
   private async _doInit(config: AssetPickerConfig) {
-    // Load persisted sort preference, falling back to config defaults
+    // Load persisted sort preference (takes priority over config defaults)
     const savedSort = loadSortPreference();
-    const sortBy = config.defaultSortBy ?? savedSort.sortBy;
-    const sortDirection = config.defaultSortDirection ?? savedSort.sortDirection;
+    const sortBy = savedSort.sortBy ?? config.defaultSortBy ?? 'created_at';
+    const sortDirection = savedSort.sortDirection ?? config.defaultSortDirection ?? 'desc';
 
     this.store.setState({
       config,
@@ -627,11 +633,17 @@ export class AssetPicker extends LitElement {
     const filters = { ...state.filters };
 
     // Determine if filter has meaningful values
-    const isEmpty = values === '' || values === null || values === undefined
+    let isEmpty = values === '' || values === null || values === undefined
       || (Array.isArray(values) && values.length === 0)
       || (typeof values === 'object' && !Array.isArray(values) && Object.values(values as Record<string, unknown>).every(
         (v) => v === null || v === undefined || v === '' || (Array.isArray(v) && v.length === 0),
       ));
+
+    // Date filters always include `field` (e.g. 'created') as a default — check meaningful fields instead
+    if (!isEmpty && this._isDateFilterKey(key) && typeof values === 'object' && !Array.isArray(values)) {
+      const { kind, preset, from, to } = values as Record<string, unknown>;
+      isEmpty = !kind && !preset && !from && !to;
+    }
 
     if (isEmpty) {
       // Remove filter
@@ -679,6 +691,46 @@ export class AssetPicker extends LitElement {
     this.store.setState({ filters, offset: 0, assets: [], folders: [] });
     this.selectionCtrl.resetRange();
     this._debouncedLoadData();
+  }
+
+  private _handleFilterOpen(e: CustomEvent) {
+    const key = e.detail.key as FilterKey;
+    const chipRect = e.detail.chipRect as { left: number; right: number; bottom: number; width: number } | undefined;
+    const toolbar = this.renderRoot.querySelector('ap-content-toolbar') as
+      import('./components/toolbar/ap-content-toolbar').ApContentToolbar | null;
+    let chipLeft: number | undefined;
+    if (chipRect) {
+      const wrapper = this.renderRoot.querySelector('.toolbar-filters-wrapper');
+      if (wrapper) {
+        const wrapperRect = wrapper.getBoundingClientRect();
+        chipLeft = chipRect.left - wrapperRect.left;
+      }
+    }
+    toolbar?.openFilterPanel(key, true, chipLeft);
+  }
+
+  private _handleMetadataFilterOpen(e: CustomEvent) {
+    const { fieldKey, chipRect } = e.detail;
+    const toolbar = this.renderRoot.querySelector('ap-content-toolbar') as
+      import('./components/toolbar/ap-content-toolbar').ApContentToolbar | null;
+    let chipLeft: number | undefined;
+    if (chipRect) {
+      const wrapper = this.renderRoot.querySelector('.toolbar-filters-wrapper');
+      if (wrapper) {
+        const wrapperRect = wrapper.getBoundingClientRect();
+        chipLeft = chipRect.left - wrapperRect.left;
+      }
+    }
+    toolbar?.openMetadataFieldPanel(fieldKey, true, chipLeft);
+  }
+
+  private _handleFilterPanelChange(e: CustomEvent) {
+    const bar = this.renderRoot.querySelector('ap-filters-bar') as
+      import('./components/filters/ap-filters-bar').ApFiltersBar | null;
+    if (bar) {
+      bar.activeFilter = e.detail.key;
+      bar.activeMetadataField = e.detail.metadataFieldKey || null;
+    }
   }
 
   private _handleFilterRemove(e: CustomEvent) {
@@ -827,6 +879,9 @@ export class AssetPicker extends LitElement {
       assets: [],
       folders: [],
     });
+    const bar = this.renderRoot.querySelector('ap-filters-bar') as
+      import('./components/filters/ap-filters-bar').ApFiltersBar | null;
+    if (bar) bar.activeFilter = null;
     this.selectionCtrl.resetRange();
     this._debouncedLoadData();
   }
@@ -880,11 +935,11 @@ export class AssetPicker extends LitElement {
   // ── Sort Options ────────────────────────────────────────────────────
 
   private _getSortOptions(): SortOption[] {
-    const state = this.store.getState();
-    if (state.searchQuery) {
+    const s = this.storeCtrl.state;
+    if (s.searchQuery) {
       return SEARCH_SORT_OPTIONS;
     }
-    if (state.activeTab === 'folders') {
+    if (s.activeTab === 'folders') {
       return FOLDERS_SORT_OPTIONS;
     }
     return MAIN_SORT_OPTIONS;
@@ -933,38 +988,45 @@ export class AssetPicker extends LitElement {
                 ></ap-breadcrumb>`
               : nothing}
 
-            <ap-content-toolbar
-              .isLoading=${s.isLoading}
-              .totalCount=${s.totalCount}
-              .totalFolderCount=${s.totalFolderCount}
-              .sortBy=${s.sortBy}
-              .sortDirection=${s.sortDirection}
-              .sortOptions=${this._getSortOptions()}
-              .filters=${s.filters}
-              .labels=${s.labels}
-              .metadataFields=${s.metadataFields}
-              @sort-change=${this._handleSortChange}
-              @sort-direction-change=${this._handleSortDirectionChange}
-              @filter-update=${this._handleFilterUpdate}
-              @metadata-filter-change=${this._handleMetadataFilterChange}
-              @metadata-field-toggle=${this._handleMetadataFieldToggle}
-            ></ap-content-toolbar>
+            <div class="toolbar-filters-wrapper">
+              <ap-content-toolbar
+                .isLoading=${s.isLoading}
+                .totalCount=${s.totalCount}
+                .totalFolderCount=${s.totalFolderCount}
+                .sortBy=${s.sortBy}
+                .sortDirection=${s.sortDirection}
+                .sortOptions=${this._getSortOptions()}
+                .filters=${s.filters}
+                .labels=${s.labels}
+                .metadataFields=${s.metadataFields}
+                .pinnedFilters=${s.filters.pinned}
+                @sort-change=${this._handleSortChange}
+                @sort-direction-change=${this._handleSortDirectionChange}
+                @filter-update=${this._handleFilterUpdate}
+                @filter-pin=${this._handleFilterPin}
+                @metadata-filter-change=${this._handleMetadataFilterChange}
+                @metadata-field-toggle=${this._handleMetadataFieldToggle}
+                @metadata-pin=${this._handleMetadataPin}
+                @filter-panel-change=${this._handleFilterPanelChange}
+              ></ap-content-toolbar>
 
-            <ap-filters-bar
-              .appliedFilters=${s.filters.applied}
-              .appliedMetadata=${s.filters.metadata.applied}
-              .pinnedFilters=${s.filters.pinned}
-              .pinnedMetadata=${s.filters.metadata.pinned}
-              .metadataFields=${s.metadataFields}
-              @filter-remove=${this._handleFilterRemove}
-              @filter-deactivate=${this._handleFilterDeactivate}
-              @metadata-filter-remove=${this._handleMetadataFilterRemove}
-              @metadata-field-deactivate=${this._handleMetadataFieldDeactivate}
-              @filter-pin=${this._handleFilterPin}
-              @metadata-pin=${this._handleMetadataPin}
-              @filters-clear-all=${this._handleFiltersClearAll}
-              @filters-set=${this._handleFiltersSet}
-            ></ap-filters-bar>
+              <ap-filters-bar
+                .appliedFilters=${s.filters.applied}
+                .appliedMetadata=${s.filters.metadata.applied}
+                .metadataFields=${s.metadataFields}
+                .pinnedFilters=${s.filters.pinned}
+                .pinnedMetadataFields=${s.filters.metadata.pinned}
+                @filter-remove=${this._handleFilterRemove}
+                @filter-deactivate=${this._handleFilterDeactivate}
+                @filter-open=${this._handleFilterOpen}
+                @metadata-filter-open=${this._handleMetadataFilterOpen}
+                @metadata-filter-remove=${this._handleMetadataFilterRemove}
+                @metadata-field-deactivate=${this._handleMetadataFieldDeactivate}
+                @metadata-pin=${this._handleMetadataPin}
+                @filters-clear-all=${this._handleFiltersClearAll}
+                @filters-set=${this._handleFiltersSet}
+              ></ap-filters-bar>
+            </div>
 
             ${s.isLoading && s.assets.length === 0 && s.folders.length === 0
               ? html`<ap-skeleton .variant=${s.viewMode}></ap-skeleton>`

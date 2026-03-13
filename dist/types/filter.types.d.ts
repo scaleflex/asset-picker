@@ -57,7 +57,7 @@ export declare const METADATA_FIELD_TYPES: {
     readonly SUPERTAGS: "tags";
     readonly DATE: "date";
     readonly BOOLEAN: "boolean";
-    readonly ATTACHMENTS_ASSETS: "attachments_assets";
+    readonly ATTACHMENTS_ASSETS: "attachments-assets";
     readonly ATTACHMENT_URI: "attachment-uri";
     readonly GEO_POINT: "geopoint";
     readonly DECIMAL2: "decimal2";

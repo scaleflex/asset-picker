@@ -7,7 +7,6 @@ import {
   FILTER_KEYS,
   FILTER_OPERATORS,
   FILTER_LOGIC,
-  APPROVAL_FILTER_KEYS,
   METADATA_FIELD_TYPES,
   METADATA_PREFIXES,
   DATE_KINDS,
@@ -110,7 +109,7 @@ function serializeSingleFilter(key: string, filter: AnyFilter): string[] {
       return serializeColor(operator, values, logic);
 
     case FILTER_KEYS.TYPE:
-      return serializeTypeMime(key, filters_get_type_values(values), operator, logic);
+      return serializeTypeMime(key, values, operator, logic);
 
     case FILTER_KEYS.MIME_TYPE:
       return serializeTypeMime(key, values, operator, logic);
@@ -160,8 +159,17 @@ function serializeDateFilter(key: string, filter: DateFilter): string[] {
     return [`${field}:<"${filter.to}"`];
   }
 
-  if (filter.kind === DATE_KINDS.BETWEEN && filter.from && filter.to) {
-    return [`${field}:"${filter.from}..${filter.to}"`];
+  if (filter.kind === DATE_KINDS.BETWEEN) {
+    if (filter.from && filter.to) {
+      return [`${field}:"${filter.from}..${filter.to}"`];
+    }
+    // Partial "between": treat as after/before when only one date is filled
+    if (filter.from && !filter.to) {
+      return [`${field}:>"${filter.from}"`];
+    }
+    if (!filter.from && filter.to) {
+      return [`${field}:<"${filter.to}"`];
+    }
   }
 
   if (filter.kind === DATE_KINDS.SPECIFIC && filter.from) {
@@ -336,7 +344,7 @@ function stripMetadataPrefix(key: string): string {
 // ── Helpers ─────────────────────────────────────────────────────────
 
 function stripHashes(values: string[]): string[] {
-  return values.map((v) => v.replace(/^#/, ''));
+  return values.map((v) => v.replace(/#/g, ''));
 }
 
 function filters_get_type_values(values: string[]): string[] {

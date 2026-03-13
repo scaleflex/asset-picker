@@ -25,6 +25,7 @@ export class ApPreviewPanel extends LitElement {
       flex-direction: column;
       animation: ap-panel-in 300ms ease-out;
       overflow-y: auto;
+      user-select: none;
     }
     @keyframes ap-panel-in {
       from { transform: translateX(100%); }
@@ -44,6 +45,7 @@ export class ApPreviewPanel extends LitElement {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      user-select: none;
     }
     .header-actions {
       display: flex;
@@ -85,14 +87,38 @@ export class ApPreviewPanel extends LitElement {
       align-items: center;
       justify-content: center;
       background: var(--ap-muted, #f4f4f5);
-      min-height: 200px;
+      min-height: 300px;
+      height: 300px;
+      flex-shrink: 0;
       overflow: hidden;
+    }
+    .preview-loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--ap-muted, #f4f4f5);
+      z-index: 3;
+    }
+    .preview-loading .spinner {
+      width: 24px;
+      height: 24px;
+      border: 2.5px solid var(--ap-border, #e4e4e7);
+      border-top-color: var(--ap-primary, #3b82f6);
+      border-radius: 50%;
+      animation: ap-spin 0.6s linear infinite;
+    }
+    @keyframes ap-spin {
+      to { transform: rotate(360deg); }
     }
     .preview-area img {
       max-width: 100%;
-      max-height: 300px;
+      max-height: 100%;
       object-fit: contain;
       border-radius: var(--ap-radius-sm, 6px);
+      -webkit-user-drag: none;
+      pointer-events: none;
     }
     .preview-area.chess {
       background-image: conic-gradient(var(--ap-chess-a, #f0f0f0) 25%, var(--ap-chess-b, #fff) 25% 50%, var(--ap-chess-a, #f0f0f0) 50% 75%, var(--ap-chess-b, #fff) 75%);
@@ -104,8 +130,8 @@ export class ApPreviewPanel extends LitElement {
       max-width: 100px;
     }
     .preview-area video {
-      width: 100%;
-      height: 300px;
+      max-width: 100%;
+      max-height: 100%;
       object-fit: contain;
     }
     /* Fullscreen styles */
@@ -124,8 +150,7 @@ export class ApPreviewPanel extends LitElement {
     .preview-area:fullscreen .fs-wrapper .fs-blur {
       position: absolute;
       inset: 0;
-      width: 100%;
-      height: 100%;
+      margin: auto;
       object-fit: contain;
       filter: blur(8px);
       transform: scale(1.02);
@@ -265,6 +290,7 @@ export class ApPreviewPanel extends LitElement {
       text-overflow: ellipsis;
       white-space: nowrap;
       min-width: 0;
+      user-select: text;
     }
     .meta-value.wrap {
       white-space: normal;
@@ -288,6 +314,7 @@ export class ApPreviewPanel extends LitElement {
   @query('video') private _videoEl?: HTMLVideoElement;
   @state() private _isFullscreen = false;
   @state() private _fsImageLoaded = false;
+  @state() private _previewLoading = false;
   @state() private _openSections = new Set<string>(['file-info']);
   private _hls: Hls | null = null;
 
@@ -314,10 +341,15 @@ export class ApPreviewPanel extends LitElement {
     super.updated(changedProperties);
     if (changedProperties.has('asset')) {
       this._destroyHls();
+      this._previewLoading = true;
       if (this.asset) {
         const fileType = getFileTypeFromMime(this.asset.type);
         if (fileType === 'video') {
           this._setupHls(this.asset);
+        }
+        // Non-media types have no load event, clear loading immediately
+        if (fileType !== 'image' && fileType !== 'video') {
+          this._previewLoading = false;
         }
       }
     }
@@ -453,6 +485,17 @@ export class ApPreviewPanel extends LitElement {
       dpr: String(window.devicePixelRatio || 1),
       org_if_sml: '1',
     });
+  }
+
+  private _getBlurDimensions(a: Asset): { width: string; height: string } {
+    const imgW = a.info?.img_w;
+    const imgH = a.info?.img_h;
+    if (!imgW || !imgH) return { width: '100vw', height: '100vh' };
+
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const scale = Math.min(vw / imgW, vh / imgH, 1);
+    return { width: `${Math.round(imgW * scale)}px`, height: `${Math.round(imgH * scale)}px` };
   }
 
   private _onFsImageLoad() {
@@ -691,6 +734,7 @@ export class ApPreviewPanel extends LitElement {
       : '';
     const fsPreviewUrl = isImage ? this._getFullscreenImageUrl(a) : '';
 
+    const blurDims = isImage ? this._getBlurDimensions(a) : null;
     const videoSrc = isVideo ? (a.url?.cdn || '') : '';
     const videoPoster = isVideo ? (a.info?.video_thumbnail || a.info?.preview || '') : '';
     const pdfPreviewUrl = isPdf && !isImage ? getPdfPreviewUrl(a) : '';
@@ -726,12 +770,15 @@ export class ApPreviewPanel extends LitElement {
               <ap-icon name="chevron-right" .size=${16}></ap-icon>
             </button>
           ` : nothing}
+          ${this._previewLoading ? html`<div class="preview-loading"><div class="spinner"></div></div>` : nothing}
           ${isImage ? html`
             <img
               src=${panelPreviewUrl}
               alt=${a.name}
+              @load=${(e: Event) => { (e.target as HTMLImageElement).classList.remove('icon-fallback'); this._previewLoading = false; }}
               @error=${(e: Event) => {
                 const img = e.target as HTMLImageElement;
+                this._previewLoading = false;
                 if (img.src !== fallbackIconUrl) {
                   img.src = fallbackIconUrl;
                   img.classList.add('icon-fallback');
@@ -743,6 +790,7 @@ export class ApPreviewPanel extends LitElement {
                 class="fs-blur ${this._fsImageLoaded ? 'hidden' : ''}"
                 src=${panelPreviewUrl}
                 alt=""
+                style="width:${blurDims!.width};height:${blurDims!.height}"
               />
               <img
                 class="fs-full ${this._fsImageLoaded ? 'loaded' : ''}"
@@ -752,7 +800,7 @@ export class ApPreviewPanel extends LitElement {
               />
             </div>
           ` : nothing}
-          ${isVideo ? html`<video src=${videoSrc} poster=${videoPoster || nothing} controls></video>` : nothing}
+          ${isVideo ? html`<video src=${videoSrc} poster=${videoPoster || nothing} controls @loadeddata=${() => { this._previewLoading = false; }} @error=${() => { this._previewLoading = false; }}></video>` : nothing}
           ${isAudio ? html`<audio src=${a.url?.cdn || ''} controls></audio>` : nothing}
           ${isPdf && !isImage ? html`
             <img

@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { filterPopoverStyles } from './shared/filter-styles';
 import {
   RESOLUTION_OPTIONS,
   ORIENTATION_OPTIONS,
@@ -8,59 +9,25 @@ import {
 
 @customElement('ap-filter-image')
 export class ApFilterImage extends LitElement {
-  static styles = css`
-    :host {
-      display: block;
-    }
-
-    .section {
-      margin-bottom: 12px;
-    }
-
-    .section:last-child {
-      margin-bottom: 0;
-    }
-
-    .section-label {
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--ap-muted-foreground, #71717a);
-      margin-bottom: 6px;
-      font-family: var(--ap-font-family, system-ui, sans-serif);
-    }
-
-    .options {
+  static styles = [filterPopoverStyles, css`
+    .options-vertical {
       display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 12px;
     }
-
-    .option {
-      padding: 4px 12px;
-      border: 1px solid var(--ap-border, #e4e4e7);
-      border-radius: var(--ap-radius-sm, 6px);
-      background: none;
-      font-size: var(--ap-font-size-sm, 0.875rem);
-      cursor: pointer;
-      color: var(--ap-foreground, #09090b);
-      font-family: var(--ap-font-family, system-ui, sans-serif);
-      transition: background 150ms, border-color 150ms, color 150ms;
-    }
-
-    .option:hover {
-      background: var(--ap-muted, #f4f4f5);
-    }
-
-    .option.selected {
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.1));
-      border-color: var(--ap-primary, oklch(0.65 0.19 258));
-      color: var(--ap-primary, oklch(0.65 0.19 258));
-    }
-  `;
+  `];
 
   @property({ type: Array }) selectedResolution: string[] = [];
   @property({ type: Array }) selectedOrientation: string[] = [];
   @property({ type: Array }) selectedFaces: string[] = [];
+
+  private get _hasSelection(): boolean {
+    return (
+      this.selectedResolution.length > 0 ||
+      this.selectedOrientation.length > 0 ||
+      this.selectedFaces.length > 0
+    );
+  }
 
   private _toggle(list: string[], value: string): string[] {
     return list.includes(value)
@@ -83,6 +50,13 @@ export class ApFilterImage extends LitElement {
     this._dispatchChange();
   }
 
+  private _clearAll() {
+    this.selectedResolution = [];
+    this.selectedOrientation = [];
+    this.selectedFaces = [];
+    this._dispatchChange();
+  }
+
   private _dispatchChange() {
     this.dispatchEvent(
       new CustomEvent('filter-change', {
@@ -100,51 +74,68 @@ export class ApFilterImage extends LitElement {
     );
   }
 
-  private _renderSection(
-    label: string,
-    options: { value: string; label: string }[],
-    selected: string[],
-    toggleFn: (value: string) => void,
-  ) {
-    return html`
-      <div class="section">
-        <div class="section-label">${label}</div>
-        <div class="options">
-          ${options.map(
-            (opt) => html`
-              <button
-                class="option ${selected.includes(opt.value) ? 'selected' : ''}"
-                @click=${() => toggleFn(opt.value)}
-              >
-                ${opt.label}
-              </button>
-            `,
-          )}
-        </div>
-      </div>
-    `;
-  }
-
   render() {
     return html`
-      ${this._renderSection(
-        'Resolution',
-        RESOLUTION_OPTIONS,
-        this.selectedResolution,
-        (v) => this._toggleResolution(v),
-      )}
-      ${this._renderSection(
-        'Orientation',
-        ORIENTATION_OPTIONS,
-        this.selectedOrientation,
-        (v) => this._toggleOrientation(v),
-      )}
-      ${this._renderSection(
-        'Faces',
-        FACES_OPTIONS,
-        this.selectedFaces,
-        (v) => this._toggleFaces(v),
-      )}
+      <div class="filter-content">
+        <button
+          class="clear-btn"
+          ?disabled=${!this._hasSelection}
+          @click=${this._clearAll}
+        >Clear all</button>
+
+        <div class="filter-section">
+          <span class="section-label">Resolution</span>
+          <div class="grid-2">
+            ${RESOLUTION_OPTIONS.map(
+              (opt) => html`
+                <ap-checkbox
+                  ?checked=${this.selectedResolution.includes(opt.value)}
+                  @ap-toggle=${() => {
+                    this._toggleResolution(opt.value);
+                  }}
+                >${opt.label}</ap-checkbox>
+              `,
+            )}
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <span class="section-label">Orientation</span>
+          <div class="options-vertical">
+            ${ORIENTATION_OPTIONS.map(
+              (opt) => html`
+                <ap-checkbox
+                  ?checked=${this.selectedOrientation.includes(opt.value)}
+                  @ap-toggle=${() => {
+                    this._toggleOrientation(opt.value);
+                  }}
+                >${opt.label}</ap-checkbox>
+              `,
+            )}
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <span class="section-label">Faces</span>
+          <div class="grid-2">
+            ${FACES_OPTIONS.map(
+              (opt) => html`
+                <ap-checkbox
+                  ?checked=${this.selectedFaces.includes(opt.value)}
+                  @ap-toggle=${() => {
+                    this._toggleFaces(opt.value);
+                  }}
+                >${opt.label}</ap-checkbox>
+              `,
+            )}
+          </div>
+        </div>
+
+        <div class="info-alert">
+          <ap-icon name="info" .size=${14}></ap-icon>
+          <span>Requires image processing to be enabled.</span>
+        </div>
+      </div>
     `;
   }
 }

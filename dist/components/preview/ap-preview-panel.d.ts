@@ -14,6 +14,7 @@ export declare class ApPreviewPanel extends LitElement {
     private _videoEl?;
     private _isFullscreen;
     private _fsImageLoaded;
+    private _previewLoading;
     private _openSections;
     private _hls;
     connectedCallback(): void;
@@ -38,6 +39,7 @@ export declare class ApPreviewPanel extends LitElement {
     private _prev;
     private _next;
     private _getFullscreenImageUrl;
+    private _getBlurDimensions;
     private _onFsImageLoad;
     private _getTagLabels;
     private _toggleSection;

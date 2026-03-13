@@ -14,6 +14,7 @@ export declare class AssetPicker extends LitElement {
     private _initFailed;
     private _loadId;
     private _loadMoreId;
+    private _loadDataTimer;
     config?: AssetPickerConfig;
     constructor();
     connectedCallback(): void;
@@ -25,6 +26,7 @@ export declare class AssetPicker extends LitElement {
     private _scrollToTop;
     private _loadData;
     private _loadMore;
+    private _debouncedLoadData;
     private _handleCancel;
     private _handleSearchChange;
     private _handleViewChange;
@@ -44,6 +46,9 @@ export declare class AssetPicker extends LitElement {
     private _handleSelectionDeselect;
     private _isDateFilterKey;
     private _handleFilterUpdate;
+    private _handleFilterOpen;
+    private _handleMetadataFilterOpen;
+    private _handleFilterPanelChange;
     private _handleFilterRemove;
     private _handleMetadataFilterChange;
     private _handleMetadataFieldToggle;
@@ -51,6 +56,10 @@ export declare class AssetPicker extends LitElement {
     private _handleFilterPin;
     private _handleMetadataPin;
     private _handleFiltersClearAll;
+    private _handleFilterDeactivate;
+    private _handleMetadataFieldDeactivate;
+    private _handleFiltersSet;
+    private _getSortOptions;
     private _buildSearchNotation;
     render(): import('lit-html').TemplateResult<1>;
     private _renderContent;

@@ -1,4 +1,4 @@
-import { LitElement } from 'lit';
+import { LitElement, nothing } from 'lit';
 import { MetadataModelField } from '../../types/filter.types';
 interface MetadataFilterValue {
     operator?: string;
@@ -6,10 +6,14 @@ interface MetadataFilterValue {
     metadataType?: string;
 }
 export declare class ApFilterMetadata extends LitElement {
-    static styles: import('lit').CSSResult;
+    static styles: import('lit').CSSResult[];
     fields: MetadataModelField[];
     appliedFilters: Record<string, MetadataFilterValue>;
     visibleFields: string[];
+    mode: 'full' | 'selector' | 'field';
+    activeFieldKey: string;
+    pinnedFields: string[];
+    appliedMetadata: Record<string, MetadataFilterValue>;
     private _showFieldSelection;
     private _fieldSearch;
     private _collapsedFields;
@@ -18,23 +22,30 @@ export declare class ApFilterMetadata extends LitElement {
     private _dateFroms;
     private _dateTos;
     private _specificModeFields;
+    private _selectSearches;
     private get _atFieldLimit();
     private _getField;
     private _getUIType;
     private _getApplied;
     private _isSpecialValue;
+    /** Get the "content" mode for a field: 'empty', 'not-empty', or 'specific' */
+    private _getContentMode;
     private _emitFilterChange;
     private _emitFieldToggle;
+    private _emitFieldSelect;
+    private _emitPin;
     private _openFieldSelection;
     private _closeFieldSelection;
     private _addField;
     private _removeField;
     private _toggleCollapse;
     private _onOperatorChange;
+    private _onContentModeChange;
+    private _clearFieldFilter;
     private _onTextInput;
     private _onNumberInput;
     private _onBooleanSelect;
-    private _onSelectOneChange;
+    private _onSelectOneToggle;
     private _onMultiSelectToggle;
     private _onTagKeydown;
     private _onTagInput;
@@ -42,11 +53,10 @@ export declare class ApFilterMetadata extends LitElement {
     private _removeTag;
     private _onDatePreset;
     private _onDateInput;
-    private _onGeoInput;
+    private _onGeoLocationInput;
+    private _onGeoRadiusInput;
     private _onEmptyOption;
     private _renderFieldSelection;
-    private _renderOperator;
-    private _renderEmptyOptions;
     private _renderTextFilter;
     private _renderNumberFilter;
     private _renderBooleanFilter;
@@ -59,7 +69,9 @@ export declare class ApFilterMetadata extends LitElement {
     private _renderFaceMatcherFilter;
     private _renderFieldControl;
     private _renderFieldSection;
-    render(): import('lit-html').TemplateResult<1>;
+    private _renderSelectorMode;
+    private _renderFieldMode;
+    render(): import('lit-html').TemplateResult<1> | typeof nothing;
 }
 declare global {
     interface HTMLElementTagNameMap {

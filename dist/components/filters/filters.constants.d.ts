@@ -8,7 +8,7 @@ export declare const FILTERS_PINNED_PREFIX = "filters:pinned:";
 export declare const METADATA_PINNED_PREFIX = "metadata:pinned:";
 export declare const DEFAULT_PINNED_FILTERS: AnyFilterKey[];
 export declare const DEFAULT_FILTER_OPERATOR: ":";
-export declare const DEFAULT_COLOR_COVERAGE = "20";
+export declare const DEFAULT_COLOR_COVERAGE = "30";
 export declare const DEFAULT_COLOR_TOLERANCE = "1";
 export declare const METADATA_MODEL_INDEX = 0;
 export declare const FILTER_ITEMS: FilterItemConfig[];
@@ -89,6 +89,10 @@ export declare const LICENSE_DATE_RANGE_OPTIONS: {
     value: string;
     label: string;
 }[];
+export declare const WITHIN_DATE_RANGE_OPTIONS: {
+    value: string;
+    label: string;
+}[];
 export declare const APPROVAL_STATUS_OPTIONS: {
     value: string;
     label: string;
@@ -150,11 +154,22 @@ export declare const PRODUCTS_OPERATOR_OPTIONS: ({
 })[];
 export declare const APPROVAL_OPERATOR_OPTIONS: ({
     label: string;
-    value: ":";
+    value: ":=";
 } | {
     label: string;
     value: ":-";
 })[];
+export declare const APPROVAL_PERSON_OPERATOR_OPTIONS: ({
+    label: string;
+    value: "~";
+} | {
+    label: string;
+    value: ":-";
+})[];
+export declare const APPROVAL_STATUS_ONLY_OPTIONS: {
+    value: string;
+    label: string;
+}[];
 export declare const EMPTY_OPTIONS: {
     label: string;
     value: string;

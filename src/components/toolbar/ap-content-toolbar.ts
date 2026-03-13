@@ -10,6 +10,7 @@ import type {
   MetadataModelField,
   FilterItemConfig,
 } from '../../types/filter.types';
+import { METADATA_PREFIX_BY_TYPE } from '../../types/filter.types';
 import type { Label } from '../../types/label.types';
 import {
   FILTER_LABELS,
@@ -127,6 +128,7 @@ export class ApContentToolbar extends LitElement {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
+      overscroll-behavior: contain;
     }
 
     /* Filter button in dropdown */
@@ -176,6 +178,40 @@ export class ApContentToolbar extends LitElement {
     .filter-btn-label ap-icon {
       color: var(--ap-muted-foreground, #71717a);
     }
+    .pin-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+      color: var(--ap-muted-foreground, #71717a);
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-left: auto;
+      transition: all 150ms;
+      opacity: 0;
+    }
+    .filter-btn:hover .pin-btn,
+    .pin-btn.pinned {
+      opacity: 1;
+    }
+    .pin-btn:hover {
+      color: var(--ap-primary, oklch(0.65 0.19 258));
+      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.08));
+    }
+    .pin-btn.pinned {
+      color: var(--ap-primary, oklch(0.65 0.19 258));
+    }
+    .submenu-chevron {
+      display: flex;
+      align-items: center;
+      color: var(--ap-muted-foreground, #71717a);
+      margin-left: auto;
+    }
 
     .divider {
       width: 1px;
@@ -203,8 +239,81 @@ export class ApContentToolbar extends LitElement {
       outline-offset: -2px;
     }
 
-    .popover-wrapper {
+    /* Popover anchor row */
+    .popover-anchor {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: flex-start;
+      padding: 0 20px;
+      z-index: 50;
+    }
+    .anchor-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border: 1px solid var(--ap-border, #e4e4e7);
+      border-bottom: 1px solid var(--ap-card, #fff);
+      border-radius: 8px 8px 0 0;
+      background: var(--ap-card, #fff);
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--ap-primary, oklch(0.65 0.19 258));
       position: relative;
+      z-index: 51;
+      margin-bottom: -1px;
+    }
+    .anchor-close {
+      display: flex;
+      align-items: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      color: var(--ap-muted-foreground, #71717a);
+      transition: color 150ms;
+    }
+    .anchor-close:hover {
+      color: var(--ap-foreground, #09090b);
+    }
+    .anchor-back {
+      display: flex;
+      align-items: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      color: var(--ap-muted-foreground, #71717a);
+      transition: color 150ms;
+    }
+    .anchor-back:hover {
+      color: var(--ap-foreground, #09090b);
+    }
+    .popover-panel {
+      position: absolute;
+      top: 100%;
+      left: 20px;
+      z-index: 50;
+      min-width: 280px;
+      max-width: 420px;
+      max-height: 400px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      background: var(--ap-card, #fff);
+      border: 1px solid var(--ap-border, #e4e4e7);
+      border-radius: 0 8px 8px 8px;
+      box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1);
+      padding: 10px 8px;
+    }
+    .popover-anchor.external {
+      padding: 0;
+    }
+    .popover-anchor.external .popover-panel {
+      border-radius: 8px;
+      top: 0;
     }
   `;
 
@@ -222,35 +331,85 @@ export class ApContentToolbar extends LitElement {
   };
   @property({ type: Array }) labels: Label[] = [];
   @property({ type: Array }) metadataFields: MetadataModelField[] = [];
+  @property({ type: Array }) pinnedFilters: AnyFilterKey[] = [];
 
   @query('ap-dropdown') private _sortDropdown?: import('../shared/ap-dropdown').ApDropdown;
-  @query('.filter-dropdown') private _filterDropdownEl?: HTMLElement;
   @state() private _showDropdown = false;
   @state() private _openFilter: FilterKey | null = null;
+  @state() private _openMetadataField: string | null = null;
+  @state() private _externalTrigger = false;
+  @state() private _externalLeft: number | null = null;
+
+  private _outsideClickHandler = (e: MouseEvent) => {
+    const path = e.composedPath();
+
+    // If the click is on a filters-bar chip, don't close — let the chip's click handler
+    // drive the toggle/switch via openFilterPanel / openMetadataFieldPanel
+    if (this._externalTrigger) {
+      const filtersBar = path.find(
+        (el) => el instanceof HTMLElement && el.tagName === 'AP-FILTERS-BAR',
+      );
+      if (filtersBar) return;
+    }
+
+    if (!path.includes(this)) {
+      this._closeAllDropdowns();
+      return;
+    }
+    // Close popover when clicking inside the toolbar but outside the popover
+    if (this._openFilter) {
+      const anchor = this.renderRoot.querySelector('.popover-anchor');
+      if (anchor && !path.includes(anchor)) {
+        this._openFilter = null;
+        this._openMetadataField = null;
+        this._externalTrigger = false;
+        this._externalLeft = null;
+      }
+    }
+  };
 
   connectedCallback() {
     super.connectedCallback();
-    document.addEventListener('click', this._handleOutsideClick);
+    document.addEventListener('mousedown', this._outsideClickHandler);
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    document.removeEventListener('click', this._handleOutsideClick);
+    document.removeEventListener('mousedown', this._outsideClickHandler);
   }
 
-  private _handleOutsideClick = (e: Event) => {
-    const path = e.composedPath();
-    if (this._showDropdown && this._filterDropdownEl && !path.includes(this._filterDropdownEl)) {
-      this._showDropdown = false;
+  updated(changed: Map<string, unknown>) {
+    if (changed.has('_openFilter') || changed.has('_externalTrigger') || changed.has('_openMetadataField')) {
+      this.dispatchEvent(new CustomEvent('filter-panel-change', {
+        detail: {
+          key: this._externalTrigger ? this._openFilter : null,
+          metadataFieldKey: this._externalTrigger ? this._openMetadataField : null,
+        },
+        bubbles: true,
+        composed: true,
+      }));
     }
-    if (this._openFilter && !path.includes(this)) {
-      this._openFilter = null;
+    // Clamp popover to avoid right-edge overflow (only when popover state changes)
+    if (this._externalTrigger && this._externalLeft != null
+        && (changed.has('_openFilter') || changed.has('_externalLeft') || changed.has('_openMetadataField'))) {
+      const panel = this.renderRoot.querySelector('.popover-panel') as HTMLElement | null;
+      if (panel) {
+        const panelRect = panel.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        if (panelRect.right > viewportWidth - 8) {
+          const overflow = panelRect.right - viewportWidth + 8;
+          panel.style.left = `${Math.max(8, this._externalLeft - overflow)}px`;
+        }
+      }
     }
-  };
+  }
 
   private _closeAllDropdowns() {
     this._showDropdown = false;
     this._openFilter = null;
+    this._openMetadataField = null;
+    this._externalTrigger = false;
+    this._externalLeft = null;
     this._sortDropdown?.close();
   }
 
@@ -260,14 +419,32 @@ export class ApContentToolbar extends LitElement {
     this._showDropdown = !wasOpen;
   }
 
-  private _selectFilterKey(key: FilterKey) {
-    this._closeAllDropdowns();
+  /** Close any open filter panel */
+  public closeFilterPanel() {
+    this._openFilter = null;
+    this._openMetadataField = null;
+    this._externalTrigger = false;
+    this._externalLeft = null;
+  }
+
+  /** Open a specific filter panel (also used programmatically by parent) */
+  public openFilterPanel(key: FilterKey, external = false, chipLeft?: number) {
+    // Toggle: if already showing this filter externally, close it
+    if (external && this._externalTrigger && this._openFilter === key && !this._openMetadataField) {
+      this.closeFilterPanel();
+      return;
+    }
+    this._showDropdown = false;
     this._openFilter = key;
+    this._openMetadataField = null;
+    this._externalTrigger = external;
+    this._externalLeft = chipLeft ?? null;
   }
 
   private _handleSortOpen() {
     this._showDropdown = false;
     this._openFilter = null;
+    this._openMetadataField = null;
   }
 
   private _handleSort(e: CustomEvent) {
@@ -309,6 +486,56 @@ export class ApContentToolbar extends LitElement {
       bubbles: true,
       composed: true,
     }));
+  }
+
+  private _handleMetadataFieldSelect(e: CustomEvent) {
+    e.stopPropagation();
+    this._openMetadataField = e.detail.fieldKey;
+  }
+
+  private _handleMetadataPin(e: CustomEvent) {
+    e.stopPropagation();
+    this.dispatchEvent(new CustomEvent('metadata-pin', {
+      detail: e.detail,
+      bubbles: true,
+      composed: true,
+    }));
+  }
+
+  public openMetadataFieldPanel(fieldKey: string, external = false, chipLeft?: number) {
+    // Toggle: if already showing this metadata field externally, close it
+    if (external && this._externalTrigger && this._openMetadataField === fieldKey) {
+      this.closeFilterPanel();
+      return;
+    }
+    this._showDropdown = false;
+    this._openFilter = 'metadata' as FilterKey;
+    this._openMetadataField = fieldKey;
+    this._externalTrigger = external;
+    this._externalLeft = chipLeft ?? null;
+  }
+
+  private _getMetadataFieldLabel(fieldKey: string): string {
+    for (const f of this.metadataFields) {
+      const prefix = METADATA_PREFIX_BY_TYPE[f.type] || '';
+      if (`${prefix}${f.key}` === fieldKey) return f.label;
+    }
+    return fieldKey;
+  }
+
+  private _togglePin(key: AnyFilterKey, e: Event) {
+    e.stopPropagation(); // Don't open the filter
+    const pinned = this.pinnedFilters.includes(key);
+    this.dispatchEvent(new CustomEvent('filter-pin', {
+      detail: { key, pinned: !pinned },
+      bubbles: true,
+      composed: true,
+    }));
+  }
+
+  private _getFilterIcon(key: FilterKey): string {
+    const item = ALL_FILTER_ITEMS.find((i) => i.key === key);
+    return item?.icon || 'filter';
   }
 
   private _renderFilterContent(key: FilterKey) {
@@ -414,14 +641,31 @@ export class ApContentToolbar extends LitElement {
           @filter-change=${this._handleFilterChange}
         ></ap-filter-approval>`;
       }
-      case 'metadata':
+      case 'metadata': {
+        if (this._openMetadataField) {
+          return html`<ap-filter-metadata
+            mode="field"
+            .activeFieldKey=${this._openMetadataField}
+            .fields=${this.metadataFields}
+            .appliedMetadata=${this.filters.metadata.applied}
+            .visibleFields=${this.filters.metadata.visible}
+            .pinnedFields=${this.filters.metadata.pinned}
+            @metadata-filter-change=${this._handleMetadataFilterChange}
+            @metadata-field-toggle=${this._handleMetadataFieldToggle}
+          ></ap-filter-metadata>`;
+        }
         return html`<ap-filter-metadata
+          mode="selector"
           .fields=${this.metadataFields}
           .appliedMetadata=${this.filters.metadata.applied}
           .visibleFields=${this.filters.metadata.visible}
+          .pinnedFields=${this.filters.metadata.pinned}
           @metadata-filter-change=${this._handleMetadataFilterChange}
           @metadata-field-toggle=${this._handleMetadataFieldToggle}
+          @metadata-field-select=${this._handleMetadataFieldSelect}
+          @metadata-pin=${this._handleMetadataPin}
         ></ap-filter-metadata>`;
+      }
       case 'product_ref': {
         const f = applied.product_ref as StringFilter | undefined;
         return html`<ap-filter-tags
@@ -436,12 +680,16 @@ export class ApContentToolbar extends LitElement {
   }
 
   private _renderFilterButton(item: FilterItemConfig) {
-    const active = this._isFilterActive(item.key as AnyFilterKey);
+    const isMetadata = item.key === 'metadata';
+    const active = isMetadata
+      ? Object.keys(this.filters.metadata.applied).length > 0
+      : this._isFilterActive(item.key as AnyFilterKey);
+    const isPinned = this.pinnedFilters.includes(item.key as AnyFilterKey);
 
     return html`
       <button
         class="filter-btn ${active ? 'active' : ''}"
-        @click=${() => this._selectFilterKey(item.key)}
+        @click=${() => this.openFilterPanel(item.key)}
       >
         <span class="filter-btn-icon">
           <ap-icon name=${item.icon} .size=${18}></ap-icon>
@@ -449,6 +697,17 @@ export class ApContentToolbar extends LitElement {
         <span class="filter-btn-label">
           ${item.label}
         </span>
+        ${isMetadata
+          ? html`<span class="submenu-chevron"><ap-icon name="chevron-right" .size=${14}></ap-icon></span>`
+          : html`
+              <span
+                class="pin-btn ${isPinned ? 'pinned' : ''}"
+                title=${isPinned ? 'Unpin filter' : 'Pin filter'}
+                @click=${(e: Event) => this._togglePin(item.key as AnyFilterKey, e)}
+              >
+                <ap-icon name=${isPinned ? 'pin-off' : 'pin'} .size=${14}></ap-icon>
+              </span>
+            `}
       </button>
     `;
   }
@@ -504,10 +763,28 @@ export class ApContentToolbar extends LitElement {
         </div>
       </div>
       ${this._openFilter ? html`
-        <div class="popover-wrapper">
-          <ap-filter-popover .open=${true} .title=${FILTER_LABELS[this._openFilter] || this._openFilter}>
+        <div class="popover-anchor ${this._externalTrigger ? 'external' : ''}">
+          ${this._externalTrigger ? nothing : html`
+            <div class="anchor-tab">
+              ${this._openFilter === 'metadata' && this._openMetadataField
+                ? html`
+                    <button class="anchor-back" @click=${(e: Event) => { e.stopPropagation(); this._openMetadataField = null; }} title="Back to fields">
+                      <ap-icon name="chevron-left" .size=${14}></ap-icon>
+                    </button>
+                    ${this._getMetadataFieldLabel(this._openMetadataField)}
+                  `
+                : html`
+                    <ap-icon name=${this._getFilterIcon(this._openFilter!)} .size=${16}></ap-icon>
+                    ${FILTER_LABELS[this._openFilter!] || this._openFilter}
+                  `}
+              <button class="anchor-close" @click=${() => { this._openFilter = null; this._openMetadataField = null; this._externalTrigger = false; this._externalLeft = null; }} title="Close">
+                <ap-icon name="close" .size=${14}></ap-icon>
+              </button>
+            </div>
+          `}
+          <div class="popover-panel" style=${this._externalTrigger && this._externalLeft != null ? `left: ${this._externalLeft}px` : ''}>
             ${this._renderFilterContent(this._openFilter)}
-          </ap-filter-popover>
+          </div>
         </div>
       ` : nothing}
     `;

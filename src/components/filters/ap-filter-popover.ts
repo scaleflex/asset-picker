@@ -16,6 +16,7 @@ export class ApFilterPopover extends LitElement {
       max-width: 420px;
       max-height: 400px;
       overflow-y: auto;
+      overscroll-behavior: contain;
       background: var(--ap-card, #fff);
       border: 1px solid var(--ap-border, #e4e4e7);
       border-radius: var(--ap-radius, 8px);
