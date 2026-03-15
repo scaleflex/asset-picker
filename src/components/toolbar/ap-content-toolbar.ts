@@ -344,12 +344,17 @@ export class ApContentToolbar extends LitElement {
     const path = e.composedPath();
 
     // If the click is on a filters-bar chip, don't close — let the chip's click handler
-    // drive the toggle/switch via openFilterPanel / openMetadataFieldPanel
+    // drive the toggle/switch via openFilterPanel / openMetadataFieldPanel.
+    // Only skip closing for chip clicks, not clicks on the bar's empty area.
     if (this._externalTrigger) {
-      const filtersBar = path.find(
+      const hasFiltersBar = path.some(
         (el) => el instanceof HTMLElement && el.tagName === 'AP-FILTERS-BAR',
       );
-      if (filtersBar) return;
+      const hasChip = path.some(
+        (el) =>
+          el instanceof HTMLElement && el.classList.contains('chip'),
+      );
+      if (hasFiltersBar && hasChip) return;
     }
 
     if (!path.includes(this)) {
