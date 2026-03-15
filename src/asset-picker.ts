@@ -28,6 +28,7 @@ import {
 } from './types/filter.types';
 import type { GetFilesParams } from './types/api.types';
 import { getMetadataSettings } from './services/filters.service';
+import { FILTER_LABELS } from './components/filters/filters.constants';
 import { serializeFilters } from './utils/filter-serialize';
 import { loadPinnedFilters, savePinnedFilters, savePinnedMetadata } from './utils/filter-pin-storage';
 import { loadSortPreference, saveSortPreference } from './utils/sort-storage';
@@ -142,6 +143,8 @@ export class AssetPicker extends LitElement {
   private _loadId = 0;
   private _loadMoreId = 0;
   private _loadDataTimer: ReturnType<typeof setTimeout> | null = null;
+  private _pendingFilter: string | null = null;
+  private _pendingMetadataField: string | null = null;
 
   @property({ type: Object }) config?: AssetPickerConfig;
 
@@ -698,6 +701,13 @@ export class AssetPicker extends LitElement {
     this.store.setState({ filters, offset: 0, assets: [], folders: [] });
     this.selectionCtrl.resetRange();
     this._debouncedLoadData();
+    // Clear pending state when filter value is set
+    if (this._pendingFilter === key) {
+      this._pendingFilter = null;
+      const bar = this.renderRoot.querySelector('ap-filters-bar') as
+        import('./components/filters/ap-filters-bar').ApFiltersBar | null;
+      if (bar) bar.pendingFilter = null;
+    }
   }
 
   private _handleFilterOpen(e: CustomEvent) {
@@ -737,6 +747,65 @@ export class AssetPicker extends LitElement {
     if (bar) {
       bar.activeFilter = e.detail.key;
       bar.activeMetadataField = e.detail.metadataFieldKey || null;
+    }
+    // Clear pending filter when panel closes without a value being set
+    const panelClosed = !e.detail.key && !e.detail.metadataFieldKey;
+    if (panelClosed) {
+      if (this._pendingFilter || this._pendingMetadataField) {
+        this._pendingFilter = null;
+        this._pendingMetadataField = null;
+        if (bar) {
+          bar.pendingFilter = null;
+          bar.pendingMetadataField = null;
+        }
+      }
+    }
+  }
+
+  private async _handleFilterPending(e: CustomEvent) {
+    const { key, metadataFieldKey } = e.detail;
+    const bar = this.renderRoot.querySelector('ap-filters-bar') as
+      import('./components/filters/ap-filters-bar').ApFiltersBar | null;
+    const toolbar = this.renderRoot.querySelector('ap-content-toolbar') as
+      import('./components/toolbar/ap-content-toolbar').ApContentToolbar | null;
+    if (!bar || !toolbar) return;
+
+    if (metadataFieldKey) {
+      this._pendingMetadataField = metadataFieldKey;
+      bar.pendingMetadataField = metadataFieldKey;
+    } else if (key) {
+      this._pendingFilter = key;
+      bar.pendingFilter = key;
+    }
+
+    // Wait for bar to render the pending chip (or existing pinned chip)
+    await bar.updateComplete;
+
+    // Find the pending chip, or fall back to existing pinned-empty chip for this filter
+    let chip = bar.renderRoot.querySelector('.chip.pending') as HTMLElement | null;
+    if (!chip) {
+      // Filter might already have a pinned chip — find it by matching label text
+      const chips = bar.renderRoot.querySelectorAll('.chip.pinned-empty');
+      const targetLabel = metadataFieldKey
+        ? (bar as any)._getMetadataLabel?.(metadataFieldKey)
+        : undefined;
+      for (const c of chips) {
+        const label = c.querySelector('.chip-label')?.textContent?.trim();
+        if (metadataFieldKey && label === targetLabel) { chip = c as HTMLElement; break; }
+        if (key && label === (FILTER_LABELS[key as AnyFilterKey] || key)) { chip = c as HTMLElement; break; }
+      }
+    }
+    if (!chip) return;
+
+    const rect = chip.getBoundingClientRect();
+    const wrapper = this.renderRoot.querySelector('.toolbar-filters-wrapper');
+    const wrapperRect = wrapper?.getBoundingClientRect();
+    const chipLeft = wrapperRect ? rect.left - wrapperRect.left : rect.left;
+
+    if (metadataFieldKey) {
+      toolbar.openMetadataFieldPanel(metadataFieldKey, true, chipLeft);
+    } else if (key) {
+      toolbar.openFilterPanel(key, true, chipLeft);
     }
   }
 
@@ -787,6 +856,13 @@ export class AssetPicker extends LitElement {
     this.store.setState({ filters, offset: 0, assets: [], folders: [] });
     this.selectionCtrl.resetRange();
     this._debouncedLoadData();
+    // Clear pending metadata state when value is set
+    if (this._pendingMetadataField === fieldKey) {
+      this._pendingMetadataField = null;
+      const bar = this.renderRoot.querySelector('ap-filters-bar') as
+        import('./components/filters/ap-filters-bar').ApFiltersBar | null;
+      if (bar) bar.pendingMetadataField = null;
+    }
   }
 
   private _handleMetadataFieldToggle(e: CustomEvent) {
@@ -1016,6 +1092,7 @@ export class AssetPicker extends LitElement {
                 @metadata-field-toggle=${this._handleMetadataFieldToggle}
                 @metadata-pin=${this._handleMetadataPin}
                 @filter-panel-change=${this._handleFilterPanelChange}
+                @filter-pending=${this._handleFilterPending}
               ></ap-content-toolbar>
 
               <ap-filters-bar

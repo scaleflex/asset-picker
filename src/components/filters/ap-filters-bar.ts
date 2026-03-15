@@ -132,6 +132,8 @@ export class ApFiltersBar extends LitElement {
   @property({ type: Array }) tags: TagWithLabel[] = [];
   @property() activeFilter: AnyFilterKey | null = null;
   @property() activeMetadataField: string | null = null;
+  @property() pendingFilter: AnyFilterKey | null = null;
+  @property() pendingMetadataField: string | null = null;
 
   private _mapTypeLabel(value: string): string {
     return ASSET_TYPE_OPTIONS.find((o) => o.value === value)?.label || value;
@@ -290,7 +292,15 @@ export class ApFiltersBar extends LitElement {
     const pinnedMetadataEmpty = this.pinnedMetadataFields.filter(
       (key) => !(key in this.appliedMetadata),
     );
-    const totalCount = filterEntries.length + metadataEntries.length + pinnedEmpty.length + pinnedMetadataEmpty.length;
+    // Include pending filter as a temporary empty chip (if not already shown)
+    const hasPending = this.pendingFilter
+      && !pinnedEmpty.includes(this.pendingFilter)
+      && !(this.pendingFilter in this.appliedFilters);
+    const hasPendingMeta = this.pendingMetadataField
+      && !pinnedMetadataEmpty.includes(this.pendingMetadataField)
+      && !(this.pendingMetadataField in this.appliedMetadata);
+    const totalCount = filterEntries.length + metadataEntries.length + pinnedEmpty.length + pinnedMetadataEmpty.length
+      + (hasPending ? 1 : 0) + (hasPendingMeta ? 1 : 0);
 
     if (totalCount === 0) return nothing;
 
@@ -302,6 +312,11 @@ export class ApFiltersBar extends LitElement {
               <span class="chip-label">${FILTER_LABELS[key] || key}</span>
             </span>
           `)}
+          ${hasPending ? html`
+            <span class="chip pinned-empty active pending" @click=${(e: Event) => this._openFilter(this.pendingFilter!, e)}>
+              <span class="chip-label">${FILTER_LABELS[this.pendingFilter!] || this.pendingFilter}</span>
+            </span>
+          ` : nothing}
           ${pinnedMetadataEmpty.map((fieldKey) => {
             const label = this._getMetadataLabel(fieldKey);
             return html`
@@ -310,6 +325,11 @@ export class ApFiltersBar extends LitElement {
               </span>
             `;
           })}
+          ${hasPendingMeta ? html`
+            <span class="chip pinned-empty active pending" @click=${(e: Event) => this._openMetadataFilter(this.pendingMetadataField!, e)}>
+              <span class="chip-label">${this._getMetadataLabel(this.pendingMetadataField!)}</span>
+            </span>
+          ` : nothing}
           ${filterEntries.map(([key, filter]) => {
             const summary = this._getFilterSummary(filter, key);
             const isDate = filter.type === 'date';

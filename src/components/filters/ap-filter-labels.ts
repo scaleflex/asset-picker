@@ -1,5 +1,5 @@
 import { LitElement, html, css, nothing } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, property, state, query } from 'lit/decorators.js';
 import { FILTER_KEYS, FILTER_OPERATORS } from '../../types/filter.types';
 import { SELECTED_LABELS_LIMIT } from './filters.constants';
 import { filterPopoverStyles } from './shared/filter-styles';
@@ -69,7 +69,13 @@ export class ApFilterLabels extends LitElement {
 
   @property({ type: Array }) labels: Label[] = [];
   @property({ type: Array }) selected: string[] = [];
+  @query('.search-input') private _searchInput?: HTMLInputElement;
   @state() private _search = '';
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.updateComplete.then(() => this._searchInput?.focus());
+  }
 
   private get _atLimit(): boolean {
     return this.selected.length >= SELECTED_LABELS_LIMIT;
@@ -172,12 +178,6 @@ export class ApFilterLabels extends LitElement {
 
     return html`
       <div class="filter-content">
-        <button
-          class="clear-btn"
-          ?disabled=${this.selected.length === 0}
-          @click=${this._clearAll}
-        >Clear all</button>
-
         <!-- Search input -->
         <div class="search-wrapper">
           <input
@@ -224,7 +224,14 @@ export class ApFilterLabels extends LitElement {
 
         <!-- Labels list -->
         <div class="filter-section">
-          <span class="section-label">All labels</span>
+          <div class="section-header">
+            <span class="section-label">All labels</span>
+            <button
+              class="clear-btn"
+              ?disabled=${this.selected.length === 0}
+              @click=${this._clearAll}
+            >Clear all</button>
+          </div>
           <div class="options-list">
             ${filtered.length === 0
               ? html`<div class="no-results">No labels found</div>`

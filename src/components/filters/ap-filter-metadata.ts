@@ -1,5 +1,5 @@
 import { LitElement, html, css, nothing } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, property, state, query } from 'lit/decorators.js';
 import {
   METADATA_PREFIX_BY_TYPE,
   METADATA_FIELD_TYPES,
@@ -99,6 +99,10 @@ export class ApFilterMetadata extends LitElement {
 
     .field-selection-close:hover {
       color: var(--ap-foreground, #09090b);
+    }
+
+    .selector-wrap {
+      margin: -10px -8px;
     }
 
     .field-search {
@@ -434,6 +438,16 @@ export class ApFilterMetadata extends LitElement {
   @state() private _dateTos: Record<string, string> = {};
   @state() private _specificModeFields: Set<string> = new Set();
   @state() private _selectSearches: Record<string, string> = {};
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.updateComplete.then(() => this._focusSearch());
+  }
+
+  private _focusSearch() {
+    const input = this.renderRoot.querySelector('.field-search, .search-input') as HTMLInputElement | null;
+    input?.focus();
+  }
 
   // ── Computed helpers ─────────────────────────────────────────────
 
@@ -1206,13 +1220,7 @@ export class ApFilterMetadata extends LitElement {
     const atLimit = selectedValues.length >= SELECTED_METADATA_FIELDS_LIMIT;
 
     return html`
-      <div class="filter-content" style="position: relative;">
-        <button
-          class="clear-btn"
-          ?disabled=${!hasFilter && !applied.operator}
-          @click=${() => this._clearFieldFilter(field)}
-        >Clear all</button>
-
+      <div class="filter-content">
         <!-- Search input -->
         <div class="search-wrapper">
           <input
@@ -1242,7 +1250,14 @@ export class ApFilterMetadata extends LitElement {
           ? html`
               <!-- Operator -->
               <div class="filter-section">
-                <span class="section-label">Operator</span>
+                <div class="section-header">
+                  <span class="section-label">Operator</span>
+                  <button
+                    class="clear-btn"
+                    ?disabled=${!hasFilter && !applied.operator}
+                    @click=${() => this._clearFieldFilter(field)}
+                  >Clear all</button>
+                </div>
                 <ap-radio-group
                   direction="horizontal"
                   .options=${SINGLE_SELECT_OPERATOR_OPTIONS}
@@ -1272,7 +1287,16 @@ export class ApFilterMetadata extends LitElement {
                   `
                 : nothing}
             `
-          : nothing}
+          : html`
+              <div class="section-header">
+                <span class="section-label"></span>
+                <button
+                  class="clear-btn"
+                  ?disabled=${!hasFilter && !applied.operator}
+                  @click=${() => this._clearFieldFilter(field)}
+                >Clear all</button>
+              </div>
+            `}
 
         <!-- Options list -->
         <div class="filter-section">
@@ -1338,13 +1362,7 @@ export class ApFilterMetadata extends LitElement {
     const atLimit = selectedValues.length >= SELECTED_METADATA_FIELDS_LIMIT;
 
     return html`
-      <div class="filter-content" style="position: relative;">
-        <button
-          class="clear-btn"
-          ?disabled=${!hasFilter && !applied.operator}
-          @click=${() => this._clearFieldFilter(field)}
-        >Clear all</button>
-
+      <div class="filter-content">
         <!-- Search input -->
         <div class="search-wrapper">
           <input
@@ -1374,7 +1392,14 @@ export class ApFilterMetadata extends LitElement {
           ? html`
               <!-- Operator -->
               <div class="filter-section">
-                <span class="section-label">Operator</span>
+                <div class="section-header">
+                  <span class="section-label">Operator</span>
+                  <button
+                    class="clear-btn"
+                    ?disabled=${!hasFilter && !applied.operator}
+                    @click=${() => this._clearFieldFilter(field)}
+                  >Clear all</button>
+                </div>
                 <ap-radio-group
                   direction="horizontal"
                   .options=${MULTI_SELECT_OPERATOR_OPTIONS}
@@ -1404,7 +1429,16 @@ export class ApFilterMetadata extends LitElement {
                   `
                 : nothing}
             `
-          : nothing}
+          : html`
+              <div class="section-header">
+                <span class="section-label"></span>
+                <button
+                  class="clear-btn"
+                  ?disabled=${!hasFilter && !applied.operator}
+                  @click=${() => this._clearFieldFilter(field)}
+                >Clear all</button>
+              </div>
+            `}
 
         <!-- Options list -->
         <div class="filter-section">
@@ -1875,32 +1909,34 @@ export class ApFilterMetadata extends LitElement {
     };
 
     return html`
-      <input
-        class="field-search"
-        type="text"
-        placeholder="Search fields..."
-        .value=${this._fieldSearch}
-        @input=${(e: Event) => {
-          this._fieldSearch = (e.target as HTMLInputElement).value;
-        }}
-      />
-      <div class="field-list">
-        ${filtered.length === 0
-          ? html`<div class="empty-msg">No fields found</div>`
-          : html`
-              ${renderGroup('Root fields', rootFields)}
-              ${renderGroup('Product fields', productFields)}
-            `}
+      <div class="selector-wrap">
+        <input
+          class="field-search"
+          type="text"
+          placeholder="Search fields..."
+          .value=${this._fieldSearch}
+          @input=${(e: Event) => {
+            this._fieldSearch = (e.target as HTMLInputElement).value;
+          }}
+        />
+        <div class="field-list">
+          ${filtered.length === 0
+            ? html`<div class="empty-msg">No fields found</div>`
+            : html`
+                ${renderGroup('Root fields', rootFields)}
+                ${renderGroup('Product fields', productFields)}
+              `}
+        </div>
+        ${this.visibleFields.length > 0
+          ? html`
+              <div
+                class="limit-note ${this._atFieldLimit ? 'at-limit' : ''}"
+              >
+                ${this.visibleFields.length} / ${SELECTED_METADATA_FIELDS_LIMIT} fields selected
+              </div>
+            `
+          : nothing}
       </div>
-      ${this.visibleFields.length > 0
-        ? html`
-            <div
-              class="limit-note ${this._atFieldLimit ? 'at-limit' : ''}"
-            >
-              ${this.visibleFields.length} / ${SELECTED_METADATA_FIELDS_LIMIT} fields selected
-            </div>
-          `
-        : nothing}
     `;
   }
 

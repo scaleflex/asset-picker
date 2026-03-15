@@ -12,8 +12,7 @@ export class ApFilterPopover extends LitElement {
       top: calc(100% + 8px);
       left: 20px;
       z-index: 50;
-      min-width: 280px;
-      max-width: 420px;
+      width: 320px;
       max-height: 400px;
       overflow-y: auto;
       overscroll-behavior: contain;

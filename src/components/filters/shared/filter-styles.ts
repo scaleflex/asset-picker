@@ -51,6 +51,20 @@ export const filterPopoverStyles = css`
     cursor: default;
   }
 
+  /* ── Section header (label + clear-btn row) ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .section-header .section-label {
+    margin-bottom: 0;
+  }
+  .section-header .clear-btn {
+    position: static;
+  }
+
   /* ── Section spacing ── */
   .filter-section {
     margin-bottom: 20px;

@@ -132,6 +132,14 @@ export class ApContentToolbar extends LitElement {
       gap: 12px;
       overscroll-behavior: contain;
     }
+    .dropdown-menu.metadata-selector-menu {
+      display: block;
+      min-width: 0;
+      width: 280px;
+      padding: 0;
+      max-height: 400px;
+      overflow: hidden;
+    }
 
     /* Filter button in dropdown */
     .filter-btn {
@@ -299,8 +307,7 @@ export class ApContentToolbar extends LitElement {
       top: 100%;
       left: 20px;
       z-index: 50;
-      min-width: 280px;
-      max-width: 420px;
+      width: 320px;
       max-height: 400px;
       overflow-y: auto;
       overscroll-behavior: contain;
@@ -338,6 +345,7 @@ export class ApContentToolbar extends LitElement {
 
   @query('ap-dropdown') private _sortDropdown?: import('../shared/ap-dropdown').ApDropdown;
   @state() private _showDropdown = false;
+  @state() private _showMetadataSelector = false;
   @state() private _openFilter: FilterKey | null = null;
   @state() private _openMetadataField: string | null = null;
   @state() private _externalTrigger = false;
@@ -348,31 +356,43 @@ export class ApContentToolbar extends LitElement {
 
     // If the click is on a filters-bar chip, don't close — let the chip's click handler
     // drive the toggle/switch via openFilterPanel / openMetadataFieldPanel.
-    // Only skip closing for chip clicks, not clicks on the bar's empty area.
     if (this._externalTrigger) {
-      const hasFiltersBar = path.some(
-        (el) => el instanceof HTMLElement && el.tagName === 'AP-FILTERS-BAR',
-      );
       const hasChip = path.some(
         (el) =>
-          el instanceof HTMLElement && el.classList.contains('chip'),
+          el instanceof HTMLElement && el.classList.contains('chip')
+          && el.closest?.('ap-filters-bar'),
       );
-      if (hasFiltersBar && hasChip) return;
+      if (hasChip) return;
     }
 
-    if (!path.includes(this)) {
-      this._closeAllDropdowns();
-      return;
-    }
-    // Close popover when clicking inside the toolbar but outside the popover
+    // Check if click is inside the popover panel
+    const isInsidePopover = this._openFilter && path.some((el) => {
+      if (!(el instanceof HTMLElement)) return false;
+      return el.classList.contains('popover-anchor')
+        || el.classList.contains('popover-panel');
+    });
+
+    // Check if click is inside the dropdown menu or its trigger button
+    const isInsideDropdown = (this._showDropdown || this._showMetadataSelector) && path.some((el) =>
+      el instanceof HTMLElement && (
+        el.classList.contains('dropdown-menu')
+        || el.classList.contains('filter-dropdown')
+      ),
+    );
+
+    // If click is inside popover or dropdown, don't close
+    if (isInsidePopover || isInsideDropdown) return;
+
+    // Close everything
     if (this._openFilter) {
-      const anchor = this.renderRoot.querySelector('.popover-anchor');
-      if (anchor && !path.includes(anchor)) {
-        this._openFilter = null;
-        this._openMetadataField = null;
-        this._externalTrigger = false;
-        this._externalLeft = null;
-      }
+      this._openFilter = null;
+      this._openMetadataField = null;
+      this._externalTrigger = false;
+      this._externalLeft = null;
+    }
+    if (this._showDropdown || this._showMetadataSelector) {
+      this._showDropdown = false;
+      this._showMetadataSelector = false;
     }
   };
 
@@ -414,6 +434,7 @@ export class ApContentToolbar extends LitElement {
 
   private _closeAllDropdowns() {
     this._showDropdown = false;
+    this._showMetadataSelector = false;
     this._openFilter = null;
     this._openMetadataField = null;
     this._externalTrigger = false;
@@ -425,6 +446,11 @@ export class ApContentToolbar extends LitElement {
     const wasOpen = this._showDropdown;
     this._closeAllDropdowns();
     this._showDropdown = !wasOpen;
+  }
+
+  private _toggleMetadataSelector() {
+    this._showMetadataSelector = !this._showMetadataSelector;
+    this._showDropdown = false;
   }
 
   /** Close any open filter panel */
@@ -440,6 +466,17 @@ export class ApContentToolbar extends LitElement {
     // Toggle: if already showing this filter externally, close it
     if (external && this._externalTrigger && this._openFilter === key && !this._openMetadataField) {
       this.closeFilterPanel();
+      return;
+    }
+    // When opened from the dropdown for a filter without active values,
+    // show a temporary chip in the filters bar and open from there
+    if (!external && !this._isFilterActive(key as AnyFilterKey)) {
+      this._showDropdown = false;
+      this.dispatchEvent(new CustomEvent('filter-pending', {
+        detail: { key },
+        bubbles: true,
+        composed: true,
+      }));
       return;
     }
     this._showDropdown = false;
@@ -499,6 +536,23 @@ export class ApContentToolbar extends LitElement {
   private _handleMetadataFieldSelect(e: CustomEvent) {
     e.stopPropagation();
     this._openMetadataField = e.detail.fieldKey;
+  }
+
+  private _handleMetadataSelectorFieldSelect(e: CustomEvent) {
+    e.stopPropagation();
+    const fieldKey = e.detail.fieldKey as string;
+    this._showMetadataSelector = false;
+    // If metadata field has no applied value, show a temporary chip
+    if (!(fieldKey in (this.filters.metadata?.applied || {}))) {
+      this.dispatchEvent(new CustomEvent('filter-pending', {
+        detail: { metadataFieldKey: fieldKey },
+        bubbles: true,
+        composed: true,
+      }));
+      return;
+    }
+    this._openFilter = 'metadata' as FilterKey;
+    this._openMetadataField = fieldKey;
   }
 
   private _handleMetadataPin(e: CustomEvent) {
@@ -697,7 +751,7 @@ export class ApContentToolbar extends LitElement {
     return html`
       <button
         class="filter-btn ${active ? 'active' : ''}"
-        @click=${() => this.openFilterPanel(item.key)}
+        @click=${() => isMetadata ? this._toggleMetadataSelector() : this.openFilterPanel(item.key)}
       >
         <span class="filter-btn-icon">
           <ap-icon name=${item.icon} .size=${18}></ap-icon>
@@ -748,6 +802,20 @@ export class ApContentToolbar extends LitElement {
             ${this._showDropdown ? html`
               <div class="dropdown-menu">
                 ${ALL_FILTER_ITEMS.map((item) => this._renderFilterButton(item))}
+              </div>
+            ` : nothing}
+            ${this._showMetadataSelector ? html`
+              <div class="dropdown-menu metadata-selector-menu">
+                <ap-filter-metadata
+                  mode="selector"
+                  .fields=${this.metadataFields}
+                  .appliedMetadata=${this.filters.metadata.applied}
+                  .visibleFields=${this.filters.metadata.visible}
+                  .pinnedFields=${this.filters.metadata.pinned}
+                  @metadata-field-select=${this._handleMetadataSelectorFieldSelect}
+                  @metadata-field-toggle=${this._handleMetadataFieldToggle}
+                  @metadata-pin=${this._handleMetadataPin}
+                ></ap-filter-metadata>
               </div>
             ` : nothing}
           </div>

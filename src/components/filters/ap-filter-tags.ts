@@ -1,5 +1,5 @@
 import { LitElement, html, css, nothing } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, property, state, query } from 'lit/decorators.js';
 import { FILTER_KEYS, FILTER_OPERATORS } from '../../types/filter.types';
 import { SELECTED_TAGS_LIMIT } from './filters.constants';
 import { filterPopoverStyles } from './shared/filter-styles';
@@ -47,7 +47,37 @@ export class ApFilterTags extends LitElement {
       padding: 8px 0;
     }
 
-    /* Let the popover handle scrolling — no inner scroll */
+    /* Sticky search within popover scroll */
+    .filter-header {
+      position: sticky;
+      top: -10px;
+      z-index: 1;
+      background: var(--ap-card, #fff);
+      margin: -10px -8px 10px;
+    }
+
+    .tag-search {
+      width: 100%;
+      padding: 8px 10px;
+      border: none;
+      border-bottom: 1px solid var(--ap-border, #e4e4e7);
+      font-size: var(--ap-font-size-sm, 0.875rem);
+      color: var(--ap-foreground, #09090b);
+      background: transparent;
+      outline: none;
+      box-sizing: border-box;
+      font-family: var(--ap-font-family, system-ui, sans-serif);
+    }
+
+    .tag-search::placeholder {
+      color: var(--ap-muted-foreground, #71717a);
+    }
+
+    .search-clear {
+      top: 10px;
+      right: 8px;
+    }
+
     .options-list {
       max-height: none;
       overflow-y: visible;
@@ -57,7 +87,13 @@ export class ApFilterTags extends LitElement {
   @property({ type: Array }) tags: TagWithLabel[] = [];
   @property({ type: Array }) selected: string[] = [];
   @property() filterKey: string = FILTER_KEYS.TAGS;
+  @query('.tag-search') private _searchInput?: HTMLInputElement;
   @state() private _search = '';
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.updateComplete.then(() => this._searchInput?.focus());
+  }
 
   private get _suggestedTags(): TagWithLabel[] {
     return this.tags.filter((t) => t.primary);
@@ -160,16 +196,9 @@ export class ApFilterTags extends LitElement {
 
     return html`
       <div class="filter-content">
-        <button
-          class="clear-btn"
-          ?disabled=${this.selected.length === 0}
-          @click=${this._clearAll}
-        >Clear all</button>
-
-        <!-- Search input -->
-        <div class="search-wrapper">
+        <div class="filter-header">
           <input
-            class="search-input"
+            class="tag-search"
             type="text"
             placeholder="Search tags..."
             .value=${this._search}
@@ -236,7 +265,14 @@ export class ApFilterTags extends LitElement {
       ${filteredSuggested.length > 0
         ? html`
             <div class="filter-section">
-              <span class="section-label">Suggested tags</span>
+              <div class="section-header">
+                <span class="section-label">Suggested tags</span>
+                <button
+                  class="clear-btn"
+                  ?disabled=${this.selected.length === 0}
+                  @click=${this._clearAll}
+                >Clear all</button>
+              </div>
               <div class="options-list short">
                 ${filteredSuggested.map((tag) => this._renderTagItem(tag))}
               </div>
@@ -247,7 +283,16 @@ export class ApFilterTags extends LitElement {
       ${filteredOther.length > 0
         ? html`
             <div class="filter-section">
-              <span class="section-label">All tags</span>
+              <div class="section-header">
+                ${filteredSuggested.length === 0
+                  ? html`<span class="section-label">All tags</span>
+                    <button
+                      class="clear-btn"
+                      ?disabled=${this.selected.length === 0}
+                      @click=${this._clearAll}
+                    >Clear all</button>`
+                  : html`<span class="section-label">All tags</span>`}
+              </div>
               <div class="options-list">
                 ${filteredOther.map((tag) => this._renderTagItem(tag))}
               </div>
@@ -267,18 +312,25 @@ export class ApFilterTags extends LitElement {
     );
 
     return html`
-      ${suggestedTags.length > 0
-        ? html`
-            <div class="filter-section">
-              <span class="section-label">Suggested tags</span>
+      <div class="filter-section">
+        <div class="section-header">
+          <span class="section-label">${suggestedTags.length > 0 ? 'Suggested tags' : ''}</span>
+          <button
+            class="clear-btn"
+            ?disabled=${this.selected.length === 0}
+            @click=${this._clearAll}
+          >Clear all</button>
+        </div>
+        ${suggestedTags.length > 0
+          ? html`
               <div class="options-list short">
                 ${suggestedTags.map((tag) => this._renderTagItem(tag))}
               </div>
-            </div>
+            `
+          : nothing}
+      </div>
 
-            <div class="separator"></div>
-          `
-        : nothing}
+      ${suggestedTags.length > 0 ? html`<div class="separator"></div>` : nothing}
 
       <div class="hint-message">Find more tags by using search</div>
     `;
