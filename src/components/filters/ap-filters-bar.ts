@@ -11,6 +11,7 @@ import {
   type DateFilter,
   type MetadataModelField,
 } from '../../types/filter.types';
+import type { TagWithLabel } from '../../types/tag.types';
 import { FILTER_LABELS, DATE_FIELD_OPTIONS, DATE_RANGE_OPTIONS, LICENSE_DATE_RANGE_OPTIONS, ASSET_TYPE_OPTIONS } from './filters.constants';
 
 @customElement('ap-filters-bar')
@@ -128,6 +129,7 @@ export class ApFiltersBar extends LitElement {
   @property({ type: Array }) metadataFields: MetadataModelField[] = [];
   @property({ type: Array }) pinnedFilters: AnyFilterKey[] = [];
   @property({ type: Array }) pinnedMetadataFields: string[] = [];
+  @property({ type: Array }) tags: TagWithLabel[] = [];
   @property() activeFilter: AnyFilterKey | null = null;
   @property() activeMetadataField: string | null = null;
 
@@ -153,7 +155,11 @@ export class ApFiltersBar extends LitElement {
       const sf = filter as StringFilter;
       if (sf.values.length === 0) return '';
       if (key === FILTER_KEYS.SIZE) return this._getSizeSummary(sf);
-      const mapLabel = key === FILTER_KEYS.TYPE ? (v: string) => this._mapTypeLabel(v) : (v: string) => v;
+      const mapLabel = key === FILTER_KEYS.TYPE
+        ? (v: string) => this._mapTypeLabel(v)
+        : key === FILTER_KEYS.TAGS
+          ? (v: string) => this.tags.find((t) => t.sid === v)?.label || v
+          : (v: string) => v;
       if (sf.values.length === 1) return mapLabel(sf.values[0]);
       return `${mapLabel(sf.values[0])} +${sf.values.length - 1}`;
     }

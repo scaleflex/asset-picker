@@ -12,6 +12,7 @@ import type {
 } from '../../types/filter.types';
 import { METADATA_PREFIX_BY_TYPE } from '../../types/filter.types';
 import type { Label } from '../../types/label.types';
+import type { TagWithLabel } from '../../types/tag.types';
 import {
   FILTER_LABELS,
   ALL_FILTER_ITEMS,
@@ -28,6 +29,7 @@ import '../filters/ap-filter-size';
 import '../filters/ap-filter-image';
 import '../filters/ap-filter-metadata';
 import '../filters/ap-filter-approval';
+import '../filters/ap-filter-product-ref';
 
 @customElement('ap-content-toolbar')
 export class ApContentToolbar extends LitElement {
@@ -330,6 +332,7 @@ export class ApContentToolbar extends LitElement {
     applied: {},
   };
   @property({ type: Array }) labels: Label[] = [];
+  @property({ type: Array }) tags: TagWithLabel[] = [];
   @property({ type: Array }) metadataFields: MetadataModelField[] = [];
   @property({ type: Array }) pinnedFilters: AnyFilterKey[] = [];
 
@@ -557,6 +560,7 @@ export class ApContentToolbar extends LitElement {
       case 'tags': {
         const f = applied.tags as StringFilter | undefined;
         return html`<ap-filter-tags
+          .tags=${this.tags}
           .selected=${f?.values || []}
           @filter-change=${this._handleFilterChange}
         ></ap-filter-tags>`;
@@ -673,11 +677,10 @@ export class ApContentToolbar extends LitElement {
       }
       case 'product_ref': {
         const f = applied.product_ref as StringFilter | undefined;
-        return html`<ap-filter-tags
+        return html`<ap-filter-product-ref
           .selected=${f?.values || []}
-          .filterKey=${'product_ref'}
           @filter-change=${this._handleFilterChange}
-        ></ap-filter-tags>`;
+        ></ap-filter-product-ref>`;
       }
       default:
         return nothing;

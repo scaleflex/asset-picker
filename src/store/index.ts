@@ -22,6 +22,7 @@ export function createStore(): Store<AppState> {
     folders: [],
     folderPreviews: {},
     labels: [],
+    tags: [],
     currentFolder: null,
     currentFolderPath: '/',
     breadcrumb: [],

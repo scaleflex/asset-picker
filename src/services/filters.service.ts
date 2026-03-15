@@ -115,11 +115,3 @@ export async function getMetadataSettings(client: ApiClient): Promise<MetadataSe
 
   return { fields, regionalVariantGroups, regionalFilters, brandColor };
 }
-
-export async function getTagSuggestions(client: ApiClient, query: string): Promise<string[]> {
-  const response = await client.request<{ tags: string[] }>('/tags', {
-    q: query,
-    limit: 20,
-  });
-  return response.tags || [];
-}

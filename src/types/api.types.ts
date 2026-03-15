@@ -73,6 +73,10 @@ export interface GetMetadataFieldsResponse extends ApiBaseResponse {
   }[];
 }
 
+export interface GetTagsResponse extends ApiBaseResponse {
+  tags: import('./tag.types').Tag[];
+}
+
 export interface GetFilterConfigResponse extends ApiBaseResponse {
   file_types: Array<{
     name: string;

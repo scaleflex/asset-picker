@@ -10,6 +10,7 @@ import { ApiClient } from './services/api-client';
 import { getFiles } from './services/files.service';
 import { getFolders, getFoldersPreviews } from './services/folders.service';
 import { getLabels } from './services/labels.service';
+import { getTags } from './services/tags.service';
 // Settings are now fetched via getMetadataSettings (single API call)
 import { exchangeSassKey } from './services/auth.service';
 import type { AssetPickerConfig, ViewMode, SortBy, TabKey } from './types/config.types';
@@ -52,6 +53,7 @@ import './components/filters/ap-filter-color';
 import './components/filters/ap-filter-size';
 import './components/filters/ap-filter-image';
 import './components/filters/ap-filter-metadata';
+import './components/filters/ap-filter-product-ref';
 import './components/filters/ap-filter-approval';
 import './components/views/ap-grid-view';
 import './components/views/ap-list-view';
@@ -210,10 +212,11 @@ export class AssetPicker extends LitElement {
         this.store.setState({ sassKey });
       }
 
-      // Fetch settings (includes brand color + metadata model + regional variants) and labels
-      const [metadataResult, labelsResult] = await Promise.allSettled([
+      // Fetch settings (includes brand color + metadata model + regional variants), labels, and tags
+      const [metadataResult, labelsResult, tagsResult] = await Promise.allSettled([
         getMetadataSettings(this.apiClient),
         getLabels(this.apiClient),
+        getTags(this.apiClient),
       ]);
 
       if (metadataResult.status === 'fulfilled') {
@@ -228,6 +231,10 @@ export class AssetPicker extends LitElement {
 
       if (labelsResult.status === 'fulfilled') {
         this.store.setState({ labels: labelsResult.value.labels || [] });
+      }
+
+      if (tagsResult.status === 'fulfilled') {
+        this.store.setState({ tags: tagsResult.value });
       }
 
       // Load pinned filters from localStorage
@@ -998,6 +1005,7 @@ export class AssetPicker extends LitElement {
                 .sortOptions=${this._getSortOptions()}
                 .filters=${s.filters}
                 .labels=${s.labels}
+                .tags=${s.tags}
                 .metadataFields=${s.metadataFields}
                 .pinnedFilters=${s.filters.pinned}
                 @sort-change=${this._handleSortChange}
@@ -1014,6 +1022,7 @@ export class AssetPicker extends LitElement {
                 .appliedFilters=${s.filters.applied}
                 .appliedMetadata=${s.filters.metadata.applied}
                 .metadataFields=${s.metadataFields}
+                .tags=${s.tags}
                 .pinnedFilters=${s.filters.pinned}
                 .pinnedMetadataFields=${s.filters.metadata.pinned}
                 @filter-remove=${this._handleFilterRemove}

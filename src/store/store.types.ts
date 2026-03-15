@@ -1,6 +1,7 @@
 import type { Asset } from '../types/asset.types';
 import type { Folder } from '../types/folder.types';
 import type { Label } from '../types/label.types';
+import type { TagWithLabel } from '../types/tag.types';
 import type { AssetPickerConfig, ViewMode, SortBy, SortDirection, TabKey } from '../types/config.types';
 import type { FiltersState, MetadataModelField, RegionalVariantGroup, RegionalFilters } from '../types/filter.types';
 
@@ -30,6 +31,7 @@ export interface AppState {
   folders: Folder[];
   folderPreviews: Record<string, { file_uri_cdn: string; file_type: string }[]>;
   labels: Label[];
+  tags: TagWithLabel[];
   currentFolder: string | null;
   currentFolderPath: string;
   breadcrumb: BreadcrumbItem[];
