@@ -422,11 +422,12 @@ export class ApContentToolbar extends LitElement {
         && (changed.has('_openFilter') || changed.has('_externalLeft') || changed.has('_openMetadataField'))) {
       const panel = this.renderRoot.querySelector('.popover-panel') as HTMLElement | null;
       if (panel) {
-        const panelRect = panel.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-        if (panelRect.right > viewportWidth - 8) {
-          const overflow = panelRect.right - viewportWidth + 8;
-          panel.style.left = `${Math.max(8, this._externalLeft - overflow)}px`;
+        const anchor = panel.closest('.popover-anchor') as HTMLElement | null;
+        const containerWidth = anchor ? anchor.offsetWidth : this.offsetWidth;
+        const panelWidth = panel.offsetWidth;
+        const rightEdge = this._externalLeft + panelWidth;
+        if (rightEdge > containerWidth - 8) {
+          panel.style.left = `${Math.max(8, containerWidth - panelWidth - 8)}px`;
         }
       }
     }
