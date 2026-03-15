@@ -1,4 +1,0 @@
-export declare function debounce<T extends (...args: any[]) => void>(fn: T, delay: number): T & {
-    cancel(): void;
-};
-//# sourceMappingURL=debounce.d.ts.map
