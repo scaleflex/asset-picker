@@ -12,7 +12,7 @@ export function createStore(): Store<AppState> {
     activeTab: 'assets',
     viewMode: 'grid',
     searchQuery: '',
-    sortBy: 'created_at',
+    sortBy: 'modified_at',
     sortDirection: 'desc',
 
     previewAsset: null,
@@ -32,6 +32,7 @@ export function createStore(): Store<AppState> {
     totalCount: 0,
     totalFolderCount: 0,
     isLoading: false,
+    isSelectingAll: false,
     hasMore: false,
 
     filters: {

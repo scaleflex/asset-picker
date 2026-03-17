@@ -3,11 +3,12 @@ import { customElement, property, state, query } from 'lit/decorators.js';
 import { FILTER_KEYS, FILTER_OPERATORS } from '../../types/filter.types';
 import { SELECTED_TAGS_LIMIT } from './filters.constants';
 import { filterPopoverStyles } from './shared/filter-styles';
+import { resetStyles } from '../../styles/shared-styles';
 import type { TagWithLabel } from '../../types/tag.types';
 
 @customElement('ap-filter-tags')
 export class ApFilterTags extends LitElement {
-  static styles = [filterPopoverStyles, css`
+  static styles = [resetStyles, filterPopoverStyles, css`
     .tag-item {
       display: flex;
       align-items: center;
@@ -65,7 +66,6 @@ export class ApFilterTags extends LitElement {
       color: var(--ap-foreground, #09090b);
       background: transparent;
       outline: none;
-      box-sizing: border-box;
       font-family: var(--ap-font-family, system-ui, sans-serif);
     }
 

@@ -67,6 +67,19 @@ export class SelectionController implements ReactiveController {
     this.lastClickedIndex = -1;
   }
 
+  selectAll(assets: Asset[]): number {
+    const state = this.store.getState();
+    const max = state.config?.maxSelections;
+    const selected = new Map<string, Asset>();
+    const limit = max ? Math.min(assets.length, max) : assets.length;
+    for (let i = 0; i < limit; i++) {
+      selected.set(assets[i].uuid, assets[i]);
+    }
+    this.store.setState({ selectedAssets: selected });
+    this.lastClickedIndex = -1;
+    return selected.size;
+  }
+
   clearSelection(): void {
     this.store.setState({ selectedAssets: new Map() });
     this.lastClickedIndex = -1;

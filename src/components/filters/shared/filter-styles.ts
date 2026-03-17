@@ -23,6 +23,7 @@ export const filterPopoverStyles = css`
     position: absolute;
     top: 0;
     right: 0;
+    z-index: 1;
     padding: 0;
     border: none;
     background: none;
@@ -67,6 +68,7 @@ export const filterPopoverStyles = css`
 
   /* ── Section spacing ── */
   .filter-section {
+    position: relative;
     margin-bottom: 20px;
   }
   .filter-section:last-child {
@@ -108,7 +110,6 @@ export const filterPopoverStyles = css`
     font-family: inherit;
     color: var(--ap-foreground, #09090b);
     background: var(--ap-background, #fff);
-    box-sizing: border-box;
     outline: none;
     transition: border-color 150ms;
   }
@@ -199,25 +200,25 @@ export const filterPopoverStyles = css`
     margin-top: 4px;
   }
 
-  /* ── Search input ── */
+  /* ── Search input (flush with popover edges, like tags) ── */
   .search-wrapper {
-    position: relative;
-    margin-bottom: 12px;
+    position: sticky;
+    top: -10px;
+    z-index: 2;
+    background: var(--ap-card, #fff);
+    margin: -10px -8px 10px;
   }
   .search-input {
     width: 100%;
     padding: 8px 32px 8px 10px;
-    border: 1px solid var(--ap-border, #e4e4e7);
-    border-radius: var(--ap-radius-sm, 6px);
+    border: none;
+    border-bottom: 1px solid var(--ap-border, #e4e4e7);
+    border-radius: 0;
     font-size: var(--ap-font-size-sm, 0.875rem);
     font-family: inherit;
     color: var(--ap-foreground, #09090b);
-    background: var(--ap-background, #fff);
-    box-sizing: border-box;
+    background: transparent;
     outline: none;
-  }
-  .search-input:focus {
-    border-color: var(--ap-primary, oklch(0.65 0.19 258));
   }
   .search-input::placeholder {
     color: var(--ap-muted-foreground, #71717a);
@@ -247,12 +248,10 @@ export const filterPopoverStyles = css`
     display: flex;
     flex-direction: column;
     gap: 4px;
-    max-height: 250px;
-    overflow-y: auto;
-    overscroll-behavior: contain;
   }
   .options-list.short {
     max-height: none;
+    overflow-y: visible;
   }
   .no-results {
     padding: 12px;

@@ -11,6 +11,8 @@ import {
   METADATA_PREFIXES,
   DATE_KINDS,
   DATE_PRESETS,
+  EMPTY_VALUE,
+  NOT_EMPTY_VALUE,
   type AnyFilter,
   type StringFilter,
   type DateFilter,
@@ -87,6 +89,12 @@ function serializeSingleFilter(key: string, filter: AnyFilter): string[] {
     return serializeDateFilter(key, filter);
   }
 
+  // Image filter is stored as a raw object { resolution, orientation, faces },
+  // not as a StringFilter — handle it before the StringFilter destructuring.
+  if (key === FILTER_KEYS.IMAGE) {
+    return serializeImageFilter(filter);
+  }
+
   const stringFilter = filter as StringFilter;
   const { operator = DEFAULT_FILTER_OPERATOR, values = [], logic } = stringFilter;
 
@@ -113,9 +121,6 @@ function serializeSingleFilter(key: string, filter: AnyFilter): string[] {
 
     case FILTER_KEYS.MIME_TYPE:
       return serializeTypeMime(key, values, operator, logic);
-
-    case FILTER_KEYS.IMAGE:
-      return serializeImageFilter(stringFilter.values ?? values);
 
     case FILTER_KEYS.PRODUCT_REF:
       return serializeSimple(key, '=%', values, ',', logic);
@@ -285,6 +290,15 @@ function serializeMetadataFilter(rawKey: string, filter: AnyFilter): string[] {
 
   if (values.length === 0) return [];
 
+  // Empty/non-empty: always use ':' operator regardless of stored operator
+  // GeoPoint needs ':~' operator even for empty/non-empty
+  if (values.length === 1 && (values[0] === EMPTY_VALUE || values[0] === NOT_EMPTY_VALUE)) {
+    const op = metadataType === METADATA_FIELD_TYPES.GEO_POINT
+      ? FILTER_OPERATORS.IS + '~'
+      : FILTER_OPERATORS.IS;
+    return [`${fieldName}${op}"${values[0]}"`];
+  }
+
   // Numeric/Decimal2 range: remap '..' operator to ':' and join values with ','
   if (
     (metadataType === METADATA_FIELD_TYPES.NUMERIC ||
@@ -294,9 +308,17 @@ function serializeMetadataFilter(rawKey: string, filter: AnyFilter): string[] {
     return [`${fieldName}${FILTER_OPERATORS.IS}"${values.join('","')}"`];
   }
 
-  // GeoPoint: append '~' to operator
+  // GeoPoint: append '~' to operator, wrap coordinates in parentheses
+  // Input value format: "lat,lng..radius" -> output: fieldName:~"(lat,lng)..radius"
   if (metadataType === METADATA_FIELD_TYPES.GEO_POINT) {
-    return serializeSimple(fieldName, operator + '~', values, ',', logic);
+    const wrapped = values.map((v) => {
+      const dotIdx = v.indexOf('..');
+      if (dotIdx === -1) return `(${v})`;
+      const coords = v.slice(0, dotIdx);
+      const radius = v.slice(dotIdx);
+      return `(${coords})${radius}`;
+    });
+    return serializeSimple(fieldName, operator + '~', wrapped, ',', logic);
   }
 
   return serializeSimple(fieldName, operator, values, ',', logic);

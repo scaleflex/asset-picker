@@ -7,7 +7,7 @@ import { SelectionController } from './controllers/selection.controller';
 import { InfiniteScrollController } from './controllers/infinite-scroll.controller';
 import { MarqueeController } from './controllers/marquee.controller';
 import { ApiClient } from './services/api-client';
-import { getFiles } from './services/files.service';
+import { getFiles, getFilesStats } from './services/files.service';
 import { getFolders, getFoldersPreviews } from './services/folders.service';
 import { getLabels } from './services/labels.service';
 import { getTags } from './services/tags.service';
@@ -292,6 +292,7 @@ export class AssetPicker extends LitElement {
       isPreviewOpen: false,
       previewAsset: null,
       isLoading: true,
+      isSelectingAll: false,
     });
     this.dispatchEvent(new CustomEvent('ap-open', {
       detail: { timestamp: Date.now() },
@@ -333,8 +334,11 @@ export class AssetPicker extends LitElement {
 
       if (tab === 'assets') {
         const searchNotation = this._buildSearchNotation();
-        const result = await getFiles(this.apiClient, {
-          folder: state.currentFolderPath || '/',
+        const folder = state.currentFolderPath || '/';
+
+        // Fetch files and stats in parallel
+        const filesPromise = getFiles(this.apiClient, {
+          folder,
           offset: 0,
           limit: state.limit,
           sort_by: state.sortBy,
@@ -343,13 +347,26 @@ export class AssetPicker extends LitElement {
           q: searchNotation || undefined,
           recursive: 1,
         });
+        const statsPromise = getFilesStats(this.apiClient, {
+          folder,
+          q: searchNotation || undefined,
+          search: state.searchQuery || undefined,
+          recursive: 1,
+        }).catch(() => null);
+
+        const [result, statsResult] = await Promise.all([filesPromise, statsPromise]);
 
         if (loadId !== this._loadId) return;
 
         const filesCount = result.files?.length ?? 0;
         const hasMore = filesCount >= state.limit;
-        const baseCount = result.base?.count?.files_recursive ?? result.base?.count?.files_direct ?? 0;
-        const totalCount = hasMore ? baseCount : filesCount;
+        // Always prefer stats endpoint count
+        const totalCount = statsResult?.stats?.approx_files_count
+          ?? statsResult?.info?.total_files_count
+          ?? result.info?.total_files_count
+          ?? result.base?.count?.files_recursive
+          ?? result.base?.count?.files_direct
+          ?? filesCount;
 
         this.store.setState({
           assets: result.files || [],
@@ -362,8 +379,10 @@ export class AssetPicker extends LitElement {
         });
       } else if (tab === 'folders') {
         const searchNotation = this._buildSearchNotation();
-        // Fetch folders and files in current folder in parallel
-        const [foldersResult, filesResult] = await Promise.all([
+        const folder = state.currentFolderPath || '/';
+
+        // Fetch folders, files, and stats in parallel
+        const [foldersResult, filesResult, folderStatsResult] = await Promise.all([
           getFolders(this.apiClient, {
             folderPath: state.currentFolderPath,
             q: state.searchQuery || undefined,
@@ -372,7 +391,7 @@ export class AssetPicker extends LitElement {
             sort_direction: state.sortDirection,
           }),
           getFiles(this.apiClient, {
-            folder: state.currentFolderPath || '/',
+            folder,
             offset: 0,
             limit: state.limit,
             sort_by: state.sortBy,
@@ -381,6 +400,12 @@ export class AssetPicker extends LitElement {
             q: searchNotation || undefined,
             recursive: 0,
           }),
+          getFilesStats(this.apiClient, {
+            folder,
+            q: searchNotation || undefined,
+            search: state.searchQuery || undefined,
+            recursive: 0,
+          }).catch(() => null),
         ]);
 
         if (loadId !== this._loadId) return;
@@ -399,16 +424,22 @@ export class AssetPicker extends LitElement {
 
         if (loadId !== this._loadId) return;
 
+        const folderFilesCount = filesResult.files?.length ?? 0;
+        const folderHasMore = folderFilesCount >= state.limit;
+        const folderTotalCount = folderStatsResult?.stats?.approx_files_count
+          ?? folderStatsResult?.info?.total_files_count
+          ?? filesResult.info?.total_files_count
+          ?? filesResult.base?.count?.files_direct
+          ?? folderFilesCount;
+
         this.store.setState({
           assets: filesResult.files || [],
           folders,
           folderPreviews: previews,
-          totalCount: (filesResult.files?.length ?? 0) >= state.limit
-            ? (filesResult.base?.count?.files_direct ?? 0)
-            : (filesResult.files?.length ?? 0),
+          totalCount: folderTotalCount,
           totalFolderCount: foldersResult.total ?? folders.length,
           offset: 0,
-          hasMore: (filesResult.files?.length ?? 0) >= state.limit,
+          hasMore: folderHasMore,
           isLoading: false,
         });
       }
@@ -441,7 +472,7 @@ export class AssetPicker extends LitElement {
         sort_direction: state.sortDirection,
         search: state.searchQuery || undefined,
         q: searchNotation || undefined,
-        recursive: 1,
+        recursive: state.activeTab === 'folders' ? 0 : 1,
       });
 
       if (loadMoreId !== this._loadMoreId) return;
@@ -455,7 +486,6 @@ export class AssetPicker extends LitElement {
         offset: newOffset,
         hasMore,
         isLoading: false,
-        ...(!hasMore ? { totalCount: allAssets.length } : {}),
       });
     } catch (err) {
       if (loadMoreId !== this._loadMoreId) return;
@@ -472,11 +502,6 @@ export class AssetPicker extends LitElement {
   }
 
   private _handleCancel(reason: string) {
-    const state = this.store.getState();
-    if (state.isPreviewOpen) {
-      this.store.setState({ isPreviewOpen: false, previewAsset: null });
-      return; // Don't close the modal, just close preview
-    }
     this.close();
     this.config?.onCancel?.();
     this.dispatchEvent(new CustomEvent('ap-cancel', {
@@ -536,6 +561,9 @@ export class AssetPicker extends LitElement {
   private _handleTabChange(e: CustomEvent) {
     this.store.setState({
       activeTab: e.detail.tab as TabKey,
+      currentFolder: this.config?.rootFolderUuid ?? null,
+      currentFolderPath: '/',
+      breadcrumb: [],
       offset: 0,
       assets: [],
       folders: [],
@@ -574,6 +602,7 @@ export class AssetPicker extends LitElement {
       currentFolder: folder.uuid,
       currentFolderPath: folderPath,
       breadcrumb: [...state.breadcrumb, { uuid: folder.uuid, name: folder.name, path: folderPath }],
+      searchQuery: '',
       offset: 0,
       assets: [],
       folders: [],
@@ -617,6 +646,87 @@ export class AssetPicker extends LitElement {
       composed: true,
     }));
     this.close();
+  }
+
+  private async _handleSelectAll() {
+    const state = this.store.getState();
+    if (state.isSelectingAll || !this.apiClient) return;
+
+    const multiSelect = state.config?.multiSelect ?? true;
+    if (!multiSelect) return;
+
+    // If all assets already loaded, select them directly
+    if (state.assets.length >= state.totalCount) {
+      this.selectionCtrl.selectAll(state.assets);
+      return;
+    }
+
+    // Need to fetch remaining pages
+    this.store.setState({ isSelectingAll: true });
+
+    try {
+      const searchNotation = this._buildSearchNotation();
+      const folder = state.currentFolderPath || '/';
+      const limit = state.limit;
+      const alreadyLoaded = state.assets;
+      const totalCount = state.totalCount;
+      const recursive = state.activeTab === 'folders' ? 0 : 1;
+
+      // Calculate remaining pages to fetch
+      const remainingPages: number[] = [];
+      for (let offset = alreadyLoaded.length; offset < totalCount; offset += limit) {
+        remainingPages.push(offset);
+      }
+
+      // Fetch in parallel batches of 4
+      const batchSize = 4;
+      const allNewAssets: Asset[] = [];
+      for (let i = 0; i < remainingPages.length; i += batchSize) {
+        const batch = remainingPages.slice(i, i + batchSize);
+        const results = await Promise.all(
+          batch.map((offset) =>
+            getFiles(this.apiClient!, {
+              folder,
+              offset,
+              limit,
+              sort_by: state.sortBy,
+              sort_direction: state.sortDirection,
+              search: state.searchQuery || undefined,
+              q: searchNotation || undefined,
+              recursive,
+            }),
+          ),
+        );
+        for (const result of results) {
+          if (result.files) allNewAssets.push(...result.files);
+        }
+      }
+
+      // Deduplicate by uuid in case pagination shifted during fetch
+      const seen = new Set(alreadyLoaded.map((a) => a.uuid));
+      const dedupedNew = allNewAssets.filter((a) => {
+        if (seen.has(a.uuid)) return false;
+        seen.add(a.uuid);
+        return true;
+      });
+      const allAssets = [...alreadyLoaded, ...dedupedNew];
+
+      // Update store with all assets and select them
+      this.store.setState({
+        assets: allAssets,
+        offset: Math.max(0, allAssets.length - limit),
+        hasMore: false,
+        isSelectingAll: false,
+      });
+      this.selectionCtrl.selectAll(allAssets);
+    } catch (err) {
+      this.store.setState({ isSelectingAll: false });
+      this.dispatchEvent(new CustomEvent('ap-error', {
+        detail: { error: err as Error, context: 'selectAll' },
+        bubbles: true,
+        composed: true,
+      }));
+    }
   }
 
   private _handleSelectionClear() {
@@ -698,7 +808,7 @@ export class AssetPicker extends LitElement {
       }
     }
 
-    this.store.setState({ filters, offset: 0, assets: [], folders: [] });
+    this.store.setState({ filters, offset: 0, assets: [], folders: [], isLoading: true });
     this.selectionCtrl.resetRange();
     this._debouncedLoadData();
     // Clear pending state when filter value is set
@@ -819,7 +929,7 @@ export class AssetPicker extends LitElement {
     if (!filters.pinned.includes(key)) {
       filters.visible = filters.visible.filter((k: AnyFilterKey) => k !== key);
     }
-    this.store.setState({ filters, offset: 0, assets: [], folders: [] });
+    this.store.setState({ filters, offset: 0, assets: [], folders: [], isLoading: true });
     this.selectionCtrl.resetRange();
     this._debouncedLoadData();
   }
@@ -853,7 +963,7 @@ export class AssetPicker extends LitElement {
     }
 
     filters.metadata = metadata;
-    this.store.setState({ filters, offset: 0, assets: [], folders: [] });
+    this.store.setState({ filters, offset: 0, assets: [], folders: [], isLoading: true });
     this.selectionCtrl.resetRange();
     this._debouncedLoadData();
     // Clear pending metadata state when value is set
@@ -895,7 +1005,7 @@ export class AssetPicker extends LitElement {
       metadata.visible = metadata.visible.filter((k: string) => k !== fieldKey);
     }
     filters.metadata = metadata;
-    this.store.setState({ filters, offset: 0, assets: [], folders: [] });
+    this.store.setState({ filters, offset: 0, assets: [], folders: [], isLoading: true });
     this.selectionCtrl.resetRange();
     this._debouncedLoadData();
   }
@@ -961,6 +1071,7 @@ export class AssetPicker extends LitElement {
       offset: 0,
       assets: [],
       folders: [],
+      isLoading: true,
     });
     const bar = this.renderRoot.querySelector('ap-filters-bar') as
       import('./components/filters/ap-filters-bar').ApFiltersBar | null;
@@ -1010,7 +1121,7 @@ export class AssetPicker extends LitElement {
       filters.metadata = meta;
     }
 
-    this.store.setState({ filters, offset: 0, assets: [], folders: [] });
+    this.store.setState({ filters, offset: 0, assets: [], folders: [], isLoading: true });
     this.selectionCtrl.resetRange();
     this._debouncedLoadData();
   }
@@ -1084,6 +1195,7 @@ export class AssetPicker extends LitElement {
                 .tags=${s.tags}
                 .metadataFields=${s.metadataFields}
                 .pinnedFilters=${s.filters.pinned}
+                .apiClient=${this.apiClient}
                 @sort-change=${this._handleSortChange}
                 @sort-direction-change=${this._handleSortDirectionChange}
                 @filter-update=${this._handleFilterUpdate}
@@ -1100,6 +1212,7 @@ export class AssetPicker extends LitElement {
                 .appliedMetadata=${s.filters.metadata.applied}
                 .metadataFields=${s.metadataFields}
                 .tags=${s.tags}
+                .labels=${s.labels}
                 .pinnedFilters=${s.filters.pinned}
                 .pinnedMetadataFields=${s.filters.metadata.pinned}
                 @filter-remove=${this._handleFilterRemove}
@@ -1129,10 +1242,14 @@ export class AssetPicker extends LitElement {
                 .containerToken=${s.projectToken}
                 .showMetadata=${this.config?.showMetadata !== false}
                 .metadataFields=${s.metadataFields}
+                .labels=${s.labels}
                 .regionalFilters=${s.regionalFilters}
+                .multiSelect=${this.config?.multiSelect ?? true}
                 @preview-close=${this._handlePreviewClose}
                 @preview-navigate=${this._handlePreviewNavigate}
                 @asset-select=${this._handleAssetSelect}
+                @asset-quick-select=${this._handleQuickSelect}
+                @filter-update=${this._handleFilterUpdate}
               ></ap-preview-panel>`
             : nothing}
         </div>
@@ -1140,9 +1257,13 @@ export class AssetPicker extends LitElement {
         <div slot="footer">
           <ap-selection-bar
             .selectedAssets=${selectedAssets}
+            .totalCount=${s.totalCount}
+            .isSelectingAll=${s.isSelectingAll}
+            .multiSelect=${this.config?.multiSelect ?? true}
             @selection-confirm=${this._handleSelectionConfirm}
             @selection-clear=${this._handleSelectionClear}
             @selection-deselect=${this._handleSelectionDeselect}
+            @select-all=${this._handleSelectAll}
           ></ap-selection-bar>
         </div>
       </ap-modal>
@@ -1168,6 +1289,7 @@ export class AssetPicker extends LitElement {
             .folders=${[]}
             .selectedIds=${selectedIds}
             .isLoading=${s.isLoading}
+            .multiSelect=${this.config?.multiSelect ?? true}
             @asset-select=${this._handleAssetSelect}
             @asset-preview=${this._handleAssetPreview}
             @asset-quick-select=${this._handleQuickSelect}
@@ -1182,9 +1304,14 @@ export class AssetPicker extends LitElement {
           .folders=${[]}
           .selectedIds=${selectedIds}
           .isLoading=${s.isLoading}
+          .multiSelect=${this.config?.multiSelect ?? true}
+          .totalCount=${s.totalCount}
+          .isSelectingAll=${s.isSelectingAll}
           @asset-select=${this._handleAssetSelect}
           @asset-preview=${this._handleAssetPreview}
           @asset-quick-select=${this._handleQuickSelect}
+          @select-all=${this._handleSelectAll}
+          @selection-clear=${this._handleSelectionClear}
         ></ap-list-view>
         <div id="sentinel"></div>
       `;
@@ -1224,10 +1351,15 @@ export class AssetPicker extends LitElement {
           .folders=${s.folders}
           .selectedIds=${selectedIds}
           .isLoading=${s.isLoading}
+          .multiSelect=${this.config?.multiSelect ?? true}
+          .totalCount=${s.totalCount}
+          .isSelectingAll=${s.isSelectingAll}
           @asset-select=${this._handleAssetSelect}
           @asset-preview=${this._handleAssetPreview}
           @asset-quick-select=${this._handleQuickSelect}
           @folder-open=${this._handleFolderOpen}
+          @select-all=${this._handleSelectAll}
+          @selection-clear=${this._handleSelectionClear}
         ></ap-list-view>
         <div id="sentinel"></div>
       `;

@@ -31,16 +31,9 @@ export class ApFilterLabels extends LitElement {
       background: none;
     }
 
-    .color-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
+    .label-icon {
       flex-shrink: 0;
-    }
-
-    .color-dot.small {
-      width: 8px;
-      height: 8px;
+      line-height: 0;
     }
 
     .label-name {
@@ -59,11 +52,9 @@ export class ApFilterLabels extends LitElement {
       flex-shrink: 0;
     }
 
-    .chip-color-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
+    .chip-icon {
       flex-shrink: 0;
+      line-height: 0;
     }
   `];
 
@@ -85,14 +76,14 @@ export class ApFilterLabels extends LitElement {
     return this._search.trim().length > 0;
   }
 
-  private _toggle(uuid: string) {
-    const isSelected = this.selected.includes(uuid);
+  private _toggle(sid: string) {
+    const isSelected = this.selected.includes(sid);
 
     if (!isSelected && this._atLimit) return;
 
     const newSelected = isSelected
-      ? this.selected.filter((id) => id !== uuid)
-      : [...this.selected, uuid];
+      ? this.selected.filter((id) => id !== sid)
+      : [...this.selected, sid];
 
     this.dispatchEvent(
       new CustomEvent('filter-change', {
@@ -107,8 +98,8 @@ export class ApFilterLabels extends LitElement {
     );
   }
 
-  private _remove(uuid: string) {
-    const newSelected = this.selected.filter((id) => id !== uuid);
+  private _remove(sid: string) {
+    const newSelected = this.selected.filter((id) => id !== sid);
 
     this.dispatchEvent(
       new CustomEvent('filter-change', {
@@ -145,25 +136,24 @@ export class ApFilterLabels extends LitElement {
     this._search = '';
   }
 
-  private _getLabelByUuid(uuid: string): Label | undefined {
-    return this.labels.find((l) => l.uuid === uuid);
+  private _getLabelBySid(sid: string): Label | undefined {
+    return this.labels.find((l) => l.sid === sid);
   }
 
   private _renderLabelItem(label: Label) {
-    const isSelected = this.selected.includes(label.uuid);
+    const isSelected = this.selected.includes(label.sid);
     const isDisabled = !isSelected && this._atLimit;
 
     return html`
       <div
         class="label-item ${isDisabled ? 'disabled' : ''}"
         title=${isDisabled ? `You can select up to ${SELECTED_LABELS_LIMIT} labels` : nothing}
-        @click=${() => !isDisabled && this._toggle(label.uuid)}
+        @click=${() => !isDisabled && this._toggle(label.sid)}
       >
         <ap-checkbox ?checked=${isSelected}></ap-checkbox>
-        <div
-          class="color-dot"
-          style="background: ${label.color}"
-        ></div>
+        <span class="label-icon" style="color: ${label.color}">
+          <ap-icon name="tag" .size=${16}></ap-icon>
+        </span>
         <span class="label-name">${label.name}</span>
         <span class="count">${label.assetsCount}</span>
       </div>
@@ -201,17 +191,16 @@ export class ApFilterLabels extends LitElement {
           ? html`
               <div class="filter-section">
                 <div class="chips-wrap">
-                  ${this.selected.map((uuid) => {
-                    const label = this._getLabelByUuid(uuid);
+                  ${this.selected.map((sid) => {
+                    const label = this._getLabelBySid(sid);
                     if (!label) return nothing;
                     return html`
                       <div class="chip">
-                        <div
-                          class="chip-color-dot"
-                          style="background: ${label.color}"
-                        ></div>
+                        <span class="chip-icon" style="color: ${label.color}">
+                          <ap-icon name="tag" .size=${12}></ap-icon>
+                        </span>
                         <span class="chip-label">${label.name}</span>
-                        <button class="chip-remove" @click=${() => this._remove(uuid)}>
+                        <button class="chip-remove" @click=${() => this._remove(sid)}>
                           <ap-icon name="close" .size=${10}></ap-icon>
                         </button>
                       </div>

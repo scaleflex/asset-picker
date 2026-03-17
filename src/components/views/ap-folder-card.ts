@@ -1,7 +1,9 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { resetStyles } from '../../styles/shared-styles';
 import type { Folder } from '../../types/folder.types';
 import { getExtensionFromType, getFileTypeIconUrl, getDefaultFileTypeIconUrl, getFileTypeFromMime } from '../../utils/file-type';
+import { getFormattedPreviewUrl, addCdnParams } from '../../utils/thumbnail';
 
 export interface FolderPreviewImage {
   file_uri_cdn: string;
@@ -10,13 +12,13 @@ export interface FolderPreviewImage {
 
 @customElement('ap-folder-card')
 export class ApFolderCard extends LitElement {
-  static styles = css`
+  static styles = [resetStyles, css`
     :host {
       display: block;
     }
     .card {
       position: relative;
-      aspect-ratio: 9/7;
+      aspect-ratio: 4/3;
       cursor: pointer;
     }
     .card:hover .hover-overlay {
@@ -39,16 +41,22 @@ export class ApFolderCard extends LitElement {
       transition: opacity 200ms;
       pointer-events: none;
     }
-    .preview-container {
+    .card-content {
       position: absolute;
-      top: 15%;
+      top: 16%;
       left: 3.5%;
       width: 93%;
-      height: 74%;
+      bottom: 3%;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .preview-container {
+      flex: 1;
+      min-height: 0;
       display: flex;
       overflow: hidden;
       border-radius: 4px;
-      z-index: 1;
     }
     .preview-grid {
       display: flex;
@@ -112,7 +120,8 @@ export class ApFolderCard extends LitElement {
       color: var(--ap-muted-foreground, #71717a);
     }
     .info {
-      padding: 8px 4px 0;
+      flex-shrink: 0;
+      padding-top: 8px;
     }
     .name {
       font-size: var(--ap-font-size-sm, 0.875rem);
@@ -129,7 +138,7 @@ export class ApFolderCard extends LitElement {
       color: var(--ap-muted-foreground, #71717a);
       margin-top: 2px;
     }
-  `;
+  `];
 
   @property({ type: Object }) folder!: Folder;
   @property({ type: Array }) previews: FolderPreviewImage[] = [];
@@ -144,46 +153,32 @@ export class ApFolderCard extends LitElement {
 
   private _isAlternativeDisplay(fileType: string): boolean {
     const ext = getExtensionFromType(fileType).toLowerCase();
-    return ['svg', 'svg+xml', 'png'].includes(ext);
+    return ['svg', 'svg+xml', 'png', 'pdf'].includes(ext);
   }
 
   /**
    * Get the best preview URL for a folder preview image.
-   * Applies CDN transformations for videos and PDFs (like asset cards).
+   * Uses assets.filerobot.com URL to bypass private permissions and support CDN params.
    */
   private _getPreviewUrl(preview: FolderPreviewImage): string {
+    const rawUrl = preview.file_uri_cdn;
+    if (!rawUrl) return '';
+
+    // Convert to assets.filerobot.com URL (bypasses private file permissions)
+    let url = getFormattedPreviewUrl(rawUrl);
     const type = getFileTypeFromMime(preview.file_type);
-    const cdnUrl = preview.file_uri_cdn;
-    if (!cdnUrl) return '';
+    const dpr = String(window.devicePixelRatio || 1);
 
     if (type === 'video') {
-      // Generate a video thumbnail via CDN (first frame)
-      try {
-        const u = new URL(cdnUrl);
-        u.searchParams.set('w', '200');
-        u.searchParams.set('force_format', 'webp,jpeg');
-        return u.toString();
-      } catch {
-        return cdnUrl;
-      }
+      return addCdnParams(url, { w: '200', dpr, force_format: 'webp,jpeg' });
     }
 
     if (preview.file_type === 'application/pdf' || getExtensionFromType(preview.file_type).toLowerCase() === 'pdf') {
-      // Render first page as image, similar to getPdfPreviewUrl
-      try {
-        let url = cdnUrl.replace(/([?&])func=proxy&?/, '$1').replace(/[?&]$/, '');
-        const u = new URL(url);
-        u.searchParams.set('w', '200');
-        u.searchParams.set('force_format', 'webp,jpeg');
-        u.searchParams.set('doc_page', '1');
-        u.searchParams.set('bypass_process_proxy', '1');
-        return u.toString();
-      } catch {
-        return cdnUrl;
-      }
+      url = url.replace(/([?&])func=proxy&?/, '$1').replace(/[?&]$/, '');
+      return addCdnParams(url, { w: '200', dpr, force_format: 'webp,jpeg', doc_page: '1', bypass_process_proxy: '1' });
     }
 
-    return cdnUrl;
+    return addCdnParams(url, { w: '200', dpr });
   }
 
   private _renderPreviewImg(preview: FolderPreviewImage) {
@@ -265,17 +260,19 @@ export class ApFolderCard extends LitElement {
           <path d="M 3,0 L 30,0 L 43.5,0 Q 45,0 46.5,3 L 51,12 L 97,12 Q 100,12 100,15 L 100,97 Q 100,100 97,100 L 3,100 Q 0,100 0,97 L 0,3 Q 0,0 3,0 Z"
                 fill="#F3F7FA" />
         </svg>
-        <!-- Preview images -->
-        <div class="preview-container">
-          ${this._renderPreviews()}
-        </div>
-      </div>
-      <!-- Info section outside the card shape -->
-      <div class="info">
-        <div class="name" title=${f.name}>${f.name}</div>
-        <div class="counts">
-          <span>${directCount} asset${directCount !== 1 ? 's' : ''}</span>
-          ${subAssets > 0 ? html`<span>${subAssets} sub-asset${subAssets !== 1 ? 's' : ''}</span>` : nothing}
+        <div class="card-content">
+          <!-- Preview images -->
+          <div class="preview-container">
+            ${this._renderPreviews()}
+          </div>
+          <!-- Info section inside the card shape -->
+          <div class="info">
+            <div class="name" title=${f.name}>${f.name}</div>
+            <div class="counts">
+              <span>${directCount} asset${directCount !== 1 ? 's' : ''}</span>
+              ${subAssets > 0 ? html`<span>${subAssets} sub-asset${subAssets !== 1 ? 's' : ''}</span>` : nothing}
+            </div>
+          </div>
         </div>
       </div>
     `;

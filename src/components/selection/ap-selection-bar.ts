@@ -28,6 +28,26 @@ export class ApSelectionBar extends LitElement {
       color: var(--ap-foreground, #09090b);
       white-space: nowrap;
     }
+    .select-all-link {
+      font-size: var(--ap-font-size-sm, 0.875rem);
+      color: var(--ap-primary, oklch(0.65 0.19 258));
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin-left: 8px;
+      font-weight: 500;
+      font-family: var(--ap-font-family, system-ui, sans-serif);
+      white-space: nowrap;
+    }
+    .select-all-link:hover {
+      text-decoration: underline;
+    }
+    .select-all-link:disabled {
+      opacity: 0.5;
+      cursor: default;
+      text-decoration: none;
+    }
     .thumbnails {
       flex: 1;
       display: flex;
@@ -95,6 +115,9 @@ export class ApSelectionBar extends LitElement {
   `;
 
   @property({ type: Array }) selectedAssets: Asset[] = [];
+  @property({ type: Number }) totalCount = 0;
+  @property({ type: Boolean }) isSelectingAll = false;
+  @property({ type: Boolean }) multiSelect = true;
 
   private _confirm() {
     this.dispatchEvent(new CustomEvent('selection-confirm', {
@@ -106,6 +129,10 @@ export class ApSelectionBar extends LitElement {
 
   private _clear() {
     this.dispatchEvent(new CustomEvent('selection-clear', { bubbles: true, composed: true }));
+  }
+
+  private _selectAll() {
+    this.dispatchEvent(new CustomEvent('select-all', { bubbles: true, composed: true }));
   }
 
   private _deselect(uuid: string) {
@@ -122,6 +149,13 @@ export class ApSelectionBar extends LitElement {
     return html`
       <div class="bar">
         <span class="count">${this.selectedAssets.length} asset${this.selectedAssets.length > 1 ? 's' : ''} selected</span>
+        ${this.multiSelect && this.selectedAssets.length < this.totalCount
+          ? html`<button
+              class="select-all-link"
+              ?disabled=${this.isSelectingAll}
+              @click=${this._selectAll}
+            >${this.isSelectingAll ? 'Selecting...' : `Select all ${this.totalCount.toLocaleString()}`}</button>`
+          : nothing}
         <div class="thumbnails">
           ${this.selectedAssets.map((asset) => {
             const fileType = getFileTypeFromMime(asset.type);

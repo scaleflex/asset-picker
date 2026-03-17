@@ -12,6 +12,7 @@ import {
   type MetadataModelField,
 } from '../../types/filter.types';
 import type { TagWithLabel } from '../../types/tag.types';
+import type { Label } from '../../types/label.types';
 import { FILTER_LABELS, DATE_FIELD_OPTIONS, DATE_RANGE_OPTIONS, LICENSE_DATE_RANGE_OPTIONS, ASSET_TYPE_OPTIONS } from './filters.constants';
 
 @customElement('ap-filters-bar')
@@ -130,6 +131,7 @@ export class ApFiltersBar extends LitElement {
   @property({ type: Array }) pinnedFilters: AnyFilterKey[] = [];
   @property({ type: Array }) pinnedMetadataFields: string[] = [];
   @property({ type: Array }) tags: TagWithLabel[] = [];
+  @property({ type: Array }) labels: Label[] = [];
   @property() activeFilter: AnyFilterKey | null = null;
   @property() activeMetadataField: string | null = null;
   @property() pendingFilter: AnyFilterKey | null = null;
@@ -157,11 +159,20 @@ export class ApFiltersBar extends LitElement {
       const sf = filter as StringFilter;
       if (sf.values.length === 0) return '';
       if (key === FILTER_KEYS.SIZE) return this._getSizeSummary(sf);
+      if (key === FILTER_KEYS.COLOR) {
+        // Color values are like "#FF0000 1 1 20" — extract just the hex
+        const hexes = sf.values.map((v) => v.split(' ')[0]).filter(Boolean);
+        if (hexes.length === 0) return '';
+        if (hexes.length === 1) return hexes[0];
+        return `${hexes[0]} +${hexes.length - 1}`;
+      }
       const mapLabel = key === FILTER_KEYS.TYPE
         ? (v: string) => this._mapTypeLabel(v)
         : key === FILTER_KEYS.TAGS
           ? (v: string) => this.tags.find((t) => t.sid === v)?.label || v
-          : (v: string) => v;
+          : key === FILTER_KEYS.LABELS
+            ? (v: string) => this.labels.find((l) => l.sid === v)?.name || v
+            : (v: string) => v;
       if (sf.values.length === 1) return mapLabel(sf.values[0]);
       return `${mapLabel(sf.values[0])} +${sf.values.length - 1}`;
     }
@@ -282,24 +293,81 @@ export class ApFiltersBar extends LitElement {
     }));
   }
 
+  private _renderFilterChip(key: AnyFilterKey, filter: AnyFilter | undefined) {
+    if (!filter) {
+      // Empty pinned chip
+      return html`
+        <span class="chip pinned-empty ${key === this.activeFilter ? 'active' : ''}" @click=${(e: Event) => this._openFilter(key, e)}>
+          <span class="chip-label">${FILTER_LABELS[key] || key}</span>
+        </span>
+      `;
+    }
+    // Applied chip
+    const summary = this._getFilterSummary(filter, key);
+    const isDate = filter.type === 'date';
+    return html`
+      <span class="chip ${key === this.activeFilter ? 'active' : ''}" @click=${(e: Event) => this._openFilter(key, e)}>
+        ${(isDate || key === FILTER_KEYS.TYPE || key === FILTER_KEYS.SIZE) && summary
+          ? html`<span class="chip-label">${summary}</span>`
+          : html`
+              <span class="chip-label">${FILTER_LABELS[key] || key}</span>
+              ${summary ? html`<span class="chip-summary">${summary}</span>` : nothing}
+            `}
+        <button class="chip-remove" @click=${(e: Event) => { e.stopPropagation(); this._removeFilter(key); }} title="Remove filter">
+          <ap-icon name="close" .size=${12}></ap-icon>
+        </button>
+      </span>
+    `;
+  }
+
+  private _renderMetadataChip(fieldKey: string, filter: AnyFilter | undefined) {
+    if (!filter) {
+      // Empty pinned chip
+      const label = this._getMetadataLabel(fieldKey);
+      return html`
+        <span class="chip pinned-empty ${fieldKey === this.activeMetadataField ? 'active' : ''}" @click=${(e: Event) => this._openMetadataFilter(fieldKey, e)}>
+          <span class="chip-label">${label}</span>
+        </span>
+      `;
+    }
+    // Applied chip
+    const summary = this._getFilterSummary(filter);
+    const label = this._getMetadataLabel(fieldKey);
+    return html`
+      <span class="chip ${fieldKey === this.activeMetadataField ? 'active' : ''}" @click=${(e: Event) => this._openMetadataFilter(fieldKey, e)}>
+        <span class="chip-label">${label}</span>
+        ${summary ? html`<span class="chip-summary">${summary}</span>` : nothing}
+        <button class="chip-remove" @click=${(e: Event) => { e.stopPropagation(); this._removeMetadataFilter(fieldKey); }} title="Remove filter">
+          <ap-icon name="close" .size=${12}></ap-icon>
+        </button>
+      </span>
+    `;
+  }
+
   render() {
-    const filterEntries = Object.entries(this.appliedFilters) as [AnyFilterKey, AnyFilter][];
-    const metadataEntries = Object.entries(this.appliedMetadata) as [string, AnyFilter][];
-    // Pinned filters that don't have an applied value
-    const pinnedEmpty = this.pinnedFilters.filter(
-      (key) => !(key in this.appliedFilters),
-    );
-    const pinnedMetadataEmpty = this.pinnedMetadataFields.filter(
-      (key) => !(key in this.appliedMetadata),
-    );
+    const appliedKeys = Object.keys(this.appliedFilters) as AnyFilterKey[];
+    const appliedMetaKeys = Object.keys(this.appliedMetadata);
+
+    // Build ordered list: pinned filters first (preserving their position),
+    // then non-pinned applied filters, then pending chip
+    const pinnedSet = new Set(this.pinnedFilters);
+    const pinnedMetaSet = new Set(this.pinnedMetadataFields);
+
+    // Non-pinned applied filters (appear after all pinned)
+    const nonPinnedApplied = appliedKeys.filter((k) => !pinnedSet.has(k));
+    const nonPinnedMetaApplied = appliedMetaKeys.filter((k) => !pinnedMetaSet.has(k));
+
     // Include pending filter as a temporary empty chip (if not already shown)
     const hasPending = this.pendingFilter
-      && !pinnedEmpty.includes(this.pendingFilter)
+      && !pinnedSet.has(this.pendingFilter as AnyFilterKey)
       && !(this.pendingFilter in this.appliedFilters);
     const hasPendingMeta = this.pendingMetadataField
-      && !pinnedMetadataEmpty.includes(this.pendingMetadataField)
+      && !pinnedMetaSet.has(this.pendingMetadataField)
       && !(this.pendingMetadataField in this.appliedMetadata);
-    const totalCount = filterEntries.length + metadataEntries.length + pinnedEmpty.length + pinnedMetadataEmpty.length
+
+    const hasApplied = appliedKeys.length + appliedMetaKeys.length > 0;
+    const totalCount = this.pinnedFilters.length + this.pinnedMetadataFields.length
+      + nonPinnedApplied.length + nonPinnedMetaApplied.length
       + (hasPending ? 1 : 0) + (hasPendingMeta ? 1 : 0);
 
     if (totalCount === 0) return nothing;
@@ -307,62 +375,31 @@ export class ApFiltersBar extends LitElement {
     return html`
       <div class="chips-row">
         <div class="chips">
-          ${pinnedEmpty.map((key) => html`
-            <span class="chip pinned-empty ${key === this.activeFilter ? 'active' : ''}" @click=${(e: Event) => this._openFilter(key, e)}>
-              <span class="chip-label">${FILTER_LABELS[key] || key}</span>
-            </span>
-          `)}
+          ${this.pinnedFilters.map((key) =>
+            this._renderFilterChip(key, this.appliedFilters[key])
+          )}
+          ${this.pinnedMetadataFields.map((fieldKey) =>
+            this._renderMetadataChip(fieldKey, this.appliedMetadata[fieldKey])
+          )}
+          ${nonPinnedApplied.map((key) =>
+            this._renderFilterChip(key, this.appliedFilters[key])
+          )}
           ${hasPending ? html`
             <span class="chip pinned-empty active pending" @click=${(e: Event) => this._openFilter(this.pendingFilter!, e)}>
               <span class="chip-label">${FILTER_LABELS[this.pendingFilter!] || this.pendingFilter}</span>
             </span>
           ` : nothing}
-          ${pinnedMetadataEmpty.map((fieldKey) => {
-            const label = this._getMetadataLabel(fieldKey);
-            return html`
-              <span class="chip pinned-empty ${fieldKey === this.activeMetadataField ? 'active' : ''}" @click=${(e: Event) => this._openMetadataFilter(fieldKey, e)}>
-                <span class="chip-label">${label}</span>
-              </span>
-            `;
-          })}
+          ${nonPinnedMetaApplied.map((fieldKey) =>
+            this._renderMetadataChip(fieldKey, this.appliedMetadata[fieldKey])
+          )}
           ${hasPendingMeta ? html`
             <span class="chip pinned-empty active pending" @click=${(e: Event) => this._openMetadataFilter(this.pendingMetadataField!, e)}>
               <span class="chip-label">${this._getMetadataLabel(this.pendingMetadataField!)}</span>
             </span>
           ` : nothing}
-          ${filterEntries.map(([key, filter]) => {
-            const summary = this._getFilterSummary(filter, key);
-            const isDate = filter.type === 'date';
-            return html`
-              <span class="chip ${key === this.activeFilter ? 'active' : ''}" @click=${(e: Event) => this._openFilter(key, e)}>
-                ${(isDate || key === FILTER_KEYS.TYPE || key === FILTER_KEYS.SIZE) && summary
-                  ? html`<span class="chip-label">${summary}</span>`
-                  : html`
-                      <span class="chip-label">${FILTER_LABELS[key] || key}</span>
-                      ${summary ? html`<span class="chip-summary">${summary}</span>` : nothing}
-                    `}
-                <button class="chip-remove" @click=${(e: Event) => { e.stopPropagation(); this._removeFilter(key); }} title="Remove filter">
-                  <ap-icon name="close" .size=${12}></ap-icon>
-                </button>
-              </span>
-            `;
-          })}
-          ${metadataEntries.map(([fieldKey, filter]) => {
-            const summary = this._getFilterSummary(filter);
-            const label = this._getMetadataLabel(fieldKey);
-            return html`
-              <span class="chip ${fieldKey === this.activeMetadataField ? 'active' : ''}" @click=${(e: Event) => this._openMetadataFilter(fieldKey, e)}>
-                <span class="chip-label">${label}</span>
-                ${summary ? html`<span class="chip-summary">${summary}</span>` : nothing}
-                <button class="chip-remove" @click=${(e: Event) => { e.stopPropagation(); this._removeMetadataFilter(fieldKey); }} title="Remove filter">
-                  <ap-icon name="close" .size=${12}></ap-icon>
-                </button>
-              </span>
-            `;
-          })}
         </div>
-        ${filterEntries.length + metadataEntries.length > 1
-          ? html`<button class="clear-all" @click=${this._clearAll}>Clear all</button>`
+        ${hasApplied
+          ? html`<button class="clear-all" @click=${this._clearAll}>Clear filters</button>`
           : nothing}
       </div>
     `;

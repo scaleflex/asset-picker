@@ -1,5 +1,6 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import { resetStyles } from '../../styles/shared-styles';
 
 export interface DropdownOption {
   value: string;
@@ -10,6 +11,7 @@ export interface DropdownOption {
 @customElement('ap-dropdown')
 export class ApDropdown extends LitElement {
   static styles = [
+    resetStyles,
     css`
       :host {
         position: relative;
@@ -29,7 +31,6 @@ export class ApDropdown extends LitElement {
         font-size: var(--ap-font-size-sm, 0.875rem);
         cursor: pointer;
         white-space: nowrap;
-        box-sizing: border-box;
       }
       .trigger:hover {
         background: var(--ap-muted, #f4f4f5);

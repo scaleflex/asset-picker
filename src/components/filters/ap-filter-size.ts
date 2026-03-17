@@ -33,6 +33,11 @@ export class ApFilterSize extends LitElement {
       .filter-input[type='number'] {
         -moz-appearance: textfield;
       }
+      .size-grid {
+        display: grid;
+        grid-template-columns: auto auto 1fr;
+        gap: 12px;
+      }
     `,
   ];
 
@@ -128,7 +133,7 @@ export class ApFilterSize extends LitElement {
           @click=${this._clearAll}
         >Clear all</button>
 
-        <div class="grid-3">
+        <div class="size-grid">
           <div>
             <span class="input-label">From</span>
             <input

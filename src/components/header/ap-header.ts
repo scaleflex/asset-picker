@@ -1,6 +1,7 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { debounce } from '../../utils/debounce';
+import { resetStyles } from '../../styles/shared-styles';
 import type { ViewMode, TabKey } from '../../types/config.types';
 import type { RegionalVariantGroup, RegionalFilters } from '../../types/filter.types';
 import './ap-regional-settings';
@@ -12,7 +13,7 @@ const TAB_OPTIONS: { value: TabKey; label: string; icon: string }[] = [
 
 @customElement('ap-header')
 export class ApHeader extends LitElement {
-  static styles = css`
+  static styles = [resetStyles, css`
     :host {
       display: block;
       padding: 16px 20px;
@@ -44,7 +45,6 @@ export class ApHeader extends LitElement {
       color: var(--ap-foreground, #09090b);
       background: var(--ap-background, #fff);
       outline: none;
-      box-sizing: border-box;
     }
     input:focus {
       border-color: var(--ap-ring, oklch(0.65 0.19 258));
@@ -77,11 +77,6 @@ export class ApHeader extends LitElement {
       color: var(--ap-foreground, #09090b);
       background: var(--ap-muted, #f4f4f5);
     }
-    .actions {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
     .icon-btn {
       display: flex;
       align-items: center;
@@ -102,16 +97,12 @@ export class ApHeader extends LitElement {
       outline: 2px solid var(--ap-ring, oklch(0.65 0.19 258));
       outline-offset: -2px;
     }
-    .icon-btn.active {
-      background: var(--ap-selection-bg, oklch(0.65 0.19 258 / 0.08));
-      color: var(--ap-primary, oklch(0.65 0.19 258));
-    }
     .divider {
       width: 1px;
       height: 24px;
       background: var(--ap-border, #e4e4e7);
     }
-  `;
+  `];
 
   @property() activeTab: TabKey = 'assets';
   @property({ type: Array }) hiddenTabs: TabKey[] = [];
@@ -122,7 +113,9 @@ export class ApHeader extends LitElement {
   @state() private _localSearch = '';
 
   private _debouncedSearch = debounce((value: string) => {
-    this.dispatchEvent(new CustomEvent('search-change', { detail: { value }, bubbles: true, composed: true }));
+    if (value.length === 0 || value.length >= 3) {
+      this.dispatchEvent(new CustomEvent('search-change', { detail: { value }, bubbles: true, composed: true }));
+    }
   }, 300);
 
   disconnectedCallback() {
@@ -148,7 +141,8 @@ export class ApHeader extends LitElement {
     this.dispatchEvent(new CustomEvent('search-change', { detail: { value: '' }, bubbles: true, composed: true }));
   }
 
-  private _toggleView(mode: ViewMode) {
+  private _toggleView() {
+    const mode = this.viewMode === 'grid' ? 'list' : 'grid';
     this.dispatchEvent(new CustomEvent('view-change', { detail: { mode }, bubbles: true, composed: true }));
   }
 
@@ -196,22 +190,14 @@ export class ApHeader extends LitElement {
           .selectedFilters=${this.regionalFilters}
           @regional-change=${this._handleRegionalChange}
         ></ap-regional-settings>
-        <div class="actions">
-          <button
-            class="icon-btn ${this.viewMode === 'grid' ? 'active' : ''}"
-            @click=${() => this._toggleView('grid')}
-            aria-label="Grid view"
-          >
-            <ap-icon name="grid" .size=${18}></ap-icon>
-          </button>
-          <button
-            class="icon-btn ${this.viewMode === 'list' ? 'active' : ''}"
-            @click=${() => this._toggleView('list')}
-            aria-label="List view"
-          >
-            <ap-icon name="list" .size=${18}></ap-icon>
-          </button>
-        </div>
+        <button
+          class="icon-btn"
+          @click=${this._toggleView}
+          aria-label=${this.viewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'}
+          title=${this.viewMode === 'grid' ? 'List view' : 'Grid view'}
+        >
+          <ap-icon name=${this.viewMode === 'grid' ? 'list' : 'grid'} .size=${18}></ap-icon>
+        </button>
         <div class="divider"></div>
         <button class="icon-btn" @click=${this._handleClose} aria-label="Close">
           <ap-icon name="close" .size=${18}></ap-icon>

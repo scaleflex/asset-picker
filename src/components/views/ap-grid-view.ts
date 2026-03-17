@@ -43,6 +43,7 @@ export class ApGridView extends LitElement {
   @property({ type: Object }) folderPreviews: Record<string, { file_uri_cdn: string; file_type: string }[]> = {};
   @property({ type: Array }) selectedIds: string[] = [];
   @property({ type: Boolean }) isLoading = false;
+  @property({ type: Boolean }) multiSelect = true;
 
   /** Track how many items existed before the latest batch for stagger offset */
   private _prevCount = 0;
@@ -83,6 +84,7 @@ export class ApGridView extends LitElement {
                 .asset=${asset}
                 .index=${i}
                 ?selected=${this.selectedIds.includes(asset.uuid)}
+                .multiSelect=${this.multiSelect}
                 style="--ap-stagger-index: ${staggerIndex}"
                 data-asset-uuid=${asset.uuid}
                 @asset-select=${(e: CustomEvent) =>

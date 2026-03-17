@@ -57,7 +57,7 @@ export interface Asset {
   };
   created_at: string;
   modified_at: string;
-  tags: Record<string, { label: string; sid: string }> | string[];
+  tags: Record<string, Array<{ label: string; sid: string }>> | Record<string, { label: string; sid: string }> | string[];
   labels: string[];
   meta: AssetMeta;
   info: AssetInfo;

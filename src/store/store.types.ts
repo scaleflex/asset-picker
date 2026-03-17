@@ -41,6 +41,7 @@ export interface AppState {
   totalCount: number;
   totalFolderCount: number;
   isLoading: boolean;
+  isSelectingAll: boolean;
   hasMore: boolean;
 
   filters: FiltersState;

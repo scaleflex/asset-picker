@@ -28,6 +28,10 @@ export interface GetFilesResponse extends ApiBaseResponse {
       files_recursive?: number;
     };
   };
+  info?: {
+    total_files_count?: number;
+    total_files_size?: number;
+  };
   limit: number;
   offset: number;
 }

@@ -256,6 +256,25 @@ const ICONS: Record<string, IconDef> = {
     { tag: 'path', attrs: { d: 'M2 12h20' } },
   ],
 
+  // ── Approval Status ────────────────────────────────────────────────
+  'circle-check-big': [
+    { tag: 'path', attrs: { d: 'M21.801 10A10 10 0 1 1 17 3.335' } },
+    { tag: 'path', attrs: { d: 'm9 11 3 3L22 4' } },
+  ],
+  'x-circle': [
+    { tag: 'circle', attrs: { cx: '12', cy: '12', r: '10' } },
+    { tag: 'path', attrs: { d: 'm15 9-6 6' } },
+    { tag: 'path', attrs: { d: 'm9 9 6 6' } },
+  ],
+  ban: [
+    { tag: 'circle', attrs: { cx: '12', cy: '12', r: '10' } },
+    { tag: 'path', attrs: { d: 'm4.9 4.9 14.2 14.2' } },
+  ],
+  clock: [
+    { tag: 'circle', attrs: { cx: '12', cy: '12', r: '10' } },
+    { tag: 'path', attrs: { d: 'M12 6v6l4 2' } },
+  ],
+
   // ── Misc ────────────────────────────────────────────────────────────
   component: [
     { tag: 'path', attrs: { d: 'M15.536 11.293a1 1 0 0 0 0 1.414l2.376 2.377a1 1 0 0 0 1.414 0l2.377-2.377a1 1 0 0 0 0-1.414l-2.377-2.377a1 1 0 0 0-1.414 0z' } },

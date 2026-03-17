@@ -1,5 +1,6 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
+import type { ApiClient } from '../../services/api-client';
 import {
   METADATA_PREFIX_BY_TYPE,
   METADATA_FIELD_TYPES,
@@ -24,6 +25,7 @@ import {
   type MetadataFilterUIType,
 } from './filters.constants';
 import { filterPopoverStyles } from './shared/filter-styles';
+import { resetStyles } from '../../styles/shared-styles';
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -42,7 +44,7 @@ interface MetadataFilterValue {
 
 @customElement('ap-filter-metadata')
 export class ApFilterMetadata extends LitElement {
-  static styles = [filterPopoverStyles, css`
+  static styles = [resetStyles, filterPopoverStyles, css`
     /* ── Field selection panel ─────────────────────────────── */
 
     .add-field-btn {
@@ -106,15 +108,17 @@ export class ApFilterMetadata extends LitElement {
     }
 
     .field-search {
+      position: sticky;
+      top: -12px;
+      z-index: 2;
       width: 100%;
       padding: 8px 12px;
       border: none;
       border-bottom: 1px solid var(--ap-border, #e4e4e7);
       font-size: var(--ap-font-size-sm, 0.875rem);
       color: var(--ap-foreground, #09090b);
-      background: transparent;
+      background: var(--ap-card, #fff);
       outline: none;
-      box-sizing: border-box;
       font-family: var(--ap-font-family, system-ui, sans-serif);
     }
 
@@ -123,9 +127,6 @@ export class ApFilterMetadata extends LitElement {
     }
 
     .field-list {
-      max-height: 260px;
-      overflow-y: auto;
-      overscroll-behavior: contain;
       padding: 4px 0;
     }
 
@@ -427,21 +428,34 @@ export class ApFilterMetadata extends LitElement {
 
   @property({ type: Object }) appliedMetadata: Record<string, MetadataFilterValue> = {};
 
+  @property({ attribute: false }) apiClient?: ApiClient;
+
   // ── Internal state ───────────────────────────────────────────────
 
   @state() private _showFieldSelection = false;
   @state() private _fieldSearch = '';
   @state() private _collapsedFields: Set<string> = new Set();
   @state() private _tagInputs: Record<string, string> = {};
+  @state() private _tagSuggestions: Record<string, string[]> = {};
+  @state() private _tagLoading: Record<string, boolean> = {};
   @state() private _datePresets: Record<string, string> = {};
   @state() private _dateFroms: Record<string, string> = {};
   @state() private _dateTos: Record<string, string> = {};
   @state() private _specificModeFields: Set<string> = new Set();
   @state() private _selectSearches: Record<string, string> = {};
 
+  private _tagDebounceTimers: Record<string, ReturnType<typeof setTimeout>> = {};
+
   connectedCallback() {
     super.connectedCallback();
     this.updateComplete.then(() => this._focusSearch());
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    for (const timer of Object.values(this._tagDebounceTimers)) {
+      clearTimeout(timer);
+    }
   }
 
   private _focusSearch() {
@@ -728,19 +742,67 @@ export class ApFilterMetadata extends LitElement {
     }
   }
 
-  private _onTagInput(prefixedKey: string, e: Event) {
+  private _onTagInput(field: MetadataModelField, prefixedKey: string, e: Event) {
     const value = (e.target as HTMLInputElement).value;
     // If user types comma, commit immediately
     if (value.includes(',')) {
       const tag = value.replace(/,/g, '').trim();
       if (tag) {
         this._tagInputs = { ...this._tagInputs, [prefixedKey]: tag };
-        const field = this._getField(prefixedKey);
-        if (field) this._commitTagInput(field, prefixedKey);
+        this._commitTagInput(field, prefixedKey);
       }
       return;
     }
     this._tagInputs = { ...this._tagInputs, [prefixedKey]: value };
+    this._fetchTagSuggestions(field, prefixedKey, value.trim());
+  }
+
+  private _selectTagSuggestion(field: MetadataModelField, tag: string) {
+    const prefixedKey = getPrefixedKey(field);
+    const applied = this._getApplied(prefixedKey);
+    const operator = applied.operator || SINGLE_SELECT_OPERATOR_OPTIONS[0].value;
+    const current = applied.values || [];
+
+    if (!current.includes(tag)) {
+      this._emitFilterChange(field, operator, [...current, tag]);
+    }
+    // Clear input and suggestions after selection
+    this._tagInputs = { ...this._tagInputs, [prefixedKey]: '' };
+    this._tagSuggestions = { ...this._tagSuggestions, [prefixedKey]: [] };
+  }
+
+  private _fetchTagSuggestions(field: MetadataModelField, prefixedKey: string, query: string) {
+    if (this._tagDebounceTimers[prefixedKey]) {
+      clearTimeout(this._tagDebounceTimers[prefixedKey]);
+    }
+
+    if (!query || !this.apiClient) {
+      this._tagSuggestions = { ...this._tagSuggestions, [prefixedKey]: [] };
+      this._tagLoading = { ...this._tagLoading, [prefixedKey]: false };
+      return;
+    }
+
+    this._tagDebounceTimers[prefixedKey] = setTimeout(async () => {
+      this._tagLoading = { ...this._tagLoading, [prefixedKey]: true };
+      try {
+        const metaKey = `_${field.ckey || field.key}`;
+        const response = await this.apiClient!.request<{ tags: { tag: string }[] }>(
+          '/metadata/autocomplete',
+          { q: query, meta_key: metaKey },
+        );
+        // Only update if input hasn't changed
+        if ((this._tagInputs[prefixedKey] || '').trim() === query) {
+          this._tagSuggestions = {
+            ...this._tagSuggestions,
+            [prefixedKey]: (response.tags || []).map((t) => t.tag),
+          };
+        }
+      } catch {
+        this._tagSuggestions = { ...this._tagSuggestions, [prefixedKey]: [] };
+      } finally {
+        this._tagLoading = { ...this._tagLoading, [prefixedKey]: false };
+      }
+    }, 300);
   }
 
   private _commitTagInput(field: MetadataModelField, prefixedKey: string) {
@@ -748,7 +810,7 @@ export class ApFilterMetadata extends LitElement {
     if (!tag) return;
 
     const applied = this._getApplied(prefixedKey);
-    const operator = applied.operator || MULTI_SELECT_OPERATOR_OPTIONS[0].value;
+    const operator = applied.operator || SINGLE_SELECT_OPERATOR_OPTIONS[0].value;
     const current = applied.values || [];
 
     if (!current.includes(tag)) {
@@ -756,18 +818,26 @@ export class ApFilterMetadata extends LitElement {
     }
 
     this._tagInputs = { ...this._tagInputs, [prefixedKey]: '' };
+    this._tagSuggestions = { ...this._tagSuggestions, [prefixedKey]: [] };
   }
 
   private _removeTag(field: MetadataModelField, tag: string) {
     const prefixedKey = getPrefixedKey(field);
     const applied = this._getApplied(prefixedKey);
-    const operator = applied.operator || MULTI_SELECT_OPERATOR_OPTIONS[0].value;
+    const operator = applied.operator || SINGLE_SELECT_OPERATOR_OPTIONS[0].value;
     const current = applied.values || [];
     this._emitFilterChange(
       field,
       operator,
       current.filter((v) => v !== tag),
     );
+  }
+
+  private _onTagOperatorChange(field: MetadataModelField, newOperator: string) {
+    const prefixedKey = getPrefixedKey(field);
+    const applied = this._getApplied(prefixedKey);
+    const values = applied.values || [];
+    this._emitFilterChange(field, newOperator, values);
   }
 
   // ── Date filter ──────────────────────────────────────────────────
@@ -894,10 +964,8 @@ export class ApFilterMetadata extends LitElement {
     }
 
     const [lat, lng] = parts;
-    let value = `${lat},${lng}`;
-    if (radius) {
-      value += `..${radius}`;
-    }
+    const r = radius || '0';
+    let value = `${lat},${lng}..${r}`;
 
     this._emitFilterChange(field, FILTER_OPERATORS.IS, [value]);
   }
@@ -1492,48 +1560,135 @@ export class ApFilterMetadata extends LitElement {
     const isSpecial = this._isSpecialValue(applied.values);
     const tags = isSpecial ? [] : (applied.values || []);
     const inputValue = this._tagInputs[prefixedKey] || '';
+    const operator = applied.operator || SINGLE_SELECT_OPERATOR_OPTIONS[0].value;
+    const hasFilter = tags.length > 0 || isSpecial;
+    const suggestions = this._tagSuggestions[prefixedKey] || [];
+    const isLoading = this._tagLoading[prefixedKey] || false;
+    const isSearching = inputValue.trim().length > 0;
+    const atLimit = tags.length >= SELECTED_METADATA_FIELDS_LIMIT;
 
     return html`
-      <div class="filter-content" style="position: relative;">
-        <button
-          class="clear-btn"
-          ?disabled=${tags.length === 0 && !isSpecial}
-          @click=${() => this._clearFieldFilter(field)}
-        >Clear all</button>
+      <div class="filter-content">
+        <!-- Search input -->
+        <div class="search-wrapper">
+          <input
+            class="search-input"
+            type="text"
+            placeholder="Search tags..."
+            .value=${inputValue}
+            @input=${(e: Event) => this._onTagInput(field, prefixedKey, e)}
+            @keydown=${(e: KeyboardEvent) => this._onTagKeydown(field, e)}
+          />
+          ${isSearching
+            ? html`
+                <button class="search-clear" @click=${() => {
+                  this._tagInputs = { ...this._tagInputs, [prefixedKey]: '' };
+                  this._tagSuggestions = { ...this._tagSuggestions, [prefixedKey]: [] };
+                }}>
+                  <ap-icon name="close" .size=${12}></ap-icon>
+                </button>
+              `
+            : nothing}
+        </div>
 
-        <!-- Tag chips -->
-        ${tags.length > 0
+        ${!isSearching
           ? html`
+              <!-- Operator -->
               <div class="filter-section">
-                <div class="chips-wrap">
-                  ${tags.map(
-                    (tag) => html`
-                      <div class="chip">
-                        <span class="chip-label">${tag}</span>
-                        <button class="chip-remove" @click=${() => this._removeTag(field, tag)}>
-                          <ap-icon name="close" .size=${10}></ap-icon>
-                        </button>
+                <div class="section-header">
+                  <span class="section-label">Condition</span>
+                  <button
+                    class="clear-btn"
+                    ?disabled=${!hasFilter && !applied.operator}
+                    @click=${() => this._clearFieldFilter(field)}
+                  >Clear all</button>
+                </div>
+                <ap-radio-group
+                  direction="horizontal"
+                  .options=${SINGLE_SELECT_OPERATOR_OPTIONS}
+                  .value=${operator}
+                  ?disabled=${isSpecial}
+                  @ap-change=${(e: CustomEvent) => this._onTagOperatorChange(field, e.detail.value)}
+                ></ap-radio-group>
+              </div>
+
+              <!-- Selected chips -->
+              ${tags.length > 0
+                ? html`
+                    <div class="filter-section">
+                      <div class="chips-wrap">
+                        ${tags.map(
+                          (tag) => html`
+                            <div class="chip">
+                              <span class="chip-label">${tag}</span>
+                              <button class="chip-remove" @click=${() => this._removeTag(field, tag)}>
+                                <ap-icon name="close" .size=${10}></ap-icon>
+                              </button>
+                            </div>
+                          `,
+                        )}
+                      </div>
+                    </div>
+                  `
+                : nothing}
+
+              <!-- Empty/Not empty -->
+              <div class="filter-section">
+                <span class="section-label">All options</span>
+                <div class="options-list short">
+                  ${EMPTY_OPTIONS.map(
+                    (opt) => html`
+                      <div
+                        class="option-item"
+                        @click=${() => this._onEmptyOption(field, opt.value)}
+                      >
+                        <ap-checkbox ?checked=${applied.values?.[0] === opt.value}></ap-checkbox>
+                        <span>${opt.label}</span>
                       </div>
                     `,
                   )}
                 </div>
               </div>
             `
-          : nothing}
+          : html`
+              <div class="section-header">
+                <span class="section-label"></span>
+                <button
+                  class="clear-btn"
+                  ?disabled=${!hasFilter && !applied.operator}
+                  @click=${() => this._clearFieldFilter(field)}
+                >Clear all</button>
+              </div>
+            `}
 
-        <!-- Tag input -->
-        <div class="filter-section">
-          <div class="tags-container">
-            <input
-              class="tag-input"
-              type="text"
-              placeholder=${tags.length > 0 ? 'Add tag...' : 'Type and press Enter...'}
-              .value=${inputValue}
-              @input=${(e: Event) => this._onTagInput(prefixedKey, e)}
-              @keydown=${(e: KeyboardEvent) => this._onTagKeydown(field, e)}
-            />
-          </div>
-        </div>
+        <!-- Suggestions list -->
+        ${isSearching
+          ? html`
+              <div class="filter-section">
+                <div class="options-list">
+                  ${isLoading
+                    ? html`<div class="option-item disabled"><span>Loading...</span></div>`
+                    : suggestions.length > 0
+                      ? suggestions.map(
+                          (tag) => {
+                            const isSelected = tags.includes(tag);
+                            const isDisabled = !isSelected && atLimit;
+                            return html`
+                              <div
+                                class="option-item ${isDisabled ? 'disabled' : ''}"
+                                @click=${() => !isDisabled && (isSelected ? this._removeTag(field, tag) : this._selectTagSuggestion(field, tag))}
+                              >
+                                <ap-checkbox ?checked=${isSelected}></ap-checkbox>
+                                <span>${tag}</span>
+                              </div>
+                            `;
+                          },
+                        )
+                      : html`<div class="option-item disabled"><span>No results</span></div>`}
+                </div>
+              </div>
+            `
+          : nothing}
       </div>
     `;
   }

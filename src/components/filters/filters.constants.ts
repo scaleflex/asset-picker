@@ -38,7 +38,7 @@ export const DEFAULT_FILTER_OPERATOR = FILTER_OPERATORS.IS;
 
 // ── Color Defaults ──────────────────────────────────────────────────
 
-export const DEFAULT_COLOR_COVERAGE = '30';
+export const DEFAULT_COLOR_COVERAGE = '20';
 export const DEFAULT_COLOR_TOLERANCE = '1';
 
 // ── Metadata Model ──────────────────────────────────────────────────
@@ -257,10 +257,10 @@ export const APPROVAL_PERSON_OPERATOR_OPTIONS = [
 ];
 
 export const APPROVAL_STATUS_ONLY_OPTIONS = [
-  { value: 'APPROVED', label: 'Approved' },
-  { value: 'PENDING', label: 'Pending' },
-  { value: 'REJECTED', label: 'Rejected' },
-  { value: 'CANCELLED', label: 'Cancelled' },
+  { value: 'APPROVED', label: 'Approved', icon: 'circle-check-big', iconColor: 'var(--ap-success, #22c55e)' },
+  { value: 'PENDING', label: 'Pending', icon: 'clock', iconColor: 'var(--ap-warning, #eab308)' },
+  { value: 'REJECTED', label: 'Rejected', icon: 'x-circle', iconColor: 'var(--ap-destructive, #ef4444)' },
+  { value: 'CANCELLED', label: 'Cancelled', icon: 'ban', iconColor: 'var(--ap-muted-foreground, #71717a)' },
 ];
 
 // ── Empty / Special Values ──────────────────────────────────────────

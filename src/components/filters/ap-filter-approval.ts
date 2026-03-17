@@ -14,10 +14,11 @@ import {
   WITHIN_DATE_RANGE_OPTIONS,
 } from './filters.constants';
 import { filterPopoverStyles } from './shared/filter-styles';
+import { resetStyles } from '../../styles/shared-styles';
 
 @customElement('ap-filter-approval')
 export class ApFilterApproval extends LitElement {
-  static styles = [filterPopoverStyles, css`
+  static styles = [resetStyles, filterPopoverStyles, css`
     .options-list.short {
       max-height: none;
     }
@@ -28,7 +29,6 @@ export class ApFilterApproval extends LitElement {
     }
     .date-input-col input[type="date"] {
       width: 100%;
-      box-sizing: border-box;
     }
     .condition-label {
       font-weight: 500;
@@ -234,7 +234,12 @@ export class ApFilterApproval extends LitElement {
               <ap-checkbox
                 ?checked=${this.selectedStatus.includes(opt.value)}
                 @ap-toggle=${() => this._toggleStatus(opt.value)}
-              >${opt.label}</ap-checkbox>
+              >
+                <span style="display:inline-flex;align-items:center;gap:6px">
+                  <ap-icon name=${opt.icon} .size=${16} style="color:${opt.iconColor}"></ap-icon>
+                  ${opt.label}
+                </span>
+              </ap-checkbox>
             `,
           )}
         </div>

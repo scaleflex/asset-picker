@@ -1,6 +1,7 @@
 import { LitElement, html, css, nothing } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import { filterPopoverStyles } from './shared/filter-styles';
+import { resetStyles } from '../../styles/shared-styles';
 import {
   COLOR_PALETTE,
   COLOR_DIFFERENCE_OPTIONS,
@@ -15,36 +16,23 @@ interface ColorEntry {
 }
 
 const MAX_COLORS = 3;
+const HEX_RE = /^#[0-9A-Fa-f]{6}$/;
+
+/** Parse a stored filter value string like "#FF0000 1 1 20" into a ColorEntry */
+function parseColorValue(val: string): ColorEntry | null {
+  const parts = val.trim().split(/\s+/);
+  if (parts.length < 1 || !HEX_RE.test(parts[0])) return null;
+  return {
+    hex: parts[0],
+    tolerance: parts[1] || DEFAULT_COLOR_TOLERANCE,
+    coverage: parts[3] || DEFAULT_COLOR_COVERAGE,
+  };
+}
 
 @customElement('ap-filter-color')
 export class ApFilterColor extends LitElement {
-  static styles = [filterPopoverStyles, css`
-    .header-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .advanced-toggle {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-left: auto;
-      margin-right: 60px;
-      font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .advanced-toggle input {
-      accent-color: var(--ap-primary, oklch(0.65 0.19 258));
-      width: 14px;
-      height: 14px;
-      cursor: pointer;
-    }
-
+  static styles = [resetStyles, filterPopoverStyles, css`
+    /* ── Palette ── */
     .palette {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
@@ -80,6 +68,53 @@ export class ApFilterColor extends LitElement {
       transform: none;
     }
 
+    /* ── Advanced toggle (own row, pill-style) ── */
+    .advanced-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .advanced-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: var(--ap-font-size-sm, 0.875rem);
+      color: var(--ap-foreground, #09090b);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .toggle-track {
+      position: relative;
+      width: 32px;
+      height: 18px;
+      border-radius: 9px;
+      background: var(--ap-border, #d4d4d8);
+      transition: background 150ms;
+      flex-shrink: 0;
+    }
+
+    .toggle-track.on {
+      background: var(--ap-primary, oklch(0.65 0.19 258));
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 150ms;
+      box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
+    }
+
+    .toggle-track.on .toggle-thumb {
+      transform: translateX(14px);
+    }
+
     /* ── Selected colors list ── */
     .selected-colors {
       display: flex;
@@ -87,24 +122,41 @@ export class ApFilterColor extends LitElement {
       gap: 8px;
     }
 
-    .color-entry {
+    /* ── Color entry row (both modes) ── */
+    .color-row {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .color-swatch-small {
-      width: 24px;
-      height: 24px;
-      border-radius: 4px;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--ap-radius-sm, 6px);
       border: 1px solid var(--ap-border, #e4e4e7);
       flex-shrink: 0;
     }
 
-    .color-hex {
+    .color-hex-input {
+      height: 36px;
+      padding: 0 8px;
+      border: 1px solid var(--ap-border, #e4e4e7);
+      border-radius: var(--ap-radius-sm, 6px);
       font-size: var(--ap-font-size-sm, 0.875rem);
       color: var(--ap-foreground, #09090b);
       font-family: var(--ap-font-family, system-ui, sans-serif);
+      background: var(--ap-background, #fff);
+      min-width: 0;
+    }
+
+    .color-hex-input:focus {
+      outline: none;
+      border-color: var(--ap-primary, oklch(0.65 0.19 258));
+    }
+
+    /* Normal mode: hex input takes remaining space */
+    .color-row:not(.advanced) .color-hex-input {
+      flex: 1;
     }
 
     .remove-btn {
@@ -118,7 +170,7 @@ export class ApFilterColor extends LitElement {
       color: var(--ap-muted-foreground, #71717a);
       cursor: pointer;
       padding: 0;
-      margin-left: auto;
+      flex-shrink: 0;
       border-radius: 4px;
     }
 
@@ -127,46 +179,70 @@ export class ApFilterColor extends LitElement {
       background: var(--ap-muted, #f4f4f5);
     }
 
-    /* ── Advanced mode grid ── */
-    .color-entry-advanced {
+    /* ── Advanced layout: full-width grid ── */
+    .color-row.advanced {
       display: grid;
-      grid-template-columns: auto 1fr auto auto;
-      align-items: center;
-      gap: 8px;
+      grid-template-columns: 1.4fr 1fr 1fr auto;
+      align-items: end;
+      gap: 6px;
     }
 
-    .field-label {
-      font-size: 0.75rem;
+    .adv-field {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .adv-field-label {
+      font-size: 0.6875rem;
       color: var(--ap-muted-foreground, #71717a);
-      margin-bottom: 2px;
-    }
-
-    .coverage-input {
-      width: 64px;
-      padding: 6px 8px;
-      border: 1px solid var(--ap-border, #e4e4e7);
-      border-radius: var(--ap-radius-sm, 6px);
-      font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
-      font-family: var(--ap-font-family, system-ui, sans-serif);
-      background: var(--ap-background, #fff);
-      box-sizing: border-box;
-    }
-
-    .coverage-input:focus {
-      outline: none;
-      border-color: var(--ap-primary, oklch(0.65 0.19 258));
+      line-height: 1;
     }
 
     .coverage-wrap {
       display: flex;
       align-items: center;
-      gap: 4px;
+      height: 36px;
+      border: 1px solid var(--ap-border, #e4e4e7);
+      border-radius: var(--ap-radius-sm, 6px);
+      background: var(--ap-background, #fff);
+      overflow: hidden;
+    }
+
+    .coverage-wrap:focus-within {
+      border-color: var(--ap-primary, oklch(0.65 0.19 258));
     }
 
     .coverage-unit {
-      font-size: 0.8125rem;
+      font-size: var(--ap-font-size-sm, 0.875rem);
       color: var(--ap-muted-foreground, #71717a);
+      padding-left: 8px;
+      flex-shrink: 0;
+      line-height: 36px;
+    }
+
+    .coverage-input {
+      flex: 1;
+      min-width: 0;
+      height: 100%;
+      padding: 0 6px 0 2px;
+      border: none;
+      font-size: var(--ap-font-size-sm, 0.875rem);
+      color: var(--ap-foreground, #09090b);
+      font-family: var(--ap-font-family, system-ui, sans-serif);
+      background: transparent;
+      outline: none;
+    }
+
+    .coverage-input::-webkit-inner-spin-button,
+    .coverage-input::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .coverage-input {
+      -moz-appearance: textfield;
     }
 
     /* ── Add color button ── */
@@ -191,35 +267,56 @@ export class ApFilterColor extends LitElement {
     }
   `];
 
-  @state() colors: ColorEntry[] = [];
+  /** Stored filter values from state, e.g. ["#FF0000 1 1 20", "#00FF00 2 2 30"] */
+  @property({ type: Array }) values: string[] = [];
+
+  @state() private _colors: ColorEntry[] = [];
   @state() private _advanced = false;
   @state() private _showPalette = false;
+  @state() private _initialized = false;
 
   private get _hasSelection(): boolean {
-    return this.colors.length > 0;
+    return this._colors.length > 0;
   }
 
   private get _selectedHexes(): Set<string> {
-    return new Set(this.colors.map((c) => c.hex));
+    return new Set(this._colors.map((c) => c.hex));
   }
 
-  private static _HEX_RE = /^#[0-9A-Fa-f]{6}$/;
+  willUpdate(changed: Map<string, unknown>) {
+    if (changed.has('values')) {
+      const parsed: ColorEntry[] = [];
+      for (const val of this.values) {
+        const entry = parseColorValue(val);
+        if (entry) parsed.push(entry);
+      }
+      // On first load, or when values are reset externally (e.g. "Clear all"),
+      // sync internal state from the property.
+      if (!this._initialized || (this.values.length === 0 && this._colors.length > 0)) {
+        this._colors = parsed;
+        if (parsed.length > 0) {
+          this._advanced = parsed.some(
+            (c) => c.tolerance !== DEFAULT_COLOR_TOLERANCE || c.coverage !== DEFAULT_COLOR_COVERAGE,
+          );
+        }
+        this._initialized = true;
+      }
+    }
+  }
 
   private _selectColor(hex: string) {
-    if (!ApFilterColor._HEX_RE.test(hex)) return;
+    if (!HEX_RE.test(hex)) return;
 
-    // If already selected, remove it
-    const existing = this.colors.findIndex((c) => c.hex === hex);
+    const existing = this._colors.findIndex((c) => c.hex.toLowerCase() === hex.toLowerCase());
     if (existing >= 0) {
       this._removeColor(existing);
       return;
     }
 
-    // If at max, ignore
-    if (this.colors.length >= MAX_COLORS) return;
+    if (this._colors.length >= MAX_COLORS) return;
 
-    this.colors = [
-      ...this.colors,
+    this._colors = [
+      ...this._colors,
       {
         hex,
         tolerance: DEFAULT_COLOR_TOLERANCE,
@@ -231,28 +328,44 @@ export class ApFilterColor extends LitElement {
   }
 
   private _removeColor(index: number) {
-    this.colors = this.colors.filter((_, i) => i !== index);
+    this._colors = this._colors.filter((_, i) => i !== index);
     this._dispatchChange();
   }
 
   private _clearAll() {
-    this.colors = [];
+    this._colors = [];
     this._showPalette = false;
     this._dispatchChange();
   }
 
   private _toggleAdvanced() {
     this._advanced = !this._advanced;
-    // Re-dispatch so values reflect current mode defaults
-    if (this.colors.length > 0) {
+    if (this._colors.length > 0) {
       this._dispatchChange();
     }
   }
 
+  private _handleHexInput(index: number, e: Event) {
+    const input = e.target as HTMLInputElement;
+    let hex = input.value.trim();
+    if (!hex.startsWith('#')) hex = '#' + hex;
+    if (!HEX_RE.test(hex)) return;
+
+    const isDuplicate = this._colors.some(
+      (c, i) => i !== index && c.hex.toLowerCase() === hex.toLowerCase(),
+    );
+    if (isDuplicate) return;
+
+    const updated = [...this._colors];
+    updated[index] = { ...updated[index], hex };
+    this._colors = updated;
+    this._dispatchChange();
+  }
+
   private _handleToleranceChange(index: number, e: CustomEvent<{ value: string }>) {
-    const updated = [...this.colors];
+    const updated = [...this._colors];
     updated[index] = { ...updated[index], tolerance: e.detail.value };
-    this.colors = updated;
+    this._colors = updated;
     this._dispatchChange();
   }
 
@@ -260,9 +373,9 @@ export class ApFilterColor extends LitElement {
     const value = (e.target as HTMLInputElement).value;
     const num = parseInt(value, 10);
     if (!isNaN(num) && num >= 1 && num <= 100) {
-      const updated = [...this.colors];
+      const updated = [...this._colors];
       updated[index] = { ...updated[index], coverage: String(num) };
-      this.colors = updated;
+      this._colors = updated;
       this._dispatchChange();
     }
   }
@@ -272,7 +385,7 @@ export class ApFilterColor extends LitElement {
   }
 
   private _dispatchChange() {
-    if (this.colors.length === 0) {
+    if (this._colors.length === 0) {
       this.dispatchEvent(
         new CustomEvent('filter-change', {
           detail: { key: 'color', values: '', operator: ':' },
@@ -283,7 +396,7 @@ export class ApFilterColor extends LitElement {
       return;
     }
 
-    const values = this.colors.map((c) => {
+    const values = this._colors.map((c) => {
       const tolerance = this._advanced ? c.tolerance : DEFAULT_COLOR_TOLERANCE;
       const coverage = this._advanced ? c.coverage : DEFAULT_COLOR_COVERAGE;
       return `${c.hex} ${tolerance} ${tolerance} ${coverage}`;
@@ -300,7 +413,7 @@ export class ApFilterColor extends LitElement {
 
   private _renderPalette() {
     const selectedHexes = this._selectedHexes;
-    const atMax = this.colors.length >= MAX_COLORS;
+    const atMax = this._colors.length >= MAX_COLORS;
 
     return html`
       <div class="palette">
@@ -323,55 +436,64 @@ export class ApFilterColor extends LitElement {
     `;
   }
 
-  private _renderNormalColorEntry(entry: ColorEntry, index: number) {
-    return html`
-      <div class="color-entry">
-        <div
-          class="color-swatch-small"
-          style="background:${entry.hex}"
-        ></div>
-        <span class="color-hex">${entry.hex}</span>
-        <button
-          class="remove-btn"
-          title="Remove color"
-          @click=${() => this._removeColor(index)}
-        >
-          <ap-icon name="close" .size=${14}></ap-icon>
-        </button>
-      </div>
-    `;
-  }
-
-  private _renderAdvancedColorEntry(entry: ColorEntry, index: number) {
-    return html`
-      <div class="color-entry-advanced">
-        <div
-          class="color-swatch-small"
-          style="background:${entry.hex}"
-          title=${entry.hex}
-        ></div>
-        <ap-dropdown
-          .value=${entry.tolerance}
-          .options=${COLOR_DIFFERENCE_OPTIONS}
-          @ap-change=${(e: CustomEvent<{ value: string }>) =>
-            this._handleToleranceChange(index, e)}
-        ></ap-dropdown>
-        <div class="coverage-wrap">
+  private _renderColorEntry(entry: ColorEntry, index: number) {
+    if (!this._advanced) {
+      return html`
+        <div class="color-row">
+          <div class="color-swatch-small" style="background:${entry.hex}"></div>
           <input
-            type="number"
-            class="coverage-input"
-            min="1"
-            max="100"
-            .value=${entry.coverage}
-            @change=${(e: Event) => this._handleCoverageInput(index, e)}
+            class="color-hex-input"
+            type="text"
+            .value=${entry.hex}
+            maxlength="7"
+            @change=${(e: Event) => this._handleHexInput(index, e)}
           />
-          <span class="coverage-unit">%</span>
+          <button class="remove-btn" title="Remove color" @click=${() => this._removeColor(index)}>
+            <ap-icon name="close" .size=${14}></ap-icon>
+          </button>
         </div>
-        <button
-          class="remove-btn"
-          title="Remove color"
-          @click=${() => this._removeColor(index)}
-        >
+      `;
+    }
+
+    return html`
+      <div class="color-row advanced">
+        <div class="adv-field">
+          <span class="adv-field-label">Color</span>
+          <div class="color-row" style="gap: 6px;">
+            <div class="color-swatch-small" style="background:${entry.hex}"></div>
+            <input
+              class="color-hex-input"
+              type="text"
+              .value=${entry.hex}
+              maxlength="7"
+              @change=${(e: Event) => this._handleHexInput(index, e)}
+            />
+          </div>
+        </div>
+        <div class="adv-field">
+          <span class="adv-field-label">Difference</span>
+          <ap-dropdown
+            .value=${entry.tolerance}
+            .options=${COLOR_DIFFERENCE_OPTIONS}
+            @ap-change=${(e: CustomEvent<{ value: string }>) =>
+              this._handleToleranceChange(index, e)}
+          ></ap-dropdown>
+        </div>
+        <div class="adv-field">
+          <span class="adv-field-label">Coverage</span>
+          <div class="coverage-wrap">
+            <span class="coverage-unit">%</span>
+            <input
+              type="number"
+              class="coverage-input"
+              min="1"
+              max="100"
+              .value=${entry.coverage}
+              @change=${(e: Event) => this._handleCoverageInput(index, e)}
+            />
+          </div>
+        </div>
+        <button class="remove-btn" style="align-self: end; margin-bottom: 8px;" title="Remove color" @click=${() => this._removeColor(index)}>
           <ap-icon name="close" .size=${14}></ap-icon>
         </button>
       </div>
@@ -379,8 +501,8 @@ export class ApFilterColor extends LitElement {
   }
 
   render() {
-    const showPalette = this.colors.length === 0 || this._showPalette;
-    const canAdd = this.colors.length < MAX_COLORS && !this._showPalette;
+    const showPalette = this._colors.length === 0 || this._showPalette;
+    const canAdd = this._colors.length < MAX_COLORS && !this._showPalette;
 
     return html`
       <div class="filter-content">
@@ -390,14 +512,13 @@ export class ApFilterColor extends LitElement {
           @click=${this._clearAll}
         >Clear all</button>
 
-        <div class="header-row">
-          <span class="section-label">Color</span>
-          <label class="advanced-toggle">
-            <input
-              type="checkbox"
-              .checked=${this._advanced}
-              @change=${this._toggleAdvanced}
-            />
+        <span class="section-label">Color</span>
+
+        <div class="advanced-row">
+          <label class="advanced-toggle" @click=${this._toggleAdvanced}>
+            <span class="toggle-track ${this._advanced ? 'on' : ''}">
+              <span class="toggle-thumb"></span>
+            </span>
             Advanced
           </label>
         </div>
@@ -406,21 +527,11 @@ export class ApFilterColor extends LitElement {
           ${showPalette ? this._renderPalette() : nothing}
         </div>
 
-        ${this.colors.length > 0 ? html`
+        ${this._colors.length > 0 ? html`
           <div class="filter-section">
-            ${this._advanced ? html`
-              <div class="selected-colors">
-                ${this.colors.map((entry, i) =>
-                  this._renderAdvancedColorEntry(entry, i),
-                )}
-              </div>
-            ` : html`
-              <div class="selected-colors">
-                ${this.colors.map((entry, i) =>
-                  this._renderNormalColorEntry(entry, i),
-                )}
-              </div>
-            `}
+            <div class="selected-colors">
+              ${this._colors.map((entry, i) => this._renderColorEntry(entry, i))}
+            </div>
           </div>
         ` : nothing}
 
@@ -428,7 +539,7 @@ export class ApFilterColor extends LitElement {
           <div class="filter-section">
             <button class="add-color-btn" @click=${this._showAddPalette}>
               <ap-icon name="plus" .size=${14}></ap-icon>
-              Add Color
+              Add color
             </button>
           </div>
         ` : nothing}

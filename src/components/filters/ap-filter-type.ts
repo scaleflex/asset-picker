@@ -10,6 +10,15 @@ export class ApFilterType extends LitElement {
       display: block;
     }
 
+    .section-label {
+      display: block;
+      font-size: var(--ap-font-size-sm, 0.875rem);
+      font-weight: 600;
+      color: var(--ap-foreground, #09090b);
+      margin-bottom: 8px;
+      cursor: default;
+    }
+
     .options {
       display: flex;
       flex-direction: column;
@@ -68,6 +77,7 @@ export class ApFilterType extends LitElement {
   render() {
     return html`
       <div class="options">
+        <span class="section-label">Formats</span>
         ${ASSET_TYPE_OPTIONS.map(
           (opt) => html`
             <div

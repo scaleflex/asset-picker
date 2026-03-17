@@ -1,5 +1,6 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { resetStyles } from '../../styles/shared-styles';
 
 export interface RadioOption {
   value: string;
@@ -15,6 +16,7 @@ export interface RadioOption {
 @customElement('ap-radio-group')
 export class ApRadioGroup extends LitElement {
   static styles = [
+    resetStyles,
     css`
       :host {
         display: flex;
@@ -53,7 +55,6 @@ export class ApRadioGroup extends LitElement {
         justify-content: center;
         transition: border-color 150ms;
         background: var(--ap-background, #fff);
-        box-sizing: border-box;
       }
       .radio .dot {
         width: 10px;

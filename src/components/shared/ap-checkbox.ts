@@ -33,6 +33,24 @@ export class ApCheckbox extends LitElement {
       :host([checked]) .check {
         display: block;
       }
+      :host([indeterminate]) .box {
+        background: var(--ap-primary, #3b82f6);
+        border-color: var(--ap-primary, #3b82f6);
+      }
+      .dash {
+        display: none;
+        color: var(--ap-primary-foreground, #fff);
+      }
+      :host([indeterminate]:not([checked])) .dash {
+        display: block;
+      }
+      :host([indeterminate]:not([checked])) .check {
+        display: none;
+      }
+      :host([disabled]) {
+        opacity: 0.5;
+        pointer-events: none;
+      }
       .label {
         margin-left: 8px;
         font-size: var(--ap-font-size-sm, 0.875rem);
@@ -42,6 +60,8 @@ export class ApCheckbox extends LitElement {
   ];
 
   @property({ type: Boolean, reflect: true }) checked = false;
+  @property({ type: Boolean, reflect: true }) indeterminate = false;
+  @property({ type: Boolean, reflect: true }) disabled = false;
 
   connectedCallback() {
     super.connectedCallback();
@@ -66,6 +86,9 @@ export class ApCheckbox extends LitElement {
       <div class="box">
         <svg class="check" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4.5 12.75l6 6 9-13.5"></path>
+        </svg>
+        <svg class="dash" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"></path>
         </svg>
       </div>
       <span class="label"><slot></slot></span>

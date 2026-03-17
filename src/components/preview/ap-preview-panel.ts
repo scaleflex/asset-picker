@@ -1,6 +1,8 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import type { Asset } from '../../types/asset.types';
+import type { Label } from '../../types/label.types';
+import { FILTER_KEYS, FILTER_OPERATORS } from '../../types/filter.types';
 import type { MetadataModelField, RegionalFilters } from '../../types/filter.types';
 import { getAssetThumbnailUrl, getPdfPreviewUrl, addCdnParams, getFormattedPreviewUrl } from '../../utils/thumbnail';
 import { formatFileSize, formatDate, formatDimensions } from '../../utils/format';
@@ -227,6 +229,13 @@ export class ApPreviewPanel extends LitElement {
       flex-wrap: wrap;
       gap: 4px;
     }
+    .tag-link {
+      cursor: pointer;
+      transition: opacity 150ms;
+    }
+    .tag-link:hover {
+      opacity: 0.75;
+    }
     /* Accordion styles */
     .accordion {
       border-top: 1px solid var(--ap-border, #e4e4e7);
@@ -265,7 +274,6 @@ export class ApPreviewPanel extends LitElement {
     }
     .meta-row {
       display: flex;
-      justify-content: space-between;
       gap: 12px;
       padding: 6px 0;
       border-bottom: 1px solid var(--ap-border, #e4e4e7);
@@ -277,7 +285,7 @@ export class ApPreviewPanel extends LitElement {
       font-size: 0.8125rem;
       color: var(--ap-muted-foreground, #71717a);
       flex-shrink: 0;
-      max-width: 40%;
+      width: 100px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -285,17 +293,9 @@ export class ApPreviewPanel extends LitElement {
     .meta-value {
       font-size: 0.8125rem;
       color: var(--ap-foreground, #09090b);
-      text-align: right;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
       min-width: 0;
       user-select: text;
-    }
-    .meta-value.wrap {
-      white-space: normal;
       word-break: break-word;
-      text-align: left;
     }
     @media (prefers-reduced-motion: reduce) {
       .panel { animation: none; }
@@ -309,7 +309,9 @@ export class ApPreviewPanel extends LitElement {
   @property() containerToken = '';
   @property({ type: Boolean }) showMetadata = true;
   @property({ type: Array }) metadataFields: MetadataModelField[] = [];
+  @property({ type: Array }) labels: Label[] = [];
   @property({ type: Object }) regionalFilters: RegionalFilters = {};
+  @property({ type: Boolean }) multiSelect = true;
   @query('.preview-area') previewArea?: HTMLElement;
   @query('video') private _videoEl?: HTMLVideoElement;
   @state() private _isFullscreen = false;
@@ -417,14 +419,22 @@ export class ApPreviewPanel extends LitElement {
   }
 
   private _select() {
-    if (this.asset) {
-      const index = this._getCurrentIndex();
-      this.dispatchEvent(new CustomEvent('asset-select', {
-        detail: { asset: this.asset, index, event: new MouseEvent('click', { ctrlKey: true, metaKey: true }) },
+    if (!this.asset) return;
+    if (!this.multiSelect) {
+      // Single-select: immediately confirm selection and close
+      this.dispatchEvent(new CustomEvent('asset-quick-select', {
+        detail: { asset: this.asset },
         bubbles: true,
         composed: true,
       }));
+      return;
     }
+    const index = this._getCurrentIndex();
+    this.dispatchEvent(new CustomEvent('asset-select', {
+      detail: { asset: this.asset, index, event: new MouseEvent('click', { ctrlKey: true, metaKey: true }) },
+      bubbles: true,
+      composed: true,
+    }));
   }
 
   private _getCurrentIndex(): number {
@@ -479,6 +489,8 @@ export class ApPreviewPanel extends LitElement {
   private _getFullscreenImageUrl(a: Asset): string {
     const cdnUrl = a.url?.cdn;
     if (!cdnUrl) return getAssetThumbnailUrl(a) || '';
+    // SVGs are vectors — use original URL directly to avoid CDN rasterization
+    if (a.extension?.toLowerCase() === 'svg') return cdnUrl;
     const previewUrl = getFormattedPreviewUrl(cdnUrl, this.containerToken);
     return addCdnParams(previewUrl, {
       w: String(window.screen.width),
@@ -502,10 +514,56 @@ export class ApPreviewPanel extends LitElement {
     this._fsImageLoaded = true;
   }
 
-  private _getTagLabels(tags: Asset['tags']): string[] {
+  private _getTagEntries(tags: Asset['tags']): Array<{ label: string; sid: string }> {
     if (!tags) return [];
-    if (Array.isArray(tags)) return tags;
-    return Object.values(tags).map((t) => t.label);
+
+    // tags can be: string[], Array<{ label, sid, ... }>, or { [lang]: Array<{ label, sid }> }
+    if (Array.isArray(tags)) {
+      return this._parseTagArray(tags);
+    }
+
+    // Language-keyed object: { "en": [{ label, sid }, ...] }
+    const values = Object.values(tags);
+    if (values.length > 0 && Array.isArray(values[0])) {
+      // Flatten all language arrays, dedupe by sid
+      const all = (values as Array<Array<{ label: string; sid: string }>>).flat();
+      const seen = new Set<string>();
+      return all.filter((t) => {
+        if (!t.label || seen.has(t.sid)) return false;
+        seen.add(t.sid);
+        return true;
+      });
+    }
+
+    // Simple Record<string, { label, sid }>
+    return values
+      .map((t: { label: string; sid: string }) => ({ label: t.label, sid: t.sid }))
+      .filter((t) => t.label);
+  }
+
+  private _parseTagArray(tags: unknown[]): Array<{ label: string; sid: string }> {
+    return tags.map((t) => {
+      if (typeof t === 'string') return { label: t, sid: t };
+      const obj = t as { label?: string; sid?: string; names?: Record<string, string> };
+      const label = obj.label || Object.values(obj.names || {})[0] || '';
+      return { label, sid: obj.sid || '' };
+    }).filter((t) => t.label);
+  }
+
+  private _applyTagFilter(sid: string) {
+    this.dispatchEvent(new CustomEvent('filter-update', {
+      detail: { key: FILTER_KEYS.TAGS, values: [sid], operator: FILTER_OPERATORS.IS },
+      bubbles: true,
+      composed: true,
+    }));
+  }
+
+  private _applyLabelFilter(sid: string) {
+    this.dispatchEvent(new CustomEvent('filter-update', {
+      detail: { key: FILTER_KEYS.LABELS, values: [sid], operator: FILTER_OPERATORS.IS },
+      bubbles: true,
+      composed: true,
+    }));
   }
 
   private _toggleSection(id: string) {
@@ -513,6 +571,36 @@ export class ApPreviewPanel extends LitElement {
     if (next.has(id)) next.delete(id);
     else next.add(id);
     this._openSections = next;
+  }
+
+  private _renderFileInfoSection(a: Asset) {
+    const rows = this._getFileInfoRows(a);
+    if (rows.length === 0) return nothing;
+    const isOpen = this._openSections.has('file-info');
+    return html`
+      <div class="accordion">
+        <button
+          class="accordion-trigger"
+          aria-expanded=${isOpen ? 'true' : 'false'}
+          @click=${() => this._toggleSection('file-info')}
+        >
+          <span>File info</span>
+          <svg class="accordion-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9l6 6 6-6"></path>
+          </svg>
+        </button>
+        <div class="accordion-content ${isOpen ? 'open' : ''}">
+          ${rows.map((r) => html`
+            <div class="meta-row">
+              <span class="meta-label" title=${r.label}>${r.label}</span>
+              <span class="meta-value" title=${r.value}>${r.value}</span>
+            </div>
+          `)}
+          ${this._renderTagsRow(a)}
+          ${this._renderLabelsRow(a)}
+        </div>
+      </div>
+    `;
   }
 
   private _renderAccordion(id: string, title: string, rows: Array<{ label: string; value: string; wrap?: boolean }>) {
@@ -534,7 +622,7 @@ export class ApPreviewPanel extends LitElement {
           ${rows.map((r) => html`
             <div class="meta-row">
               <span class="meta-label" title=${r.label}>${r.label}</span>
-              <span class="meta-value ${r.wrap ? 'wrap' : ''}" title=${r.value}>${r.value}</span>
+              <span class="meta-value" title=${r.value}>${r.value}</span>
             </div>
           `)}
         </div>
@@ -691,26 +779,43 @@ export class ApPreviewPanel extends LitElement {
     return rows;
   }
 
-  private _renderTags(a: Asset) {
-    const tagLabels = this._getTagLabels(a.tags);
-    if (tagLabels.length === 0) return nothing;
-    const isOpen = this._openSections.has('tags');
+  private _getAssetLabels(a: Asset): Label[] {
+    if (!a.labels || a.labels.length === 0) return [];
+    return a.labels
+      .map((sid) => this.labels.find((l) => l.sid === sid || l.uuid === sid))
+      .filter((l): l is Label => !!l);
+  }
+
+  private _renderLabelsRow(a: Asset) {
+    const resolved = this._getAssetLabels(a);
+    if (resolved.length === 0) return nothing;
     return html`
-      <div class="accordion">
-        <button
-          class="accordion-trigger"
-          aria-expanded=${isOpen ? 'true' : 'false'}
-          @click=${() => this._toggleSection('tags')}
-        >
-          <span>Tags (${tagLabels.length})</span>
-          <svg class="accordion-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 9l6 6 6-6"></path>
-          </svg>
-        </button>
-        <div class="accordion-content ${isOpen ? 'open' : ''}">
-          <div class="tags-list">
-            ${tagLabels.map((tag) => html`<ap-badge>${tag}</ap-badge>`)}
-          </div>
+      <div class="meta-row" style="flex-direction:column;gap:6px">
+        <span class="meta-label">Labels</span>
+        <div class="tags-list">
+          ${resolved.map((label) => html`
+            <ap-badge class="tag-link" style="--ap-muted: ${label.color}22; --ap-muted-foreground: ${label.color}" @click=${() => this._applyLabelFilter(label.sid || label.uuid)}>
+              <span style="display:inline-flex;align-items:center;gap:4px">
+                <ap-icon name="tag" .size=${12} style="color:${label.color}"></ap-icon>
+                ${label.name}
+              </span>
+            </ap-badge>
+          `)}
+        </div>
+      </div>
+    `;
+  }
+
+  private _renderTagsRow(a: Asset) {
+    const entries = this._getTagEntries(a.tags);
+    if (entries.length === 0) return nothing;
+    return html`
+      <div class="meta-row" style="flex-direction:column;gap:6px">
+        <span class="meta-label">Tags</span>
+        <div class="tags-list">
+          ${entries.map((t) => html`
+            <ap-badge class="tag-link" @click=${() => this._applyTagFilter(t.sid)}>${t.label}</ap-badge>
+          `)}
         </div>
       </div>
     `;
@@ -728,13 +833,14 @@ export class ApPreviewPanel extends LitElement {
     const fallbackIconUrl = getFileTypeIconUrl(a.extension || '');
     const isTransparent = hasTransparencySupport(a.extension || '');
 
+    const isSvg = a.extension?.toLowerCase() === 'svg';
     const thumbnailUrl = getAssetThumbnailUrl(a);
     const panelPreviewUrl = isImage
-      ? (thumbnailUrl || getFormattedPreviewUrl(a.url?.cdn || '', this.containerToken))
+      ? (isSvg ? (a.url?.cdn || '') : (thumbnailUrl || getFormattedPreviewUrl(a.url?.cdn || '', this.containerToken)))
       : '';
     const fsPreviewUrl = isImage ? this._getFullscreenImageUrl(a) : '';
 
-    const blurDims = isImage ? this._getBlurDimensions(a) : null;
+    const blurDims = isImage && !isSvg ? this._getBlurDimensions(a) : null;
     const videoSrc = isVideo ? (a.url?.cdn || '') : '';
     const videoPoster = isVideo ? (a.info?.video_thumbnail || a.info?.preview || '') : '';
     const pdfPreviewUrl = isPdf && !isImage ? getPdfPreviewUrl(a) : '';
@@ -786,16 +892,19 @@ export class ApPreviewPanel extends LitElement {
               }}
             />
             <div class="fs-wrapper">
+              ${!isSvg ? html`
+                <img
+                  class="fs-blur ${this._fsImageLoaded ? 'hidden' : ''}"
+                  src=${panelPreviewUrl}
+                  alt=""
+                  style="width:${blurDims!.width};height:${blurDims!.height}"
+                />
+              ` : nothing}
               <img
-                class="fs-blur ${this._fsImageLoaded ? 'hidden' : ''}"
-                src=${panelPreviewUrl}
-                alt=""
-                style="width:${blurDims!.width};height:${blurDims!.height}"
-              />
-              <img
-                class="fs-full ${this._fsImageLoaded ? 'loaded' : ''}"
+                class="fs-full ${isSvg || this._fsImageLoaded ? 'loaded' : ''}"
                 src=${this._isFullscreen ? fsPreviewUrl : ''}
                 alt=${a.name}
+                style=${isSvg ? 'width:100vw;height:100vh' : ''}
                 @load=${this._onFsImageLoad}
               />
             </div>
@@ -819,8 +928,7 @@ export class ApPreviewPanel extends LitElement {
           ${!isImage && !isVideo && !isAudio && !isPdf ? html`<img src=${fallbackIconUrl} alt=${a.name} class="icon-fallback" />` : nothing}
         </div>
 
-        ${this._renderAccordion('file-info', 'File info', this._getFileInfoRows(a))}
-        ${this._renderTags(a)}
+        ${this._renderFileInfoSection(a)}
         ${this.showMetadata ? html`
           ${this._renderAccordion('metadata', 'Metadata', this._getAllMetadataRows(a))}
         ` : nothing}

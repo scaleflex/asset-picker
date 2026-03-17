@@ -36,3 +36,30 @@ export async function getFiles(client: ApiClient, params: GetFilesParams): Promi
   const apiParams = buildApiParams(params);
   return client.request<GetFilesResponse>('/files', apiParams);
 }
+
+export interface GetFilesStatsResponse {
+  status: string;
+  stats?: {
+    approx_files_count?: number;
+    approx_files_size?: number;
+  };
+  info?: {
+    total_files_count?: number;
+    total_files_size?: number;
+  };
+}
+
+export async function getFilesStats(
+  client: ApiClient,
+  params: { folder: string; q?: string; search?: string; recursive?: number },
+): Promise<GetFilesStatsResponse> {
+  const apiParams: Record<string, unknown> = {
+    folder: params.folder,
+    recursive: params.recursive ?? 1,
+  };
+  const parts: string[] = [];
+  if (params.search) parts.push(params.search);
+  if (params.q) parts.push(params.q);
+  if (parts.length > 0) apiParams.q = parts.join(' ');
+  return client.request<GetFilesStatsResponse>('/files/stats', apiParams);
+}

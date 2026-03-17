@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import type { Asset } from '../../types/asset.types';
 import { getAssetThumbnailUrl, getVideoThumbnailUrl, getPdfPreviewUrl } from '../../utils/thumbnail';
@@ -129,6 +129,7 @@ export class ApAssetRow extends LitElement {
   @property({ type: Object }) asset!: Asset;
   @property({ type: Number }) index = 0;
   @property({ type: Boolean, reflect: true }) selected = false;
+  @property({ type: Boolean }) multiSelect = true;
 
   private _handleSelect(e: MouseEvent) {
     // Check if click was on the checkbox area
@@ -180,13 +181,15 @@ export class ApAssetRow extends LitElement {
 
     return html`
       <div class="row" @click=${this._handleSelect}>
-        <div class="check">
-          <div class="check-box">
-            <svg class="check-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4.5 12.75l6 6 9-13.5"></path>
-            </svg>
+        ${this.multiSelect ? html`
+          <div class="check">
+            <div class="check-box">
+              <svg class="check-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.5 12.75l6 6 9-13.5"></path>
+              </svg>
+            </div>
           </div>
-        </div>
+        ` : nothing}
         <div class="thumb ${isTransparent && thumbUrl ? 'chess' : ''}">
           ${thumbUrl
             ? html`<img

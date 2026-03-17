@@ -13,6 +13,7 @@ import type {
 import { METADATA_PREFIX_BY_TYPE } from '../../types/filter.types';
 import type { Label } from '../../types/label.types';
 import type { TagWithLabel } from '../../types/tag.types';
+import type { ApiClient } from '../../services/api-client';
 import {
   FILTER_LABELS,
   ALL_FILTER_ITEMS,
@@ -307,7 +308,7 @@ export class ApContentToolbar extends LitElement {
       top: 100%;
       left: 20px;
       z-index: 50;
-      width: 320px;
+      width: 360px;
       max-height: 400px;
       overflow-y: auto;
       overscroll-behavior: contain;
@@ -342,6 +343,7 @@ export class ApContentToolbar extends LitElement {
   @property({ type: Array }) tags: TagWithLabel[] = [];
   @property({ type: Array }) metadataFields: MetadataModelField[] = [];
   @property({ type: Array }) pinnedFilters: AnyFilterKey[] = [];
+  @property({ attribute: false }) apiClient?: ApiClient;
 
   @query('ap-dropdown') private _sortDropdown?: import('../shared/ap-dropdown').ApDropdown;
   @state() private _showDropdown = false;
@@ -630,12 +632,8 @@ export class ApContentToolbar extends LitElement {
       }
       case 'color': {
         const f = applied.color as StringFilter | undefined;
-        const colorStr = f?.values?.[0] || '';
-        const colorParts = colorStr.split(' ');
         return html`<ap-filter-color
-          .selected=${colorParts[0] || ''}
-          .tolerance=${colorParts[1] || '1'}
-          .coverage=${colorParts[3] || '20'}
+          .values=${f?.values || []}
           @filter-change=${this._handleFilterChange}
         ></ap-filter-color>`;
       }
@@ -714,6 +712,7 @@ export class ApContentToolbar extends LitElement {
             .appliedMetadata=${this.filters.metadata.applied}
             .visibleFields=${this.filters.metadata.visible}
             .pinnedFields=${this.filters.metadata.pinned}
+            .apiClient=${this.apiClient}
             @metadata-filter-change=${this._handleMetadataFilterChange}
             @metadata-field-toggle=${this._handleMetadataFieldToggle}
           ></ap-filter-metadata>`;
@@ -724,6 +723,7 @@ export class ApContentToolbar extends LitElement {
           .appliedMetadata=${this.filters.metadata.applied}
           .visibleFields=${this.filters.metadata.visible}
           .pinnedFields=${this.filters.metadata.pinned}
+          .apiClient=${this.apiClient}
           @metadata-filter-change=${this._handleMetadataFilterChange}
           @metadata-field-toggle=${this._handleMetadataFieldToggle}
           @metadata-field-select=${this._handleMetadataFieldSelect}
@@ -734,6 +734,7 @@ export class ApContentToolbar extends LitElement {
         const f = applied.product_ref as StringFilter | undefined;
         return html`<ap-filter-product-ref
           .selected=${f?.values || []}
+          .apiClient=${this.apiClient}
           @filter-change=${this._handleFilterChange}
         ></ap-filter-product-ref>`;
       }
@@ -783,13 +784,9 @@ export class ApContentToolbar extends LitElement {
       <div class="toolbar-row">
         ${this.isLoading
           ? html`<span class="count-skeleton"></span>`
-          : this.totalCount > 0 || this.totalFolderCount > 0
-            ? html`<span class="count">${this.totalFolderCount > 0
+          : html`<span class="count">${this.totalFolderCount > 0
                 ? `${this.totalFolderCount.toLocaleString()} folder${this.totalFolderCount !== 1 ? 's' : ''}${this.totalCount > 0 ? ', ' : ''}`
-                : ''}${this.totalCount > 0
-                ? `${this.totalCount.toLocaleString()} asset${this.totalCount !== 1 ? 's' : ''}`
-                : ''}</span>`
-            : html`<span class="count"></span>`}
+                : ''}${`${this.totalCount.toLocaleString()} asset${this.totalCount !== 1 ? 's' : ''}`}</span>`}
         <span class="spacer"></span>
         <div class="controls">
           <div class="filter-dropdown">
