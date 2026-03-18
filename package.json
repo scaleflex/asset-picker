@@ -24,14 +24,19 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "dev": "vite serve dev",
     "dev:demo": "vite serve --config vite.demo.config.ts",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
-    "build:demo": "vite build --config vite.demo.config.ts"
+    "build:demo": "vite build --config vite.demo.config.ts",
+    "publish:github": "./scripts/publish-github.sh",
+    "push:source": "git push gitlab main"
   },
   "dependencies": {
     "hls.js": "^1.6.15",
@@ -58,6 +63,5 @@
       "optional": true
     }
   },
-  "license": "SEE LICENSE IN LICENSE",
-  "private": true
+  "license": "SEE LICENSE IN LICENSE"
 }
