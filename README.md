@@ -14,7 +14,16 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/@scaleflex/asset-picker"><img src="https://img.shields.io/npm/v/@scaleflex/asset-picker.svg?style=flat-square" alt="npm version"></a>
   <a href="https://www.npmjs.com/package/@scaleflex/asset-picker"><img src="https://img.shields.io/npm/dm/@scaleflex/asset-picker.svg?style=flat-square" alt="npm downloads"></a>
+  <a href="https://bundlephobia.com/package/@scaleflex/asset-picker"><img src="https://img.shields.io/bundlephobia/minzip/@scaleflex/asset-picker?style=flat-square" alt="bundle size"></a>
   <img src="https://img.shields.io/badge/license-proprietary-red?style=flat-square" alt="license">
+</p>
+
+<p align="center">
+  <a href="https://scaleflex.github.io/asset-picker/">Live Demo</a> |
+  <a href="https://scaleflex.github.io/asset-picker/#/docs/getting-started">Documentation</a> |
+  <a href="https://scaleflex.github.io/asset-picker/#/examples/basic">Examples</a> |
+  <a href="https://www.npmjs.com/package/@scaleflex/asset-picker">npm</a> |
+  <a href="https://www.scaleflex.com/page/digital-asset-management">Scaleflex DAM</a>
 </p>
 
 ---
