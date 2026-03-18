@@ -14,7 +14,7 @@ const page: Page = {
 
         <h2>Features</h2>
         <ul>
-          <li><strong>Framework-agnostic</strong> — standard <code>&lt;asset-picker&gt;</code> custom element, works in any stack</li>
+          <li><strong>Framework-agnostic</strong> — standard <code>&lt;sfx-asset-picker&gt;</code> custom element, works in any stack</li>
           <li><strong>First-class React wrapper</strong> — <code>forwardRef</code> component with controlled <code>open</code> prop and imperative ref</li>
           <li><strong>Two auth modes</strong> — session tokens or security templates</li>
           <li><strong>Grid &amp; list views</strong> — switchable with persistent user preference</li>
@@ -51,7 +51,7 @@ const page: Page = {
           <tbody>
             <tr><td><code>@scaleflex/asset-picker</code></td><td><code>AssetPicker</code> class + all TypeScript types</td></tr>
             <tr><td><code>@scaleflex/asset-picker/react</code></td><td>React wrapper component</td></tr>
-            <tr><td><code>@scaleflex/asset-picker/define</code></td><td>Side-effect import — registers <code>&lt;asset-picker&gt;</code> custom element</td></tr>
+            <tr><td><code>@scaleflex/asset-picker/define</code></td><td>Side-effect import — registers <code>&lt;sfx-asset-picker&gt;</code> custom element</td></tr>
           </tbody>
         </table>
         <p>Both ESM (<code>import</code>) and CJS (<code>require</code>) builds are provided.</p>
@@ -61,14 +61,14 @@ const page: Page = {
         <h3>Vanilla JS / Web Component</h3>
         ${code(
           'markup',
-          `<asset-picker></asset-picker>
+          `<sfx-asset-picker></sfx-asset-picker>
 
 <script type="module">
   // 1. Register the custom element (once)
   import '@scaleflex/asset-picker/define';
 
   // 2. Grab the element
-  const picker = document.querySelector('asset-picker');
+  const picker = document.querySelector('sfx-asset-picker');
 
   // 3. Configure
   picker.config = {

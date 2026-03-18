@@ -20,7 +20,7 @@ const page: Page = {
         <p>If not set, the picker uses the brand colour configured in your Scaleflex project settings.</p>
 
         <h2>CSS custom properties</h2>
-        <p>For fine-grained control, override these CSS custom properties on the <code>&lt;asset-picker&gt;</code> element or any ancestor. All variables use the <code>--ap-</code> prefix.</p>
+        <p>For fine-grained control, override these CSS custom properties on the <code>&lt;sfx-asset-picker&gt;</code> element or any ancestor. All variables use the <code>--ap-</code> prefix.</p>
 
         <h3>Colours</h3>
         <table>
@@ -66,7 +66,7 @@ const page: Page = {
 
         ${code(
           'css',
-          `asset-picker {
+          `sfx-asset-picker {
   --ap-primary: #6366f1;
   --ap-primary-foreground: #fff;
   --ap-radius: 12px;

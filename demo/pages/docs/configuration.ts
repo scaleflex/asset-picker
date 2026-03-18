@@ -6,7 +6,7 @@ const page: Page = {
     return `
       <div class="doc-content">
         <h1>Configuration</h1>
-        <p class="doc-lead">All configuration is passed via the <code>config</code> property on the <code>&lt;asset-picker&gt;</code> element.</p>
+        <p class="doc-lead">All configuration is passed via the <code>config</code> property on the <code>&lt;sfx-asset-picker&gt;</code> element.</p>
 
         <h2>Authentication</h2>
         <p>The picker supports two authentication modes:</p>

@@ -77,16 +77,6 @@ export async function getMetadataSettings(client: ApiClient): Promise<MetadataSe
   const groups = (filesModel.groups as Array<{ name?: string; fields?: Array<Record<string, unknown>> }>) ?? [];
   const fields: MetadataModelField[] = [];
 
-  // DEBUG: log a select/multi-select field to verify possible_values
-  for (const g of groups) {
-    const selectField = (g.fields ?? []).find((f: Record<string, unknown>) =>
-      f.type === 'select-one' || f.type === 'multi-select'
-    );
-    if (selectField) {
-      console.log('[ap-debug] raw select field:', JSON.stringify(selectField));
-      break;
-    }
-  }
 
   for (const group of groups) {
     const isProduct = group.name?.toLowerCase() === 'products' || group.name?.toLowerCase() === 'product fields';

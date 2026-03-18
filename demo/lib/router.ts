@@ -22,6 +22,7 @@ const routes: RouteEntry[] = [
   { pattern: '/examples/single-select', load: () => import('../pages/examples/single-select').then((m) => m.default) },
   { pattern: '/examples/multi-select', load: () => import('../pages/examples/multi-select').then((m) => m.default) },
   { pattern: '/examples/theming', load: () => import('../pages/examples/theming').then((m) => m.default) },
+  { pattern: '/examples/custom-theming', load: () => import('../pages/examples/custom-theming').then((m) => m.default) },
   { pattern: '/examples/default-filters', load: () => import('../pages/examples/default-filters').then((m) => m.default) },
   { pattern: '/examples/forced-filters', load: () => import('../pages/examples/forced-filters').then((m) => m.default) },
 

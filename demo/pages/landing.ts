@@ -39,7 +39,7 @@ const page: Page = {
             <p>Browse real assets from the Scaleflex DAM. No setup required.</p>
           </div>
           <div class="demo-picker-container">
-            <asset-picker id="demo-inline-picker"></asset-picker>
+            <sfx-asset-picker id="demo-inline-picker"></sfx-asset-picker>
           </div>
         </div>
       </section>
@@ -81,7 +81,7 @@ const page: Page = {
                 <div class="step-number">3</div>
                 <h3>Use</h3>
               </div>
-              <p class="step-description">Add <code>&lt;asset-picker&gt;</code> to your HTML, set config, and call <code>.open()</code>.</p>
+              <p class="step-description">Add <code>&lt;sfx-asset-picker&gt;</code> to your HTML, set config, and call <code>.open()</code>.</p>
             </div>
           </div>
           <div id="quick-start-code"></div>
@@ -106,6 +106,10 @@ const page: Page = {
             <a href="#/examples/theming" class="quick-start-card">
               <h3>Theming</h3>
               <p>Customize the picker's appearance with brand colors.</p>
+            </a>
+            <a href="#/examples/custom-theming" class="quick-start-card">
+              <h3>Custom theming</h3>
+              <p>Full CSS custom property overrides for dark themes and beyond.</p>
             </a>
             <a href="#/examples/default-filters" class="quick-start-card">
               <h3>Default filters</h3>
@@ -278,7 +282,7 @@ const page: Page = {
   import '@scaleflex/asset-picker/define';
 </script>
 
-<asset-picker id="picker"></asset-picker>
+<sfx-asset-picker id="picker"></sfx-asset-picker>
 
 <button onclick="document.getElementById('picker').open()">
   Choose asset

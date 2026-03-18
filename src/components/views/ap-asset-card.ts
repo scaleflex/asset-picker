@@ -92,8 +92,9 @@ export class ApAssetCard extends LitElement {
       min-width: 120px;
       border: none;
       border-radius: var(--ap-radius, 8px);
-      background: rgba(255, 255, 255, 0.9);
+      background: var(--ap-card, rgba(255, 255, 255, 0.9));
       color: var(--ap-foreground, #09090b);
+      border: 1px solid var(--ap-border, transparent);
       cursor: pointer;
       transition: transform 100ms;
       font-size: 0.875rem;

@@ -199,6 +199,25 @@ export class ApPreviewPanel extends LitElement {
     .preview-area:fullscreen .nav-btn:hover:not(:disabled) {
       background: rgba(0,0,0,0.7);
     }
+    .fs-close-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      cursor: pointer;
+      z-index: 3;
+    }
+    .fs-close-btn:hover {
+      background: rgba(0,0,0,0.7);
+    }
     .nav-btn {
       position: absolute;
       top: 50%;
@@ -431,6 +450,10 @@ export class ApPreviewPanel extends LitElement {
 
   private _close() {
     this.dispatchEvent(new CustomEvent('preview-close', { bubbles: true, composed: true }));
+  }
+
+  private _exitFullscreen() {
+    document.exitFullscreen?.();
   }
 
   private _fullscreen() {
@@ -899,6 +922,11 @@ export class ApPreviewPanel extends LitElement {
             </button>
             <button class="nav-btn next" @click=${this._next} ?disabled=${!hasNext} aria-label="Next">
               <ap-icon name="chevron-right" .size=${16}></ap-icon>
+            </button>
+          ` : nothing}
+          ${this._isFullscreen ? html`
+            <button class="fs-close-btn" @click=${this._exitFullscreen} aria-label="Exit fullscreen">
+              <ap-icon name="close" .size=${16}></ap-icon>
             </button>
           ` : nothing}
           ${this._previewLoading ? html`<div class="preview-loading"><div class="spinner"></div></div>` : nothing}

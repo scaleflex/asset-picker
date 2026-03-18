@@ -66,7 +66,7 @@ The npm package contains **only pre-built, minified production files** (`dist/`)
 
 ## Features
 
-- **Framework-agnostic** — standard `<asset-picker>` custom element, works in any stack
+- **Framework-agnostic** — standard `<sfx-asset-picker>` custom element, works in any stack
 - **First-class React wrapper** — `forwardRef` component with controlled `open` prop and imperative ref
 - **Two auth modes** — session tokens or security templates
 - **Grid & list views** — switchable with persistent user preference
@@ -113,7 +113,7 @@ pnpm add @scaleflex/asset-picker
 |---|---|
 | `@scaleflex/asset-picker` | `AssetPicker` class + all TypeScript types |
 | `@scaleflex/asset-picker/react` | React wrapper component |
-| `@scaleflex/asset-picker/define` | Side-effect import — registers `<asset-picker>` custom element |
+| `@scaleflex/asset-picker/define` | Side-effect import — registers `<sfx-asset-picker>` custom element |
 
 Both ESM (`import`) and CJS (`require`) builds are provided.
 
@@ -124,14 +124,14 @@ Both ESM (`import`) and CJS (`require`) builds are provided.
 ### Vanilla JS / Web Component
 
 ```html
-<asset-picker></asset-picker>
+<sfx-asset-picker></sfx-asset-picker>
 
 <script type="module">
   // 1. Register the custom element (once)
   import '@scaleflex/asset-picker/define';
 
   // 2. Grab the element
-  const picker = document.querySelector('asset-picker');
+  const picker = document.querySelector('sfx-asset-picker');
 
   // 3. Configure
   picker.config = {
@@ -237,14 +237,15 @@ Use when your backend already manages Scaleflex sessions.
 | `defaultViewMode` | `'grid' \| 'list'` | `'grid'` | Initial view mode |
 | `defaultSortBy` | `SortBy` | `'created_at'` | Initial sort field (see table below) |
 | `defaultSortDirection` | `'asc' \| 'desc'` | `'desc'` | Initial sort direction |
-| `hiddenTabs` | `TabKey[]` | `[]` | Tabs to hide: `'assets'`, `'folders'` |
+| `tabs` | `TabKey[]` | `['assets', 'folders']` | Tabs to show. If only one, the dropdown is hidden |
 | `enabledFilters` | `FilterKey[]` | all | Restrict which filters appear in the toolbar |
-| `allowedFileTypes` | `string[]` | `undefined` | Restrict selectable file types (e.g. `['image', 'video']`) |
-| `rootFolderUuid` | `string` | `undefined` | Start browsing from a specific folder UUID |
+| `rootFolderPath` | `string` | `'/'` | Start browsing from a specific folder path (e.g. `'/marketing/banners/'`) |
 | `showMetadata` | `boolean` | `true` | Show metadata sections in the preview panel |
 | `brandColor` | `string` | from API | Brand accent colour as hex (e.g. `'#3b82f6'`). Overrides the API-fetched value |
-| `defaultFilters` | `Filters` | `undefined` | Filters pre-applied on open. User can modify/remove |
-| `forcedFilters` | `Filters` | `undefined` | Filters always active. Shown as locked chips the user cannot remove |
+| `rememberLastFolder` | `boolean` | `false` | Persist the last browsed folder and restore on next open |
+| `rememberLastView` | `boolean` | `false` | Persist the last used view mode (grid/list) and restore on next open |
+| `defaultFilters` | `FiltersInput` | `undefined` | Filters pre-applied on open. User can modify/remove |
+| `forcedFilters` | `FiltersInput` | `undefined` | Filters always active. Shown as locked chips the user cannot remove |
 | `onSelect` | `(assets: Asset[]) => void` | `undefined` | Callback when assets are selected |
 | `onCancel` | `() => void` | `undefined` | Callback when the picker is cancelled |
 
@@ -408,7 +409,7 @@ If not set, the picker uses the brand colour configured in your Scaleflex projec
 
 ### CSS Custom Properties
 
-For fine-grained control, override these CSS custom properties on the `<asset-picker>` element or any ancestor. All variables use the `--ap-` prefix.
+For fine-grained control, override these CSS custom properties on the `<sfx-asset-picker>` element or any ancestor. All variables use the `--ap-` prefix.
 
 #### Colours
 

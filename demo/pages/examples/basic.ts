@@ -32,7 +32,7 @@ const page: Page = {
   import '@scaleflex/asset-picker/define';
 </script>
 
-<asset-picker id="picker"></asset-picker>
+<sfx-asset-picker id="picker"></sfx-asset-picker>
 
 <script>
   const picker = document.getElementById('picker');

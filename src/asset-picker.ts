@@ -1458,6 +1458,6 @@ export class AssetPicker extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'asset-picker': AssetPicker;
+    'sfx-asset-picker': AssetPicker;
   }
 }

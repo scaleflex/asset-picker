@@ -92,7 +92,7 @@ export const AssetPicker = forwardRef<AssetPickerRef, AssetPickerProps>(
       };
     }, []);
 
-    return createElement('asset-picker', {
+    return createElement('sfx-asset-picker', {
       ref: elRef,
       className,
       style,

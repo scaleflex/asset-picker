@@ -28,7 +28,7 @@ const page: Page = {
         label: 'HTML',
         lang: 'markup',
         code: `
-<asset-picker id="picker"></asset-picker>
+<sfx-asset-picker id="picker"></sfx-asset-picker>
 
 <script>
   picker.config = {

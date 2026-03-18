@@ -8,7 +8,7 @@ A framework-agnostic Asset Picker plugin for Scaleflex's VXP DAM platform. Users
 
 ```
 src/
-  asset-picker.ts          Root <asset-picker> custom element
+  asset-picker.ts          Root <sfx-asset-picker> custom element
   define.ts                Side-effect registration
   index.ts                 Main entry (exports)
   react.ts                 React wrapper
@@ -39,7 +39,7 @@ src/
   import '@scaleflex/asset-picker/define';
 </script>
 
-<asset-picker id="picker"></asset-picker>
+<sfx-asset-picker id="picker"></sfx-asset-picker>
 
 <script>
   const picker = document.getElementById('picker');
@@ -92,10 +92,11 @@ function App() {
 | `defaultViewMode` | `'grid' \| 'list'` | `'grid'` | Initial view mode |
 | `defaultSortBy` | `SortBy` | `'created_at'` | Initial sort field |
 | `defaultSortDirection` | `'asc' \| 'desc'` | `'desc'` | Initial sort direction |
-| `hiddenTabs` | `TabKey[]` | `[]` | Tabs to hide |
+| `tabs` | `TabKey[]` | `['assets', 'folders']` | Tabs to show |
 | `enabledFilters` | `FilterKey[]` | all | Which filters to show |
-| `allowedFileTypes` | `string[]` | all | Restrict selectable types |
-| `rootFolderUuid` | `string` | root | Starting folder |
+| `rootFolderPath` | `string` | `'/'` | Starting folder path |
+| `rememberLastFolder` | `boolean` | `false` | Persist last browsed folder |
+| `rememberLastView` | `boolean` | `false` | Persist last view mode |
 | `onSelect` | `(assets: Asset[]) => void` | - | Callback on confirm |
 | `onCancel` | `() => void` | - | Callback on cancel |
 

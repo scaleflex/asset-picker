@@ -14,7 +14,7 @@ const page: Page = {
       <section class="page-section">
         <p>The picker below is rendered inline with <code>displayMode: 'inline'</code>. It auto-opens when config is set and sizes to its container.</p>
         <div id="inline-container" style="height: 600px; margin-top: 16px;">
-          <asset-picker id="inline-picker"></asset-picker>
+          <sfx-asset-picker id="inline-picker"></sfx-asset-picker>
         </div>
       </section>
 
@@ -40,7 +40,7 @@ const page: Page = {
         lang: 'markup',
         code: `
 <div style="height: 600px;">
-  <asset-picker id="picker"></asset-picker>
+  <sfx-asset-picker id="picker"></sfx-asset-picker>
 </div>
 
 <script type="module">

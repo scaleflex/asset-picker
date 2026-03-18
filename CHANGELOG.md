@@ -35,7 +35,7 @@ Initial release.
 
 ### Added
 
-- `<asset-picker>` web component built with Lit 3 and Shadow DOM
+- `<sfx-asset-picker>` web component built with Lit 3 and Shadow DOM
 - Reactive store-based state management with `StoreController`
 - Asset browsing with grid and list view modes
 - Folder navigation with breadcrumb trail
