@@ -2,7 +2,7 @@
 
 ## Overview
 
-A framework-agnostic Asset Picker plugin for Scaleflex's Filerobot DAM platform. Users can browse, search, filter, and select assets/folders from their DAM. Built as a Web Component (Lit 3) with a React wrapper.
+A framework-agnostic Asset Picker plugin for Scaleflex's VXP DAM platform. Users can browse, search, filter, and select assets/folders from their DAM. Built as a Web Component (Lit 3) with a React wrapper.
 
 ## Architecture
 

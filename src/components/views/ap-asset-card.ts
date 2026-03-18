@@ -164,6 +164,20 @@ export class ApAssetCard extends LitElement {
       height: 100%;
       color: var(--ap-muted-foreground, #71717a);
     }
+    .duration {
+      position: absolute;
+      bottom: 6px;
+      left: 6px;
+      z-index: 1;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      font-size: 0.6875rem;
+      font-weight: 500;
+      line-height: 1.2;
+      font-variant-numeric: tabular-nums;
+    }
     @media (prefers-reduced-motion: reduce) {
       :host { animation: none; }
       .overlay { transition: none; }
@@ -201,6 +215,14 @@ export class ApAssetCard extends LitElement {
       detail: { asset: this.asset },
       bubbles: true,
     }));
+  }
+
+  private _formatDuration(seconds: number): string {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
   }
 
   private _handleQuickSelect(e: MouseEvent) {
@@ -263,6 +285,7 @@ export class ApAssetCard extends LitElement {
                   }
                 }}
               />`}
+          ${isVideo && a.info?.duration ? html`<span class="duration">${this._formatDuration(a.info.duration)}</span>` : nothing}
           <div class="overlay">
             <button class="overlay-btn" @click=${this._handlePreview} aria-label="Preview">
               <ap-icon name="preview" .size=${16}></ap-icon>

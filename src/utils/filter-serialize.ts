@@ -1,6 +1,6 @@
 /**
  * Backend serialization utilities.
- * Converts filter state to search notation strings for the Filerobot API.
+ * Converts filter state to search notation strings for the Scaleflex API.
  */
 
 import {

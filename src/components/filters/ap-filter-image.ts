@@ -7,7 +7,7 @@ import {
   FACES_OPTIONS,
 } from './filters.constants';
 
-// ── Orientation icons (same SVGs as js-admin filerobot v5) ──────────
+// ── Orientation icons (same SVGs as js-admin v5) ──────────
 
 const portraitIcon = svg`
   <svg width="20" height="20" viewBox="0 0 12 16" fill="none" xmlns="http://www.w3.org/2000/svg">

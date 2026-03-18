@@ -36,7 +36,7 @@ export function getVideoThumbnailUrl(asset: Asset): string {
 export function getPdfPreviewUrl(asset: Asset): string {
   let cdnUrl = getFormattedPreviewUrl(asset.url?.cdn || asset.url?.public || '');
   if (!cdnUrl) return '';
-  // Strip func=proxy (portals-fe: replaceAirstoreWithFilerobot + remove func=proxy)
+  // Strip func=proxy (portals-fe: replaceAirstoreWithScaleflex + remove func=proxy)
   cdnUrl = cdnUrl
     .replace(/([?&])func=proxy&?/, '$1')
     .replace(/[?&]$/, '');
@@ -64,9 +64,9 @@ export function addCdnParams(url: string, params: Record<string, string>): strin
 }
 
 /**
- * Convert a CDN URL to an assets.filerobot.com URL that supports image processing params.
+ * Convert a CDN URL to an assets CDN URL that supports image processing params.
  * Transforms: https://{token}.filerobot.com/{path} -> https://assets.filerobot.com/{token}/{path}
- * Matches js-admin-react-filerobot-v5 getFormattedPreviewUrl().
+ * Matches js-admin v5 getFormattedPreviewUrl().
  */
 const FILEROBOT_CDN_REGEX = /^(https:\/\/)([a-z0-9_-]+)\.filerobot\.com\//i;
 

@@ -163,6 +163,29 @@ export type AnyFilter = StringFilter | DateFilter;
 export type Filters = Partial<Record<AnyFilterKey, AnyFilter>>;
 export type MetadataFilters = Record<string, AnyFilter>;
 
+// ── Simplified Input Types (user-facing) ────────────────────────────
+
+/** Simplified string filter input — `type` is inferred, operator/logic have defaults */
+export interface StringFilterInput {
+  values: string[];
+  operator?: string;
+  logic?: FilterLogic;
+}
+
+/** Simplified date filter input — `type` is inferred, unused fields default to null */
+export interface DateFilterInput {
+  field?: DateField;
+  kind: DateKind;
+  preset?: DatePreset | null;
+  from?: string | null;
+  to?: string | null;
+}
+
+export type FilterInput = StringFilterInput | DateFilterInput;
+
+/** User-facing filters config type — accepts both simplified and full forms */
+export type FiltersInput = Partial<Record<AnyFilterKey, FilterInput | AnyFilter>>;
+
 // ── Filter State ────────────────────────────────────────────────────
 
 export interface FiltersState {

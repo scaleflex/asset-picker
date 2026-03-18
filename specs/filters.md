@@ -1,6 +1,6 @@
 # Filters Specification
 
-> Derived from `js-admin-react-filerobot-v5/src/features/filters/`
+> Derived from `js-admin-v5/src/features/filters/`
 
 ## Overview
 

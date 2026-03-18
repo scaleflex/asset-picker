@@ -18,6 +18,11 @@
   --ap-modal-max-width: 1200px;
   --ap-modal-max-height: 85vh;
 
+  /* Inline */
+  --ap-inline-height: 600px;
+  --ap-inline-radius: var(--ap-modal-radius);
+  --ap-inline-border: 1px solid var(--ap-border);
+
   /* Ring & Selection */
   --ap-ring: oklch(0.65 0.19 258);
   --ap-selection-bg: oklch(0.65 0.19 258 / 0.08);

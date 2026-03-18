@@ -48,6 +48,12 @@ export class ApSelectionBar extends LitElement {
       cursor: default;
       text-decoration: none;
     }
+    .limit-notice {
+      font-size: var(--ap-font-size-xs, 0.75rem);
+      color: var(--ap-muted-foreground, #71717a);
+      margin-left: 8px;
+      white-space: nowrap;
+    }
     .thumbnails {
       flex: 1;
       display: flex;
@@ -76,10 +82,20 @@ export class ApSelectionBar extends LitElement {
       background-image: conic-gradient(var(--ap-chess-a, #f0f0f0) 25%, var(--ap-chess-b, #fff) 25% 50%, var(--ap-chess-a, #f0f0f0) 50% 75%, var(--ap-chess-b, #fff) 75%);
       background-size: 10px 10px;
     }
+    .thumb {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     .thumb img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+    .thumb img.icon {
+      object-fit: contain;
+      width: 20px;
+      height: 20px;
     }
     .actions {
       display: flex;
@@ -118,6 +134,7 @@ export class ApSelectionBar extends LitElement {
   @property({ type: Number }) totalCount = 0;
   @property({ type: Boolean }) isSelectingAll = false;
   @property({ type: Boolean }) multiSelect = true;
+  @property({ type: Number }) maxSelections?: number;
 
   private _confirm() {
     this.dispatchEvent(new CustomEvent('selection-confirm', {
@@ -150,11 +167,20 @@ export class ApSelectionBar extends LitElement {
       <div class="bar">
         <span class="count">${this.selectedAssets.length} asset${this.selectedAssets.length > 1 ? 's' : ''} selected</span>
         ${this.multiSelect && this.selectedAssets.length < this.totalCount
+            && (!this.maxSelections || this.selectedAssets.length < this.maxSelections)
           ? html`<button
               class="select-all-link"
               ?disabled=${this.isSelectingAll}
               @click=${this._selectAll}
-            >${this.isSelectingAll ? 'Selecting...' : `Select all ${this.totalCount.toLocaleString()}`}</button>`
+            >${this.isSelectingAll
+              ? 'Selecting...'
+              : this.maxSelections && this.maxSelections < this.totalCount
+                ? `Select first ${this.maxSelections}`
+                : `Select all ${this.totalCount.toLocaleString()}`
+            }</button>`
+          : nothing}
+        ${this.maxSelections && this.selectedAssets.length >= this.maxSelections
+          ? html`<span class="limit-notice">Max ${this.maxSelections} allowed</span>`
           : nothing}
         <div class="thumbnails">
           ${this.selectedAssets.map((asset) => {
@@ -186,15 +212,17 @@ export class ApSelectionBar extends LitElement {
                         const defaultIcon = getDefaultFileTypeIconUrl();
                         if (img.src !== fallbackIconUrl && img.src !== defaultIcon) {
                           img.src = fallbackIconUrl;
+                          img.classList.add('icon');
                         } else if (img.src !== defaultIcon) {
                           img.src = defaultIcon;
+                          img.classList.add('icon');
                         }
                       }}
                     />`
                   : html`<img
+                      class="icon"
                       src=${fallbackIconUrl}
                       alt=${asset.name}
-                      style="object-fit: contain; padding: 6px;"
                       @error=${(e: Event) => {
                         const img = e.target as HTMLImageElement;
                         const defaultIcon = getDefaultFileTypeIconUrl();

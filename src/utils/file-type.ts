@@ -115,7 +115,7 @@ export function getExtensionFromType(fileType: string): string {
 }
 
 /**
- * Check if a URL is a low-quality file type icon (from Filerobot CDN).
+ * Check if a URL is a low-quality file type icon (from Scaleflex CDN).
  */
 export function isFileTypeIcon(url: string): boolean {
   return url.includes('scaleflex/assets/file-types');

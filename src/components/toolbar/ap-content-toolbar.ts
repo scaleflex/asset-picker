@@ -343,6 +343,7 @@ export class ApContentToolbar extends LitElement {
   @property({ type: Array }) tags: TagWithLabel[] = [];
   @property({ type: Array }) metadataFields: MetadataModelField[] = [];
   @property({ type: Array }) pinnedFilters: AnyFilterKey[] = [];
+  @property({ type: Array }) forcedFilterKeys: string[] = [];
   @property({ attribute: false }) apiClient?: ApiClient;
 
   @query('ap-dropdown') private _sortDropdown?: import('../shared/ap-dropdown').ApDropdown;
@@ -784,9 +785,10 @@ export class ApContentToolbar extends LitElement {
       <div class="toolbar-row">
         ${this.isLoading
           ? html`<span class="count-skeleton"></span>`
-          : html`<span class="count">${this.totalFolderCount > 0
-                ? `${this.totalFolderCount.toLocaleString()} folder${this.totalFolderCount !== 1 ? 's' : ''}${this.totalCount > 0 ? ', ' : ''}`
-                : ''}${`${this.totalCount.toLocaleString()} asset${this.totalCount !== 1 ? 's' : ''}`}</span>`}
+          : html`<span class="count">${[
+                this.totalFolderCount > 0 ? `${this.totalFolderCount.toLocaleString()} folder${this.totalFolderCount !== 1 ? 's' : ''}` : '',
+                this.totalCount > 0 || this.totalFolderCount === 0 ? `${this.totalCount.toLocaleString()} asset${this.totalCount !== 1 ? 's' : ''}` : '',
+              ].filter(Boolean).join(', ')}</span>`}
         <span class="spacer"></span>
         <div class="controls">
           <div class="filter-dropdown">
@@ -799,7 +801,9 @@ export class ApContentToolbar extends LitElement {
             </button>
             ${this._showDropdown ? html`
               <div class="dropdown-menu">
-                ${ALL_FILTER_ITEMS.map((item) => this._renderFilterButton(item))}
+                ${ALL_FILTER_ITEMS
+                  .filter((item) => !this.forcedFilterKeys.includes(item.key))
+                  .map((item) => this._renderFilterButton(item))}
               </div>
             ` : nothing}
             ${this._showMetadataSelector ? html`

@@ -155,7 +155,8 @@ export class ApPreviewPanel extends LitElement {
       margin: auto;
       object-fit: contain;
       filter: blur(8px);
-      transform: scale(1.02);
+      overflow: hidden;
+      clip-path: inset(0);
       transition: opacity 0.3s ease;
     }
     .preview-area:fullscreen .fs-wrapper .fs-blur.hidden {
@@ -317,19 +318,43 @@ export class ApPreviewPanel extends LitElement {
   @state() private _isFullscreen = false;
   @state() private _fsImageLoaded = false;
   @state() private _previewLoading = false;
-  @state() private _openSections = new Set<string>(['file-info']);
+  @state() private _openSections = new Set<string>(['file-info', 'metadata']);
   private _hls: Hls | null = null;
 
   connectedCallback() {
     super.connectedCallback();
     this._onFullscreenChange = this._onFullscreenChange.bind(this);
+    this._onKeyDown = this._onKeyDown.bind(this);
     document.addEventListener('fullscreenchange', this._onFullscreenChange);
+    document.addEventListener('keydown', this._onKeyDown);
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
     document.removeEventListener('fullscreenchange', this._onFullscreenChange);
+    document.removeEventListener('keydown', this._onKeyDown);
     this._destroyHls();
+  }
+
+  private _onKeyDown(e: KeyboardEvent) {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+
+    // Use composedPath to pierce shadow DOM and get the real target
+    const origin = e.composedPath()[0] as HTMLElement;
+    if (!origin) return;
+
+    // Skip if user is focused on a form control or interactive widget
+    const tag = origin.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if (origin.getAttribute('role') === 'radio' || origin.getAttribute('role') === 'listbox') return;
+    if (origin.isContentEditable) return;
+
+    e.preventDefault();
+    if (e.key === 'ArrowLeft') {
+      this._prev();
+    } else {
+      this._next();
+    }
   }
 
   private _destroyHls() {

@@ -158,13 +158,13 @@ export class ApFolderCard extends LitElement {
 
   /**
    * Get the best preview URL for a folder preview image.
-   * Uses assets.filerobot.com URL to bypass private permissions and support CDN params.
+   * Uses assets CDN URL to bypass private permissions and support CDN params.
    */
   private _getPreviewUrl(preview: FolderPreviewImage): string {
     const rawUrl = preview.file_uri_cdn;
     if (!rawUrl) return '';
 
-    // Convert to assets.filerobot.com URL (bypasses private file permissions)
+    // Convert to assets CDN URL (bypasses private file permissions)
     let url = getFormattedPreviewUrl(rawUrl);
     const type = getFileTypeFromMime(preview.file_type);
     const dpr = String(window.devicePixelRatio || 1);

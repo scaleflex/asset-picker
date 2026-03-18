@@ -1,6 +1,6 @@
-# Filters Polishment: asset-picker vs js-admin-react-filerobot-v5
+# Filters Polishment: asset-picker vs js-admin-v5
 
-Deep code-level comparison of filter logic between the original Filerobot v5 admin (React) and the new asset-picker (Lit Web Component).
+Deep code-level comparison of filter logic between the original Scaleflex v5 admin (React) and the new asset-picker (Lit Web Component).
 
 Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
@@ -10,7 +10,7 @@ Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
 ### 1.1 Date filter serialization
 
-| Aspect | filerobot-v5 | asset-picker | Impact |
+| Aspect | js-admin-v5 | asset-picker | Impact |
 |--------|-------------|--------------|--------|
 | **Metadata date quoting** | Wraps entire expression: `"fieldName:2024-01-01"` | Quotes only value: `fieldName:"2024-01-01"` | ⚠️ Different API notation |
 | **Date format** | Date-only `YYYY-MM-DD` via `toLocaleDateString('en-CA')` | Full ISO `YYYY-MM-DDTHH:mm:ss.sssZ` via `toISOString()` | ⚠️ Backend may handle both, but not identical |
@@ -19,7 +19,7 @@ Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
 ### 1.2 Date preset computation
 
-| Preset | filerobot-v5 | asset-picker | Match? |
+| Preset | js-admin-v5 | asset-picker | Match? |
 |--------|-------------|--------------|--------|
 | `today` | `from = startOfDayUtc(now)`, `to = null` | `from = startOfDay(now, local)`, `to = now` | ⚠️ UTC vs local; `to` differs |
 | `last_week` | `now - 7 days` (rolling) | Previous calendar week Mon→Mon | ⚠️ Different semantics |
@@ -31,37 +31,37 @@ Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
 ### 1.3 Type + MIME merge
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Merge** | Joins type and mimetype with ` , ` (OR): `type:"image" , mimetype:"image/png"` | No merge — separate array entries | ⚠️ |
 
 ### 1.4 Faces serialization
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Format** | Values inside single quote pair: `faces:"1,2"` | Each value quoted: `faces:"1","2"` | ⚠️ |
 
 ### 1.5 Tags hash stripping
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Regex** | `/#/g` — removes ALL `#` characters anywhere | `/^#/` — removes only leading `#` | ⚠️ Edge case: `#my#tag` → `mytag` vs `my#tag` |
 
 ### 1.6 Numeric/Decimal range operator
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Range format** | Remaps `..` to `:`, values comma-separated: `field:"10","20"` | Keeps `..` as join: `field:"10..20"` | ⚠️ Different API notation |
 
 ### 1.7 AND logic output
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Format** | Single string: `key:"val1" key:"val2"` | Array of strings: `['key:"val1"', 'key:"val2"']` | ✅ Same after join |
 
 ### 1.8 Image filter storage & serialization
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Storage** | Indexed array with pipe-separated values: `["small\|medium", "portrait", "1"]` | Object: `{ resolution: ['small','medium'], orientation: ['portrait'], faces: ['1'] }` | ⚠️ |
 | **Pipe split** | Splits `\|` to produce multiple values per sub-key | No pipe logic — values are already arrays | ⚠️ Different internal representation |
@@ -69,13 +69,13 @@ Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
 ### 1.9 Filter validation
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Pre-serialization validation** | `validateFilter()` checks date ranges, hex colors, geopoints, non-empty arrays | Only `if (!filter) continue` — no content validation | ❌ Missing — invalid filters produce malformed output |
 
 ### 1.10 Encoding support
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **URL encoding** | `shouldApplyEncoding` param → `encodeURIComponent` on values | No encoding support | ⚠️ |
 
@@ -85,56 +85,56 @@ Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
 ### 2.1 Operator parsing
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Method** | Regex with named groups, extracts optional `filterKey` from value (critical for date: `created>"2024-01-01"`) | Simple `startsWith` prefix match, no key extraction | ⚠️ |
 | **Products filter** | Uses restricted operator list (`IS`, `STARTS_WITH` only) | Same operator list for all filter keys | ⚠️ |
 
 ### 2.2 AND/OR priority
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Detection** | Checks `,` first (OR wins) | Checks `+` first (AND wins) | ⚠️ Reversed priority for values containing both `,` and `+` |
 
 ### 2.3 Quote stripping
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Order** | Strip quotes from whole string, then split, then trim whitespace | Split first, then strip quotes per value, no trim | ⚠️ Edge case differences with quoted separators |
 
 ### 2.4 Date URL format
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Format** | Operator-based: `created>"2024-01-01"`, `created:"2024-01-01..2024-12-31"` | Key-value pairs: `field:created,kind:preset,preset:today` | ❌ **Incompatible formats** — URLs from one system cannot be parsed by the other |
 
 ### 2.5 Duplicate param merging
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Behavior** | Merges duplicate params for same key (combines values, deduplicates) | Last value wins (standard `set` behavior) | ⚠️ |
 
 ### 2.6 URL param method
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Method** | `searchParams.append()` — allows multiple entries per key | `searchParams.set()` — overwrites | ⚠️ |
 
 ### 2.7 Image sub-filters in URL
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Parsing** | Parses `resolution`, `orientation`, `faces` as separate URL params, merges into single `IMAGE` filter with pipe-separated indices | No image sub-filter URL parsing | ❌ Missing |
 
 ### 2.8 Filter validation before URL serialization
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Validation** | Calls `validateFilter()` before producing URL string | No validation | ❌ Missing |
 
 ### 2.9 Metadata prefix in URL
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Serialization** | Strips metadata type prefix from key | Keeps full key with prefix | ⚠️ |
 
@@ -144,7 +144,7 @@ Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
 ### 3.1 Visibility management
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Activate filter** | Explicit `activateFilter` reducer — adds to `visible` without setting value | No standalone activate — visibility is side effect of setting a value | ⚠️ |
 | **Deactivate filter** | Explicit `deactivateFilter` — removes from `visible`, keeps `applied` value | ❌ Not implemented — remove always clears value | ❌ |
@@ -152,32 +152,32 @@ Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
 ### 3.2 Unpin visibility check
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Logic** | `isFilterApplied(state.applied[key])` — semantic check (inspects values, date fields, etc.) | `!(key in filters.applied)` — key-existence check only | ⚠️ Empty-valued filter in `applied` keeps it visible on unpin |
 
 ### 3.3 Clear all
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Skip reload** | Accepts `{ skipListenerEffect: true }` to suppress data reload | Always reloads | ⚠️ |
 
 ### 3.4 Bulk operations
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **`setFilters` (bulk replace)** | ✅ Replaces all filters at once, recomputes `visible` from union of pinned + applied | ❌ Not implemented — one filter at a time only | ❌ |
 | **`resetFiltersToInitial`** | ✅ Re-derives from URL + localStorage | ❌ Not implemented | ❌ |
 
 ### 3.5 Data reload
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Mechanism** | RTK listener middleware with 120ms debounce, URL sync | Direct `_loadData()` call inline, no debounce, no URL push | ⚠️ |
 
 ### 3.6 Initialization
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **From URL** | Reads applied filters from URL query params on init | No URL parsing — always starts with empty `applied` | ⚠️ |
 
@@ -187,14 +187,14 @@ Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
 ### 4.1 Type filter
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Sub-format selection** | Shows per-category sub-types (e.g., jpeg, png under image) from backend config | Top-level categories only, no sub-types | ⚠️ |
 | **Search** | Search input filters types AND sub-formats, Enter toggles first match | No search in type filter | ⚠️ |
 
 ### 4.2 Date filter
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Empty/not-empty options** | Supported on date filter (for license expiry, approval due-date) | Not supported | ❌ |
 | **"Between" auto-correction** | On popover close, auto-converts "between" with one date to "before"/"after" | No auto-correction | ⚠️ |
@@ -203,7 +203,7 @@ Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
 ### 4.3 Size filter
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Unit selection** | MB and GB with dropdown selector | Hardcoded MB only | ⚠️ |
 | **Multiplier** | `SIZE_MULTIPLIER = 1000` (stores values in MB) | `BYTES_PER_MB = 1_000_000` (converts to bytes) | ⚠️ Different stored values |
@@ -211,7 +211,7 @@ Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
 ### 4.4 Color filter
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Multi-color** | Up to 3 colors simultaneously | 1 color at a time | ⚠️ |
 | **Custom hex picker** | Full `ColorPicker` component for arbitrary hex | Preset palette only (13 swatches) | ⚠️ |
@@ -223,7 +223,7 @@ Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
 ### 4.5 Tags filter
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Tag identification** | Uses tag `sid` (server ID) as value | Uses tag string (display name) as value | ⚠️ |
 | **Suggested vs all** | Two groups: "Suggested tags" (folder context) + "All tags" (search) | Flat list, no grouping | ⚠️ |
@@ -233,7 +233,7 @@ Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
 ### 4.6 Labels filter
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Label identification** | Uses label `sid` | Uses label `uuid` | ⚠️ Data model difference |
 | **Asset count** | Not displayed | Shows `label.assetsCount` | ✅ AP has more info |
@@ -241,7 +241,7 @@ Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
 ### 4.7 Approval filter
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Status options** | `APPROVED`, `PENDING`, `REJECTED`, `CANCELLED` (uppercase) | `approved`, `pending`, `rejected` (lowercase, no cancelled) | ❌ Missing `CANCELLED`; ⚠️ case mismatch |
 | **Status empty/not-empty** | Includes "Empty" and "Not empty" options | Not included | ❌ |
@@ -252,7 +252,7 @@ Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
 ### 4.8 Metadata filter
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Metadata date presets** | Uses `withinDateRanges` (`within_*`, `specific`) | Uses `DATE_RANGE_OPTIONS` (`last_*`) | ⚠️ Different preset sets |
 | **Metadata autocomplete** | Backend API: `GET metadata/autocomplete?q=&meta_key=` | No metadata autocomplete endpoint | ❌ |
@@ -260,7 +260,7 @@ Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
 ### 4.9 Filter popover close behavior
 
-| Aspect | filerobot-v5 | asset-picker |
+| Aspect | js-admin-v5 | asset-picker |
 |--------|-------------|--------------|
 | **Auto-deactivation** | Closing popover of "only visible" (added but not configured) filter auto-removes it | No auto-deactivation logic | ⚠️ |
 
@@ -268,7 +268,7 @@ Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
 ## 5. Constants & Types
 
-| Aspect | filerobot-v5 | asset-picker | Impact |
+| Aspect | js-admin-v5 | asset-picker | Impact |
 |--------|-------------|--------------|--------|
 | **`ATTACHMENTS_ASSETS` value** | `'attachments-assets'` (hyphen) | `'attachments_assets'` (underscore) | ⚠️ Could affect metadata prefix matching |
 | **Approval status values** | Uppercase: `'APPROVED'` | Lowercase: `'approved'` | ⚠️ Must match backend expectations |
@@ -278,7 +278,7 @@ Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
 ## 6. Search
 
-| Feature | filerobot-v5 | asset-picker | Status |
+| Feature | js-admin-v5 | asset-picker | Status |
 |---------|-------------|--------------|--------|
 | **Quick Search** (`SCM_QUICK`) | Real-time exact matches (`relevance === 1`) | Not implemented | ❌ |
 | **Extended Search** (`SCM_EXTENDED`) | Broader fuzzy results, separate section | Not implemented | ❌ |
@@ -293,7 +293,7 @@ Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
 ## 7. Sorting
 
-| Feature | filerobot-v5 | asset-picker | Status |
+| Feature | js-admin-v5 | asset-picker | Status |
 |---------|-------------|--------------|--------|
 | **Sort fields** | `relevance`, `name`, `title`, `created_at`, `color`, `updated_at`, `uploaded`, `modified_at`, `size`, `type`, `files_count_recursive`, `files_size_recursive` | `name`, `created_at`, `modified_at`, `size`, `type` | ⚠️ Missing 7 fields |
 | **Per-view sort options** | Different options per view (assets, folders, collections, labels, search, folder tree) | Same 5 options for all views | ⚠️ |
@@ -305,7 +305,7 @@ Legend: ✅ Parity | ⚠️ Logic difference | ❌ Missing
 
 ## 8. API Integration
 
-| Feature | filerobot-v5 | asset-picker | Status |
+| Feature | js-admin-v5 | asset-picker | Status |
 |---------|-------------|--------------|--------|
 | **Filter config endpoint** | `GET /filters?filter_by=filetype&lang=en&format=list&limit=200` | `GET /filters/config` | ⚠️ Different endpoints |
 | **Tags fetch** | `GET /tags` (all tags, no filtering) | `GET /tags?q=&limit=20` (autocomplete-style) | ⚠️ Different approach |

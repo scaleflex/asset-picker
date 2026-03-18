@@ -30,8 +30,11 @@ import type { GetFilesParams } from './types/api.types';
 import { getMetadataSettings } from './services/filters.service';
 import { FILTER_LABELS } from './components/filters/filters.constants';
 import { serializeFilters } from './utils/filter-serialize';
+import { normalizeFilters } from './utils/filter-normalize';
 import { loadPinnedFilters, savePinnedFilters, savePinnedMetadata } from './utils/filter-pin-storage';
 import { loadSortPreference, saveSortPreference } from './utils/sort-storage';
+import { loadLastFolder, saveLastFolder, loadLastView, saveLastView } from './utils/preference-storage';
+import { applyBrandColor } from './utils/brand-color';
 import {
   MAIN_SORT_OPTIONS,
   SEARCH_SORT_OPTIONS,
@@ -127,6 +130,31 @@ export class AssetPicker extends LitElement {
         justify-content: center;
         padding: 64px 20px;
       }
+      .ap-inline {
+        position: relative;
+        width: 100%;
+        height: var(--ap-inline-height, 600px);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        background: var(--ap-background, #fff);
+        font-family: var(--ap-font-family, system-ui, -apple-system, sans-serif);
+        color: var(--ap-foreground, #09090b);
+      }
+      .ap-inline .inline-header {
+        flex-shrink: 0;
+        border-bottom: 1px solid var(--ap-border, #e4e4e7);
+      }
+      .ap-inline .inline-content {
+        flex: 1;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+      .ap-inline .inline-footer {
+        flex-shrink: 0;
+      }
     `,
   ];
 
@@ -155,6 +183,10 @@ export class AssetPicker extends LitElement {
     this.selectionCtrl = new SelectionController(this, this.store);
     this.infiniteScrollCtrl = new InfiniteScrollController(this, () => this._loadMore());
     this.marqueeCtrl = new MarqueeController(this, this.store);
+  }
+
+  private get _isInline(): boolean {
+    return this.config?.displayMode === 'inline';
   }
 
   connectedCallback() {
@@ -188,6 +220,10 @@ export class AssetPicker extends LitElement {
     this._initPromise = this._doInit(config).catch(() => {
       this._initFailed = true;
     });
+    // In inline mode, auto-open so the picker is visible immediately
+    if (config.displayMode === 'inline' && !this.store.getState().isOpen) {
+      this.open();
+    }
   }
 
   private async _doInit(config: AssetPickerConfig) {
@@ -199,10 +235,11 @@ export class AssetPicker extends LitElement {
     this.store.setState({
       config,
       projectToken: config.auth.projectToken,
-      viewMode: config.defaultViewMode ?? 'grid',
+      viewMode: (config.rememberLastView && loadLastView()) || config.defaultViewMode || 'grid',
       sortBy,
       sortDirection,
-      currentFolder: config.rootFolderUuid ?? null,
+      currentFolder: null,
+      currentFolderPath: config.rootFolderPath ?? '/',
     });
 
     this.apiClient = new ApiClient(config.auth, config.apiBase);
@@ -255,6 +292,13 @@ export class AssetPicker extends LitElement {
           },
         },
       });
+
+      // Apply brand color: config takes priority over API-fetched value
+      const resolvedBrandColor = config.brandColor || this.store.getState().brandColor;
+      if (resolvedBrandColor) {
+        this.store.setState({ brandColor: resolvedBrandColor });
+        applyBrandColor(this, resolvedBrandColor);
+      }
     } catch (err) {
       this.dispatchEvent(new CustomEvent('ap-error', {
         detail: { error: err as Error, context: 'init' },
@@ -267,9 +311,18 @@ export class AssetPicker extends LitElement {
 
   async open() {
     const state = this.store.getState();
+    const normalizedForced = normalizeFilters(this.config?.forcedFilters);
+    const forcedKeys = new Set(Object.keys(normalizedForced));
+    // Seed from defaultFilters, but skip any key that is also in forcedFilters
+    const defaultApplied: Record<string, any> = {};
+    const normalizedDefaults = normalizeFilters(this.config?.defaultFilters);
+    for (const [k, v] of Object.entries(normalizedDefaults)) {
+      if (!forcedKeys.has(k)) defaultApplied[k] = v;
+    }
+    const defaultAppliedKeys = Object.keys(defaultApplied) as AnyFilterKey[];
     this.store.setState({
       isOpen: true,
-      activeTab: 'assets',
+      activeTab: this.config?.tabs?.[0] ?? 'assets',
       searchQuery: '',
       filters: {
         metadata: {
@@ -278,14 +331,14 @@ export class AssetPicker extends LitElement {
           applied: {},
         },
         pinned: state.filters.pinned,
-        visible: [...state.filters.pinned],
-        applied: {},
+        visible: [...new Set([...state.filters.pinned, ...defaultAppliedKeys])],
+        applied: defaultApplied,
       },
       offset: 0,
       assets: [],
       folders: [],
-      currentFolder: this.config?.rootFolderUuid ?? null,
-      currentFolderPath: '/',
+      currentFolder: null,
+      currentFolderPath: (this.config?.rememberLastFolder && loadLastFolder()) || this.config?.rootFolderPath || '/',
       breadcrumb: [],
       selectedAssets: new Map(),
       folderPreviews: {},
@@ -518,7 +571,9 @@ export class AssetPicker extends LitElement {
   }
 
   private _handleViewChange(e: CustomEvent) {
-    this.store.setState({ viewMode: e.detail.mode as ViewMode });
+    const mode = e.detail.mode as ViewMode;
+    this.store.setState({ viewMode: mode });
+    if (this.config?.rememberLastView) saveLastView(mode);
     this._scrollToTop();
   }
 
@@ -561,8 +616,8 @@ export class AssetPicker extends LitElement {
   private _handleTabChange(e: CustomEvent) {
     this.store.setState({
       activeTab: e.detail.tab as TabKey,
-      currentFolder: this.config?.rootFolderUuid ?? null,
-      currentFolderPath: '/',
+      currentFolder: null,
+      currentFolderPath: this.config?.rootFolderPath ?? '/',
       breadcrumb: [],
       offset: 0,
       assets: [],
@@ -591,13 +646,16 @@ export class AssetPicker extends LitElement {
       bubbles: true,
       composed: true,
     }));
-    this.close();
+    if (!this._isInline) {
+      this.close();
+    }
   }
 
   private _handleFolderOpen(e: CustomEvent) {
     const folder: Folder = e.detail.folder;
     const state = this.store.getState();
     const folderPath = folder.path || `${state.currentFolderPath}${folder.name}/`;
+    if (this.config?.rememberLastFolder) saveLastFolder(folderPath);
     this.store.setState({
       currentFolder: folder.uuid,
       currentFolderPath: folderPath,
@@ -616,7 +674,8 @@ export class AssetPicker extends LitElement {
     const state = this.store.getState();
     const idx = uuid ? state.breadcrumb.findIndex((b) => b.uuid === uuid) : -1;
     const crumbs = uuid ? state.breadcrumb.slice(0, idx + 1) : [];
-    const folderPath = crumbs.length > 0 ? crumbs[crumbs.length - 1].path : '/';
+    const folderPath = crumbs.length > 0 ? crumbs[crumbs.length - 1].path : (this.config?.rootFolderPath || '/');
+    if (this.config?.rememberLastFolder) saveLastFolder(folderPath);
     this.store.setState({
       currentFolder: uuid || null,
       currentFolderPath: folderPath,
@@ -645,7 +704,9 @@ export class AssetPicker extends LitElement {
       bubbles: true,
       composed: true,
     }));
-    this.close();
+    if (!this._isInline) {
+      this.close();
+    }
   }
 
   private async _handleSelectAll() {
@@ -921,6 +982,7 @@ export class AssetPicker extends LitElement {
 
   private _handleFilterRemove(e: CustomEvent) {
     const key = e.detail.key as AnyFilterKey;
+    if (key in (this.config?.forcedFilters ?? {})) return;
     const state = this.store.getState();
     const filters = { ...state.filters };
     const applied = { ...filters.applied };
@@ -1106,8 +1168,11 @@ export class AssetPicker extends LitElement {
     const state = this.store.getState();
     const filters = { ...state.filters };
 
-    // Replace applied filters
-    filters.applied = applied;
+    // Replace applied filters, stripping any forced keys
+    const forcedKeys = new Set(Object.keys(this.config?.forcedFilters ?? {}));
+    const sanitized = { ...applied };
+    for (const k of forcedKeys) delete sanitized[k as AnyFilterKey];
+    filters.applied = sanitized;
     // Recompute visible as union of pinned + keys of applied
     const appliedKeys = Object.keys(applied) as AnyFilterKey[];
     filters.visible = [...new Set([...filters.pinned, ...appliedKeys])];
@@ -1143,7 +1208,8 @@ export class AssetPicker extends LitElement {
 
   private _buildSearchNotation(): string {
     const state = this.store.getState();
-    const parts = serializeFilters(state.filters.applied, state.filters.metadata.applied);
+    const merged = { ...normalizeFilters(this.config?.forcedFilters), ...state.filters.applied };
+    const parts = serializeFilters(merged, state.filters.metadata.applied);
     return parts.join(' ');
   }
 
@@ -1152,120 +1218,141 @@ export class AssetPicker extends LitElement {
     const selectedIds = Array.from(s.selectedAssets.keys());
     const selectedAssets = this.selectionCtrl.getSelectedAssets();
 
+    const headerTemplate = html`
+      <ap-header
+        .activeTab=${s.activeTab}
+        .tabs=${this.config?.tabs ?? ['assets', 'folders']}
+        .viewMode=${s.viewMode}
+        .searchQuery=${s.searchQuery}
+        .regionalGroups=${s.regionalVariantGroups}
+        .regionalFilters=${s.regionalFilters}
+        .hideClose=${this._isInline}
+        @tab-change=${this._handleTabChange}
+        @search-change=${this._handleSearchChange}
+        @view-change=${this._handleViewChange}
+        @regional-change=${this._handleRegionalChange}
+        @ap-close=${() => this._handleCancel('close-button')}
+      ></ap-header>
+    `;
+
+    const contentTemplate = html`
+      <div class="content-area">
+        <div class="main-content">
+          ${s.breadcrumb.length > 0
+            ? html`<ap-breadcrumb
+                .items=${s.breadcrumb}
+                @breadcrumb-navigate=${this._handleBreadcrumbNavigate}
+              ></ap-breadcrumb>`
+            : nothing}
+
+          <div class="toolbar-filters-wrapper">
+            <ap-content-toolbar
+              .isLoading=${s.isLoading}
+              .totalCount=${s.totalCount}
+              .totalFolderCount=${s.totalFolderCount}
+              .sortBy=${s.sortBy}
+              .sortDirection=${s.sortDirection}
+              .sortOptions=${this._getSortOptions()}
+              .filters=${s.filters}
+              .labels=${s.labels}
+              .tags=${s.tags}
+              .metadataFields=${s.metadataFields}
+              .pinnedFilters=${s.filters.pinned}
+              .apiClient=${this.apiClient}
+              .forcedFilterKeys=${Object.keys(normalizeFilters(this.config?.forcedFilters))}
+              @sort-change=${this._handleSortChange}
+              @sort-direction-change=${this._handleSortDirectionChange}
+              @filter-update=${this._handleFilterUpdate}
+              @filter-pin=${this._handleFilterPin}
+              @metadata-filter-change=${this._handleMetadataFilterChange}
+              @metadata-field-toggle=${this._handleMetadataFieldToggle}
+              @metadata-pin=${this._handleMetadataPin}
+              @filter-panel-change=${this._handleFilterPanelChange}
+              @filter-pending=${this._handleFilterPending}
+            ></ap-content-toolbar>
+
+            <ap-filters-bar
+              .appliedFilters=${s.filters.applied}
+              .appliedMetadata=${s.filters.metadata.applied}
+              .metadataFields=${s.metadataFields}
+              .tags=${s.tags}
+              .labels=${s.labels}
+              .pinnedFilters=${s.filters.pinned}
+              .pinnedMetadataFields=${s.filters.metadata.pinned}
+              .forcedFilters=${this.config?.forcedFilters ?? {}}
+              @filter-remove=${this._handleFilterRemove}
+              @filter-deactivate=${this._handleFilterDeactivate}
+              @filter-open=${this._handleFilterOpen}
+              @metadata-filter-open=${this._handleMetadataFilterOpen}
+              @metadata-filter-remove=${this._handleMetadataFilterRemove}
+              @metadata-field-deactivate=${this._handleMetadataFieldDeactivate}
+              @metadata-pin=${this._handleMetadataPin}
+              @filters-clear-all=${this._handleFiltersClearAll}
+              @filters-set=${this._handleFiltersSet}
+            ></ap-filters-bar>
+          </div>
+
+          ${s.isLoading && s.assets.length === 0 && s.folders.length === 0
+            ? html`<ap-skeleton .variant=${s.viewMode}></ap-skeleton>`
+            : this._renderContent(s, selectedIds)}
+
+          <ap-marquee-overlay .active=${this.marqueeCtrl.isActive} .rect=${this.marqueeCtrl.rect}></ap-marquee-overlay>
+        </div>
+
+        ${s.isPreviewOpen && s.previewAsset
+          ? html`<ap-preview-panel
+              .asset=${s.previewAsset}
+              .assets=${s.assets}
+              .selectedIds=${selectedIds}
+              .containerToken=${s.projectToken}
+              .showMetadata=${this.config?.showMetadata !== false}
+              .metadataFields=${s.metadataFields}
+              .labels=${s.labels}
+              .regionalFilters=${s.regionalFilters}
+              .multiSelect=${this.config?.multiSelect ?? true}
+              @preview-close=${this._handlePreviewClose}
+              @preview-navigate=${this._handlePreviewNavigate}
+              @asset-select=${this._handleAssetSelect}
+              @asset-quick-select=${this._handleQuickSelect}
+              @filter-update=${this._handleFilterUpdate}
+            ></ap-preview-panel>`
+          : nothing}
+      </div>
+    `;
+
+    const footerTemplate = html`
+      <ap-selection-bar
+        .selectedAssets=${selectedAssets}
+        .totalCount=${s.totalCount}
+        .isSelectingAll=${s.isSelectingAll}
+        .multiSelect=${this.config?.multiSelect ?? true}
+        .maxSelections=${this.config?.maxSelections}
+        @selection-confirm=${this._handleSelectionConfirm}
+        @selection-clear=${this._handleSelectionClear}
+        @selection-deselect=${this._handleSelectionDeselect}
+        @select-all=${this._handleSelectAll}
+      ></ap-selection-bar>
+    `;
+
+    if (this._isInline) {
+      if (!s.isOpen) return nothing;
+      return html`
+        <div class="ap-inline">
+          <div class="inline-header">${headerTemplate}</div>
+          <div class="inline-content">${contentTemplate}</div>
+          <div class="inline-footer">${footerTemplate}</div>
+        </div>
+      `;
+    }
+
     return html`
       <ap-modal
         ?open=${s.isOpen}
         @ap-cancel=${(e: CustomEvent) => this._handleCancel(e.detail.reason)}
       >
-        <div slot="header">
-          <ap-header
-            .activeTab=${s.activeTab}
-            .hiddenTabs=${this.config?.hiddenTabs ?? []}
-            .viewMode=${s.viewMode}
-            .searchQuery=${s.searchQuery}
-            .regionalGroups=${s.regionalVariantGroups}
-            .regionalFilters=${s.regionalFilters}
-            @tab-change=${this._handleTabChange}
-            @search-change=${this._handleSearchChange}
-            @view-change=${this._handleViewChange}
-            @regional-change=${this._handleRegionalChange}
-            @ap-close=${() => this._handleCancel('close-button')}
-          ></ap-header>
-        </div>
-
-        <div class="content-area">
-          <div class="main-content">
-            ${s.breadcrumb.length > 0
-              ? html`<ap-breadcrumb
-                  .items=${s.breadcrumb}
-                  @breadcrumb-navigate=${this._handleBreadcrumbNavigate}
-                ></ap-breadcrumb>`
-              : nothing}
-
-            <div class="toolbar-filters-wrapper">
-              <ap-content-toolbar
-                .isLoading=${s.isLoading}
-                .totalCount=${s.totalCount}
-                .totalFolderCount=${s.totalFolderCount}
-                .sortBy=${s.sortBy}
-                .sortDirection=${s.sortDirection}
-                .sortOptions=${this._getSortOptions()}
-                .filters=${s.filters}
-                .labels=${s.labels}
-                .tags=${s.tags}
-                .metadataFields=${s.metadataFields}
-                .pinnedFilters=${s.filters.pinned}
-                .apiClient=${this.apiClient}
-                @sort-change=${this._handleSortChange}
-                @sort-direction-change=${this._handleSortDirectionChange}
-                @filter-update=${this._handleFilterUpdate}
-                @filter-pin=${this._handleFilterPin}
-                @metadata-filter-change=${this._handleMetadataFilterChange}
-                @metadata-field-toggle=${this._handleMetadataFieldToggle}
-                @metadata-pin=${this._handleMetadataPin}
-                @filter-panel-change=${this._handleFilterPanelChange}
-                @filter-pending=${this._handleFilterPending}
-              ></ap-content-toolbar>
-
-              <ap-filters-bar
-                .appliedFilters=${s.filters.applied}
-                .appliedMetadata=${s.filters.metadata.applied}
-                .metadataFields=${s.metadataFields}
-                .tags=${s.tags}
-                .labels=${s.labels}
-                .pinnedFilters=${s.filters.pinned}
-                .pinnedMetadataFields=${s.filters.metadata.pinned}
-                @filter-remove=${this._handleFilterRemove}
-                @filter-deactivate=${this._handleFilterDeactivate}
-                @filter-open=${this._handleFilterOpen}
-                @metadata-filter-open=${this._handleMetadataFilterOpen}
-                @metadata-filter-remove=${this._handleMetadataFilterRemove}
-                @metadata-field-deactivate=${this._handleMetadataFieldDeactivate}
-                @metadata-pin=${this._handleMetadataPin}
-                @filters-clear-all=${this._handleFiltersClearAll}
-                @filters-set=${this._handleFiltersSet}
-              ></ap-filters-bar>
-            </div>
-
-            ${s.isLoading && s.assets.length === 0 && s.folders.length === 0
-              ? html`<ap-skeleton .variant=${s.viewMode}></ap-skeleton>`
-              : this._renderContent(s, selectedIds)}
-
-            <ap-marquee-overlay .active=${this.marqueeCtrl.isActive} .rect=${this.marqueeCtrl.rect}></ap-marquee-overlay>
-          </div>
-
-          ${s.isPreviewOpen && s.previewAsset
-            ? html`<ap-preview-panel
-                .asset=${s.previewAsset}
-                .assets=${s.assets}
-                .selectedIds=${selectedIds}
-                .containerToken=${s.projectToken}
-                .showMetadata=${this.config?.showMetadata !== false}
-                .metadataFields=${s.metadataFields}
-                .labels=${s.labels}
-                .regionalFilters=${s.regionalFilters}
-                .multiSelect=${this.config?.multiSelect ?? true}
-                @preview-close=${this._handlePreviewClose}
-                @preview-navigate=${this._handlePreviewNavigate}
-                @asset-select=${this._handleAssetSelect}
-                @asset-quick-select=${this._handleQuickSelect}
-                @filter-update=${this._handleFilterUpdate}
-              ></ap-preview-panel>`
-            : nothing}
-        </div>
-
-        <div slot="footer">
-          <ap-selection-bar
-            .selectedAssets=${selectedAssets}
-            .totalCount=${s.totalCount}
-            .isSelectingAll=${s.isSelectingAll}
-            .multiSelect=${this.config?.multiSelect ?? true}
-            @selection-confirm=${this._handleSelectionConfirm}
-            @selection-clear=${this._handleSelectionClear}
-            @selection-deselect=${this._handleSelectionDeselect}
-            @select-all=${this._handleSelectAll}
-          ></ap-selection-bar>
-        </div>
+        <div slot="header">${headerTemplate}</div>
+        ${contentTemplate}
+        <div slot="footer">${footerTemplate}</div>
       </ap-modal>
     `;
   }

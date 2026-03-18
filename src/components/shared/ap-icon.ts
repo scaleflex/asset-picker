@@ -250,6 +250,10 @@ const ICONS: Record<string, IconDef> = {
     { tag: 'path', attrs: { d: 'M17 17H5' } },
   ],
 
+  lock: [
+    { tag: 'rect', attrs: { width: '18', height: '11', x: '3', y: '11', rx: '2', ry: '2' } },
+    { tag: 'path', attrs: { d: 'M7 11V7a5 5 0 0 1 10 0v4' } },
+  ],
   globe: [
     { tag: 'circle', attrs: { cx: '12', cy: '12', r: '10' } },
     { tag: 'path', attrs: { d: 'M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20' } },

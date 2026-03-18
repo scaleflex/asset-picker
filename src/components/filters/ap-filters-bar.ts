@@ -4,6 +4,7 @@ import {
   FILTER_KEYS,
   METADATA_PREFIXES,
   type Filters,
+  type FiltersInput,
   type MetadataFilters,
   type AnyFilterKey,
   type AnyFilter,
@@ -14,6 +15,7 @@ import {
 import type { TagWithLabel } from '../../types/tag.types';
 import type { Label } from '../../types/label.types';
 import { FILTER_LABELS, DATE_FIELD_OPTIONS, DATE_RANGE_OPTIONS, LICENSE_DATE_RANGE_OPTIONS, ASSET_TYPE_OPTIONS } from './filters.constants';
+import { normalizeFilters } from '../../utils/filter-normalize';
 
 @customElement('ap-filters-bar')
 export class ApFiltersBar extends LitElement {
@@ -106,6 +108,20 @@ export class ApFiltersBar extends LitElement {
       background: var(--ap-muted, #f4f4f5);
       color: var(--ap-foreground, #09090b);
     }
+    .chip.forced {
+      cursor: default;
+      opacity: 0.85;
+    }
+    .chip.forced:hover {
+      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.1));
+    }
+    .chip-lock {
+      display: flex;
+      align-items: center;
+      color: inherit;
+      opacity: 0.6;
+      margin-left: 4px;
+    }
     .chip.pinned-empty {
       border-style: dashed;
       background: transparent;
@@ -127,6 +143,7 @@ export class ApFiltersBar extends LitElement {
 
   @property({ type: Object }) appliedFilters: Filters = {};
   @property({ type: Object }) appliedMetadata: MetadataFilters = {};
+  @property({ type: Object }) forcedFilters: FiltersInput = {};
   @property({ type: Array }) metadataFields: MetadataModelField[] = [];
   @property({ type: Array }) pinnedFilters: AnyFilterKey[] = [];
   @property({ type: Array }) pinnedMetadataFields: string[] = [];
@@ -293,6 +310,24 @@ export class ApFiltersBar extends LitElement {
     }));
   }
 
+  private _renderForcedChip(key: AnyFilterKey, filter: AnyFilter) {
+    const summary = this._getFilterSummary(filter, key);
+    const isDate = filter.type === 'date';
+    return html`
+      <span class="chip forced">
+        ${(isDate || key === FILTER_KEYS.TYPE || key === FILTER_KEYS.SIZE) && summary
+          ? html`<span class="chip-label">${summary}</span>`
+          : html`
+              <span class="chip-label">${FILTER_LABELS[key] || key}</span>
+              ${summary ? html`<span class="chip-summary">${summary}</span>` : nothing}
+            `}
+        <span class="chip-lock">
+          <ap-icon name="lock" .size=${12}></ap-icon>
+        </span>
+      </span>
+    `;
+  }
+
   private _renderFilterChip(key: AnyFilterKey, filter: AnyFilter | undefined) {
     if (!filter) {
       // Empty pinned chip
@@ -345,13 +380,18 @@ export class ApFiltersBar extends LitElement {
   }
 
   render() {
-    const appliedKeys = Object.keys(this.appliedFilters) as AnyFilterKey[];
+    const normalizedForced = normalizeFilters(this.forcedFilters);
+    const forcedKeys = new Set(Object.keys(normalizedForced) as AnyFilterKey[]);
+    const appliedKeys = (Object.keys(this.appliedFilters) as AnyFilterKey[]).filter((k) => !forcedKeys.has(k));
     const appliedMetaKeys = Object.keys(this.appliedMetadata);
 
-    // Build ordered list: pinned filters first (preserving their position),
+    // Build ordered list: forced chips first, then pinned filters,
     // then non-pinned applied filters, then pending chip
     const pinnedSet = new Set(this.pinnedFilters);
     const pinnedMetaSet = new Set(this.pinnedMetadataFields);
+
+    // Exclude forced keys from pinned rendering
+    const pinnedFiltersFiltered = this.pinnedFilters.filter((k) => !forcedKeys.has(k));
 
     // Non-pinned applied filters (appear after all pinned)
     const nonPinnedApplied = appliedKeys.filter((k) => !pinnedSet.has(k));
@@ -366,7 +406,7 @@ export class ApFiltersBar extends LitElement {
       && !(this.pendingMetadataField in this.appliedMetadata);
 
     const hasApplied = appliedKeys.length + appliedMetaKeys.length > 0;
-    const totalCount = this.pinnedFilters.length + this.pinnedMetadataFields.length
+    const totalCount = forcedKeys.size + pinnedFiltersFiltered.length + this.pinnedMetadataFields.length
       + nonPinnedApplied.length + nonPinnedMetaApplied.length
       + (hasPending ? 1 : 0) + (hasPendingMeta ? 1 : 0);
 
@@ -375,7 +415,10 @@ export class ApFiltersBar extends LitElement {
     return html`
       <div class="chips-row">
         <div class="chips">
-          ${this.pinnedFilters.map((key) =>
+          ${[...forcedKeys].map((key) =>
+            this._renderForcedChip(key, normalizedForced[key]!)
+          )}
+          ${pinnedFiltersFiltered.map((key) =>
             this._renderFilterChip(key, this.appliedFilters[key])
           )}
           ${this.pinnedMetadataFields.map((fieldKey) =>

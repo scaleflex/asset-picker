@@ -97,6 +97,13 @@ export class ApHeader extends LitElement {
       outline: 2px solid var(--ap-ring, oklch(0.65 0.19 258));
       outline-offset: -2px;
     }
+    .tab-label {
+      font-size: var(--ap-font-size-sm, 0.875rem);
+      font-weight: 500;
+      color: var(--ap-foreground, #09090b);
+      padding: 0 4px;
+      white-space: nowrap;
+    }
     .divider {
       width: 1px;
       height: 24px;
@@ -105,11 +112,12 @@ export class ApHeader extends LitElement {
   `];
 
   @property() activeTab: TabKey = 'assets';
-  @property({ type: Array }) hiddenTabs: TabKey[] = [];
+  @property({ type: Array }) tabs: TabKey[] = ['assets', 'folders'];
   @property() viewMode: ViewMode = 'grid';
   @property() searchQuery = '';
   @property({ type: Array }) regionalGroups: RegionalVariantGroup[] = [];
   @property({ type: Object }) regionalFilters: RegionalFilters = {};
+  @property({ type: Boolean }) hideClose = false;
   @state() private _localSearch = '';
 
   private _debouncedSearch = debounce((value: string) => {
@@ -163,14 +171,18 @@ export class ApHeader extends LitElement {
   }
 
   render() {
-    const visibleTabs = TAB_OPTIONS.filter((t) => !this.hiddenTabs.includes(t.value));
+    const visibleTabs = TAB_OPTIONS.filter((t) => this.tabs.includes(t.value));
+    const activeLabel = visibleTabs.find((t) => t.value === this.activeTab)?.label ?? visibleTabs[0]?.label ?? 'Assets';
     return html`
       <div class="header-row">
-        <ap-dropdown
-          .value=${this.activeTab}
-          .options=${visibleTabs}
-          @ap-change=${this._handleTabChange}
-        ></ap-dropdown>
+        ${visibleTabs.length > 1
+          ? html`<ap-dropdown
+              .value=${this.activeTab}
+              .options=${visibleTabs}
+              @ap-change=${this._handleTabChange}
+            ></ap-dropdown>`
+          : nothing
+        }
         <div class="search-wrapper">
           <ap-icon class="search-icon" name="search" .size=${16}></ap-icon>
           <input
@@ -198,10 +210,12 @@ export class ApHeader extends LitElement {
         >
           <ap-icon name=${this.viewMode === 'grid' ? 'list' : 'grid'} .size=${18}></ap-icon>
         </button>
-        <div class="divider"></div>
-        <button class="icon-btn" @click=${this._handleClose} aria-label="Close">
-          <ap-icon name="close" .size=${18}></ap-icon>
-        </button>
+        ${this.hideClose ? nothing : html`
+          <div class="divider"></div>
+          <button class="icon-btn" @click=${this._handleClose} aria-label="Close">
+            <ap-icon name="close" .size=${18}></ap-icon>
+          </button>
+        `}
       </div>
     `;
   }

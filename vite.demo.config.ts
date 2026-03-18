@@ -4,7 +4,7 @@ import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [tailwindcss()],
-  root: 'dev',
+  root: 'demo',
   base: '/asset-picker/',
   build: {
     outDir: resolve(__dirname, 'demo-dist'),

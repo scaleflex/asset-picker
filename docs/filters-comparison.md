@@ -1,4 +1,4 @@
-# Filter Comparison: js-admin-react-filerobot-v5 vs asset-picker
+# Filter Comparison: js-admin-v5 vs asset-picker
 
 Deep comparison of every filter component between the two projects.
 **Goal:** Make asset-picker filters look and work 100% the same as js-admin.
