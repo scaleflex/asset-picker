@@ -130,7 +130,7 @@ export class ApFiltersBar extends LitElement {
       border-radius: 8px;
       background: transparent;
       color: var(--ap-foreground, oklch(0.37 0.022 248.413));
-      border-color: var(--ap-border, oklch(92.86% 0.009 247.92));
+      border-color: var(--ap-input, oklch(0.871 0.016 241.798));
       font-weight: 400;
     }
     .chip.pinned-empty .chip-icon {
@@ -141,7 +141,7 @@ export class ApFiltersBar extends LitElement {
     .chip.pinned-empty:hover {
       background: var(--ap-muted, oklch(0.974 0.006 239.819));
       color: var(--ap-foreground, oklch(0.37 0.022 248.413));
-      border-color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+      border-color: var(--ap-input, oklch(0.871 0.016 241.798));
     }
     .chip.pinned-empty.active {
       background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.1));
