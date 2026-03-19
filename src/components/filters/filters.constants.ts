@@ -48,7 +48,7 @@ export const METADATA_MODEL_INDEX = 0;
 // ── Filter Items (for "Add filter" UI) ──────────────────────────────
 
 export const FILTER_ITEMS: FilterItemConfig[] = [
-  { key: FILTER_KEYS.DATE, label: 'Date', icon: 'calendar-days', type: 'date' },
+  { key: FILTER_KEYS.DATE, label: 'Date', icon: 'calendar', type: 'date' },
   { key: FILTER_KEYS.TYPE, label: 'Format', icon: 'file-type', type: 'string' },
   { key: FILTER_KEYS.SIZE, label: 'Size', icon: 'scaling', type: 'string' },
   { key: FILTER_KEYS.LICENSE_EXPIRY, label: 'License expiry', icon: 'history', type: 'date' },

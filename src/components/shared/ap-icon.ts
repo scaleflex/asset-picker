@@ -180,17 +180,11 @@ const ICONS: Record<string, IconDef> = {
   ],
 
   // ── Filters ─────────────────────────────────────────────────────────
-  'calendar-days': [
-    { tag: 'rect', attrs: { width: '18', height: '18', x: '3', y: '4', rx: '2' } },
-    { tag: 'path', attrs: { d: 'M16 2v4' } },
+  calendar: [
     { tag: 'path', attrs: { d: 'M8 2v4' } },
+    { tag: 'path', attrs: { d: 'M16 2v4' } },
+    { tag: 'rect', attrs: { width: '18', height: '18', x: '3', y: '4', rx: '2' } },
     { tag: 'path', attrs: { d: 'M3 10h18' } },
-    { tag: 'path', attrs: { d: 'M8 14h.01' } },
-    { tag: 'path', attrs: { d: 'M12 14h.01' } },
-    { tag: 'path', attrs: { d: 'M16 14h.01' } },
-    { tag: 'path', attrs: { d: 'M8 18h.01' } },
-    { tag: 'path', attrs: { d: 'M12 18h.01' } },
-    { tag: 'path', attrs: { d: 'M16 18h.01' } },
   ],
   'file-type': [
     { tag: 'path', attrs: { d: 'M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4' } },
