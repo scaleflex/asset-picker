@@ -770,7 +770,7 @@ export class ApContentToolbar extends LitElement {
                 title=${isPinned ? 'Unpin filter' : 'Pin filter'}
                 @click=${(e: Event) => this._togglePin(item.key as AnyFilterKey, e)}
               >
-                <ap-icon name=${isPinned ? 'pin-off' : 'pin'} .size=${14}></ap-icon>
+                <ap-icon name="pin" .size=${14}></ap-icon>
               </span>
             `}
       </button>

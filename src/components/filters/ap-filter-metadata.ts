@@ -2055,7 +2055,7 @@ export class ApFilterMetadata extends LitElement {
                 }}
                 title=${isPinned ? 'Unpin field' : 'Pin field'}
               >
-                <ap-icon name=${isPinned ? 'pin-off' : 'pin'} .size=${12}></ap-icon>
+                <ap-icon name="pin" .size=${12}></ap-icon>
               </button>
             </div>
           `;
