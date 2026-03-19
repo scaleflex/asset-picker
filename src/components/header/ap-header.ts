@@ -17,7 +17,7 @@ export class ApHeader extends LitElement {
     :host {
       display: block;
       padding: 16px 20px;
-      box-shadow: 0 2px 6px 0 rgb(0 0 0 / 0.12);
+      border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     }
     .header-row {
       display: flex;
