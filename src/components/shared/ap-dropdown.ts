@@ -78,6 +78,12 @@ export class ApDropdown extends LitElement {
         background: var(--ap-selection-bg, oklch(0.578 0.198 268.129 / 0.08));
         color: var(--ap-primary, oklch(0.578 0.198 268.129));
       }
+      .trigger ap-icon {
+        color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+      }
+      .option ap-icon {
+        color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+      }
     `,
   ];
 
