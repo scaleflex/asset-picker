@@ -86,7 +86,7 @@ export class ApHeader extends LitElement {
       border: 1px solid transparent;
       border-radius: var(--ap-radius-sm, 6px);
       background: none;
-      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+      color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
       cursor: pointer;
     }
     .icon-btn:hover {
