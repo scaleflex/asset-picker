@@ -46,7 +46,7 @@ export class ApContentToolbar extends LitElement {
     }
     .count {
       font-size: 0.8125rem;
-      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+      color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
       white-space: nowrap;
     }
     .count-skeleton {
@@ -168,6 +168,13 @@ export class ApContentToolbar extends LitElement {
       color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
     .filter-btn.active:hover {
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.12));
+    }
+    .filter-btn.pinned {
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.08));
+      border-color: var(--ap-primary-20, oklch(0.578 0.198 268.129 / 0.2));
+    }
+    .filter-btn.pinned:hover {
       background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.12));
     }
     .filter-btn-icon {
@@ -753,7 +760,7 @@ export class ApContentToolbar extends LitElement {
 
     return html`
       <button
-        class="filter-btn ${active ? 'active' : ''}"
+        class="filter-btn ${active ? 'active' : ''} ${isPinned ? 'pinned' : ''}"
         @click=${() => isMetadata ? this._toggleMetadataSelector() : this.openFilterPanel(item.key)}
       >
         <span class="filter-btn-icon">
