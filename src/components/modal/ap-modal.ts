@@ -60,7 +60,6 @@ export class ApModal extends LitElement {
     }
     .modal-header {
       flex-shrink: 0;
-      border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     }
     .modal-content {
       flex: 1;

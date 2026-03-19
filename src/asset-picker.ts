@@ -143,7 +143,6 @@ export class AssetPicker extends LitElement {
       }
       .ap-inline .inline-header {
         flex-shrink: 0;
-        border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       }
       .ap-inline .inline-content {
         flex: 1;
