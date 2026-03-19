@@ -78,6 +78,9 @@ export class ApDropdown extends LitElement {
         background: var(--ap-selection-bg, oklch(0.578 0.198 268.129 / 0.08));
         color: var(--ap-primary, oklch(0.578 0.198 268.129));
       }
+      .trigger .label {
+        color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
+      }
       .trigger ap-icon {
         color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       }
@@ -121,7 +124,7 @@ export class ApDropdown extends LitElement {
         @keydown=${this._handleTriggerKeydown}
       >
         ${selected?.icon ? html`<ap-icon name=${selected.icon} .size=${16}></ap-icon>` : nothing}
-        ${this.label}${selected ? `${this.label ? ': ' : ''}${selected.label}` : ''}
+        ${this.label ? html`<span class="label">${this.label}${selected ? ': ' : ''}</span>` : nothing}${selected ? selected.label : ''}
         <ap-icon name="chevron-down" .size=${14}></ap-icon>
       </button>
       ${this._open ? html`
