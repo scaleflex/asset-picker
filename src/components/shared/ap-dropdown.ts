@@ -23,7 +23,7 @@ export class ApDropdown extends LitElement {
         gap: 8px;
         height: 36px;
         padding: 0 12px;
-        border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
+        border: 1px solid var(--ap-input, oklch(0.871 0.016 241.798));
         border-radius: var(--ap-radius-sm, 6px);
         background: var(--ap-background, oklch(1 0 0));
         color: var(--ap-foreground, oklch(0.37 0.022 248.413));

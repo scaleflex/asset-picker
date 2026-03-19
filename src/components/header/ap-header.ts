@@ -42,7 +42,7 @@ export class ApHeader extends LitElement {
       height: 36px;
       box-sizing: border-box;
       padding: 0 32px 0 38px;
-      border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
+      border: 1px solid var(--ap-input, oklch(0.871 0.016 241.798));
       border-radius: var(--ap-radius-sm, 6px);
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-family: var(--ap-font-family, system-ui, sans-serif);
