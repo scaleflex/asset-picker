@@ -218,7 +218,7 @@ export class ApHeader extends LitElement {
             aria-label=${this.viewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'}
             title=${this.viewMode === 'grid' ? 'List view' : 'Grid view'}
           >
-            <ap-icon name=${this.viewMode === 'grid' ? 'list' : 'grid'} .size=${18}></ap-icon>
+            <ap-icon name=${this.viewMode === 'grid' ? 'list' : 'layout-grid'} .size=${18}></ap-icon>
           </button>
           ${this.hideClose ? nothing : html`
             <div class="divider"></div>
