@@ -222,7 +222,7 @@ export class ApHeader extends LitElement {
           </button>
           ${this.hideClose ? nothing : html`
             <div class="divider"></div>
-            <button class="icon-btn" @click=${this._handleClose} aria-label="Close">
+            <button class="icon-btn" style="color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82))" @click=${this._handleClose} aria-label="Close">
               <ap-icon name="close" .size=${18}></ap-icon>
             </button>
           `}
