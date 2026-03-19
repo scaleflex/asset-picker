@@ -35,8 +35,12 @@ export class ApFilterSize extends LitElement {
       }
       .size-grid {
         display: grid;
-        grid-template-columns: auto auto 1fr;
+        grid-template-columns: 1fr 1fr auto;
         gap: 12px;
+      }
+      .size-grid ap-dropdown {
+        display: block;
+        width: 100%;
       }
     `,
   ];

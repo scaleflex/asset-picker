@@ -101,10 +101,11 @@ export const filterPopoverStyles = css`
 
   /* ── Text/Number inputs ── */
   .filter-input {
+    box-sizing: border-box;
     width: 100%;
     height: 36px;
     padding: 0 10px;
-    border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
+    border: 1px solid var(--ap-input, oklch(0.871 0.016 241.798));
     border-radius: var(--ap-radius-sm, 6px);
     font-size: var(--ap-font-size-sm, 0.875rem);
     font-family: inherit;
