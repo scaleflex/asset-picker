@@ -62,8 +62,8 @@ const ICONS: Record<string, IconDef> = {
     { tag: 'circle', attrs: { cx: '12', cy: '12', r: '3' } },
   ],
   select: [
-    { tag: 'circle', attrs: { cx: '12', cy: '12', r: '10' } },
-    { tag: 'path', attrs: { d: 'm9 12 2 2 4-4' } },
+    { tag: 'path', attrs: { d: 'M5 12h14' } },
+    { tag: 'path', attrs: { d: 'M12 5v14' } },
   ],
   'gallery-vertical-end': [
     { tag: 'path', attrs: { d: 'M7 2h10' } },
