@@ -25,6 +25,7 @@ export class ApHeader extends LitElement {
     }
     .search-wrapper {
       flex: 1;
+      max-width: 548px;
       position: relative;
     }
     .search-icon {
@@ -37,9 +38,11 @@ export class ApHeader extends LitElement {
     }
     input {
       width: 100%;
-      padding: 8px 32px 8px 38px;
+      height: 36px;
+      box-sizing: border-box;
+      padding: 0 32px 0 38px;
       border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
-      border-radius: var(--ap-radius, 8px);
+      border-radius: var(--ap-radius-sm, 6px);
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-family: var(--ap-font-family, system-ui, sans-serif);
       color: var(--ap-foreground, oklch(0.37 0.022 248.413));
@@ -103,6 +106,12 @@ export class ApHeader extends LitElement {
       color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       padding: 0 4px;
       white-space: nowrap;
+    }
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: auto;
     }
     .divider {
       width: 1px;
@@ -197,25 +206,27 @@ export class ApHeader extends LitElement {
             </button>
           ` : ''}
         </div>
-        <ap-regional-settings
-          .groups=${this.regionalGroups}
-          .selectedFilters=${this.regionalFilters}
-          @regional-change=${this._handleRegionalChange}
-        ></ap-regional-settings>
-        <button
-          class="icon-btn"
-          @click=${this._toggleView}
-          aria-label=${this.viewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'}
-          title=${this.viewMode === 'grid' ? 'List view' : 'Grid view'}
-        >
-          <ap-icon name=${this.viewMode === 'grid' ? 'list' : 'grid'} .size=${18}></ap-icon>
-        </button>
-        ${this.hideClose ? nothing : html`
-          <div class="divider"></div>
-          <button class="icon-btn" @click=${this._handleClose} aria-label="Close">
-            <ap-icon name="close" .size=${18}></ap-icon>
+        <div class="actions">
+          <ap-regional-settings
+            .groups=${this.regionalGroups}
+            .selectedFilters=${this.regionalFilters}
+            @regional-change=${this._handleRegionalChange}
+          ></ap-regional-settings>
+          <button
+            class="icon-btn"
+            @click=${this._toggleView}
+            aria-label=${this.viewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'}
+            title=${this.viewMode === 'grid' ? 'List view' : 'Grid view'}
+          >
+            <ap-icon name=${this.viewMode === 'grid' ? 'list' : 'grid'} .size=${18}></ap-icon>
           </button>
-        `}
+          ${this.hideClose ? nothing : html`
+            <div class="divider"></div>
+            <button class="icon-btn" @click=${this._handleClose} aria-label="Close">
+              <ap-icon name="close" .size=${18}></ap-icon>
+            </button>
+          `}
+        </div>
       </div>
     `;
   }
