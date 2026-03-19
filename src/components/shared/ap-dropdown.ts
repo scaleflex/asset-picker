@@ -84,6 +84,9 @@ export class ApDropdown extends LitElement {
       .option ap-icon {
         color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       }
+      .option[aria-selected="true"] ap-icon {
+        color: var(--ap-primary, oklch(0.578 0.198 268.129));
+      }
     `,
   ];
 
