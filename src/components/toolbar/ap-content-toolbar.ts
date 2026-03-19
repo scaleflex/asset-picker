@@ -821,7 +821,6 @@ export class ApContentToolbar extends LitElement {
               </div>
             ` : nothing}
           </div>
-          <div class="divider"></div>
           <ap-dropdown
             variant="borderless"
             label="Sort"
