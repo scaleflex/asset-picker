@@ -43,12 +43,12 @@ export class ApFilterProductRef extends LitElement {
     }
 
     .product-item:hover {
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
     }
 
     .product-name {
       font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       flex: 1;
       min-width: 0;
       overflow: hidden;
@@ -61,7 +61,7 @@ export class ApFilterProductRef extends LitElement {
       position: sticky;
       top: -10px;
       z-index: 2;
-      background: var(--ap-card, #fff);
+      background: var(--ap-card, oklch(1 0 0));
       margin: -10px -8px 10px;
     }
 
@@ -69,16 +69,16 @@ export class ApFilterProductRef extends LitElement {
       width: 100%;
       padding: 8px 10px;
       border: none;
-      border-bottom: 1px solid var(--ap-border, #e4e4e7);
+      border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       background: transparent;
       outline: none;
       font-family: var(--ap-font-family, system-ui, sans-serif);
     }
 
     .product-search::placeholder {
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
 
     .search-clear {
@@ -103,12 +103,12 @@ export class ApFilterProductRef extends LitElement {
     .placeholder-title {
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-weight: 500;
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
 
     .placeholder-text {
       font-size: 0.8125rem;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
 
     .add-list-btn {
@@ -122,13 +122,13 @@ export class ApFilterProductRef extends LitElement {
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-family: inherit;
       background: none;
-      color: var(--ap-primary, oklch(0.65 0.19 258));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
       cursor: pointer;
       transition: background 150ms;
     }
 
     .add-list-btn:hover {
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.08));
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.08));
     }
 
     /* Add list dialog overlay */
@@ -143,7 +143,7 @@ export class ApFilterProductRef extends LitElement {
     }
 
     .dialog {
-      background: var(--ap-card, #fff);
+      background: var(--ap-card, oklch(1 0 0));
       border-radius: var(--ap-radius, 8px);
       box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1);
       width: 420px;
@@ -155,8 +155,8 @@ export class ApFilterProductRef extends LitElement {
       padding: 16px 20px;
       font-size: 1rem;
       font-weight: 600;
-      color: var(--ap-foreground, #09090b);
-      border-bottom: 1px solid var(--ap-border, #e4e4e7);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
+      border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     }
 
     .dialog-body {
@@ -171,22 +171,22 @@ export class ApFilterProductRef extends LitElement {
       min-height: 150px;
       max-height: 300px;
       padding: 8px 10px;
-      border: 1px solid var(--ap-border, #e4e4e7);
+      border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: var(--ap-radius-sm, 6px);
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-family: inherit;
-      color: var(--ap-foreground, #09090b);
-      background: var(--ap-background, #fff);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
+      background: var(--ap-background, oklch(1 0 0));
       resize: vertical;
       outline: none;
     }
 
     .dialog-textarea:focus {
-      border-color: var(--ap-primary, oklch(0.65 0.19 258));
+      border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
 
     .dialog-textarea::placeholder {
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
 
     .dialog-footer {
@@ -194,7 +194,7 @@ export class ApFilterProductRef extends LitElement {
       justify-content: flex-end;
       gap: 8px;
       padding: 12px 20px;
-      border-top: 1px solid var(--ap-border, #e4e4e7);
+      border-top: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     }
 
     .dialog-btn {
@@ -207,19 +207,19 @@ export class ApFilterProductRef extends LitElement {
     }
 
     .dialog-btn-cancel {
-      border: 1px solid var(--ap-border, #e4e4e7);
-      background: var(--ap-background, #fff);
-      color: var(--ap-foreground, #09090b);
+      border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
+      background: var(--ap-background, oklch(1 0 0));
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
 
     .dialog-btn-cancel:hover {
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
     }
 
     .dialog-btn-primary {
       border: none;
-      background: var(--ap-primary, oklch(0.65 0.19 258));
-      color: var(--ap-primary-foreground, #fff);
+      background: var(--ap-primary, oklch(0.578 0.198 268.129));
+      color: var(--ap-primary-foreground, oklch(1 0 0));
     }
 
     .dialog-btn-primary:hover {
@@ -236,7 +236,7 @@ export class ApFilterProductRef extends LitElement {
     .skeleton-item {
       height: 32px;
       border-radius: var(--ap-radius-sm, 6px);
-      background: linear-gradient(90deg, var(--ap-muted, #f4f4f5) 25%, #e8e8ea 50%, var(--ap-muted, #f4f4f5) 75%);
+      background: linear-gradient(90deg, var(--ap-muted, oklch(0.974 0.006 239.819)) 25%, #e8e8ea 50%, var(--ap-muted, oklch(0.974 0.006 239.819)) 75%);
       background-size: 200% 100%;
       animation: shimmer 1.5s infinite;
     }
@@ -252,7 +252,7 @@ export class ApFilterProductRef extends LitElement {
 
     .wildcard-tooltip {
       font-size: 0.75rem;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       margin-left: 4px;
     }
   `];
@@ -495,7 +495,7 @@ export class ApFilterProductRef extends LitElement {
           ? html`
               <div class="placeholder">
                 ${noSelection
-                  ? html`<ap-icon name="box" .size=${40} style="color: var(--ap-border, #e4e4e7); margin-bottom: 4px;"></ap-icon>`
+                  ? html`<ap-icon name="box" .size=${40} style="color: var(--ap-border, oklch(92.86% 0.009 247.92)); margin-bottom: 4px;"></ap-icon>`
                   : nothing}
                 <div class="placeholder-title">Find product reference</div>
                 <div class="placeholder-text">By using the search or pressing the button below to import the product references list.</div>

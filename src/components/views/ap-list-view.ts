@@ -19,10 +19,10 @@ export class ApListView extends LitElement {
       padding: 8px 12px;
       font-size: 0.75rem;
       font-weight: 600;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      border-bottom: 1px solid var(--ap-border, #e4e4e7);
+      border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     }
     .list-header:not(.has-checkbox) {
       grid-template-columns: 48px 1fr 100px 200px 120px 60px;
@@ -36,22 +36,22 @@ export class ApListView extends LitElement {
     .header-check-box {
       width: 18px;
       height: 18px;
-      border: 2px solid var(--ap-border, #e4e4e7);
+      border: 2px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 150ms;
-      background: var(--ap-background, #fff);
+      background: var(--ap-background, oklch(1 0 0));
     }
     .header-check-box.checked,
     .header-check-box.indeterminate {
-      background: var(--ap-primary, #3b82f6);
-      border-color: var(--ap-primary, #3b82f6);
+      background: var(--ap-primary, oklch(0.578 0.198 268.129));
+      border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
     .header-check-icon {
       display: none;
-      color: var(--ap-primary-foreground, #fff);
+      color: var(--ap-primary-foreground, oklch(1 0 0));
     }
     .header-check-box.checked .header-check-icon.check {
       display: block;
@@ -69,9 +69,9 @@ export class ApListView extends LitElement {
       border-radius: 4px;
       background: linear-gradient(
         90deg,
-        var(--ap-muted, #f4f4f5) 25%,
+        var(--ap-muted, oklch(0.974 0.006 239.819)) 25%,
         #e8e8ea 50%,
-        var(--ap-muted, #f4f4f5) 75%
+        var(--ap-muted, oklch(0.974 0.006 239.819)) 75%
       );
       background-size: 200% 100%;
       animation: shimmer 1.5s infinite;

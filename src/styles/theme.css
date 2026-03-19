@@ -1,15 +1,76 @@
 :host {
-  /* Colors */
-  --ap-primary: oklch(0.65 0.19 258);
-  --ap-primary-foreground: #fff;
-  --ap-primary-10: oklch(0.65 0.19 258 / 0.1);
+  /* Base */
+  --ap-background: oklch(1 0 0);
+  --ap-foreground: oklch(0.37 0.022 248.413);
+  --ap-card: oklch(1 0 0);
+  --ap-card-foreground: oklch(0.37 0.022 248.413);
+  --ap-popover: oklch(1 0 0);
+  --ap-popover-foreground: oklch(0.37 0.022 248.413);
 
-  --ap-background: #ffffff;
-  --ap-foreground: #09090b;
-  --ap-card: #ffffff;
-  --ap-border: #e4e4e7;
-  --ap-muted: #f4f4f5;
-  --ap-muted-foreground: #71717a;
+  /* Primary */
+  --ap-primary: oklch(0.578 0.198 268.129);
+  --ap-primary-foreground: oklch(1 0 0);
+  --ap-primary-10: oklch(0.578 0.198 268.129 / 0.1);
+  --ap-primary-20: oklch(0.578 0.198 268.129 / 0.2);
+
+  /* Secondary */
+  --ap-secondary: oklch(98.16% 0.002 247.84);
+  --ap-secondary-foreground: oklch(53.03% 0.039 249.89);
+
+  /* Muted */
+  --ap-muted: oklch(0.974 0.006 239.819);
+  --ap-muted-foreground: oklch(0.685 0.033 249.82);
+
+  /* Accent */
+  --ap-accent: oklch(0.578 0.198 268.129 / 0.07);
+  --ap-accent-foreground: oklch(0.578 0.198 268.129);
+
+  /* Status */
+  --ap-success: oklch(0.637 0.17 151.295);
+  --ap-success-foreground: oklch(0.429 0.107 154.754);
+  --ap-success-10: oklch(0.978 0.025 163.82);
+  --ap-destructive: oklch(0.577 0.215 27.325);
+  --ap-destructive-foreground: oklch(0.472 0.173 26.157);
+  --ap-destructive-10: oklch(0.967 0.016 17.438);
+  --ap-info: oklch(0.632 0.161 245.564);
+  --ap-info-foreground: oklch(0.391 0.091 241.289);
+  --ap-info-10: oklch(0.978 0.025 248.61);
+  --ap-warning: oklch(0.734 0.157 69.419);
+  --ap-warning-foreground: oklch(0.456 0.095 58.822);
+  --ap-warning-10: oklch(0.978 0.025 86.868);
+
+  /* Border / Input / Ring / Shadow */
+  --ap-border: oklch(92.86% 0.009 247.92);
+  --ap-input: oklch(0.871 0.016 241.798);
+  --ap-ring: oklch(0.578 0.198 268.129 / 0.7);
+  --ap-shadow: oklch(26.18% 0.024 256.43 / 0.1);
+  --ap-selection-bg: oklch(0.578 0.198 268.129 / 0.08);
+
+  /* Charts */
+  --ap-chart-1: oklch(0.646 0.222 41.116);
+  --ap-chart-2: oklch(0.6 0.118 184.704);
+  --ap-chart-3: oklch(0.398 0.07 227.392);
+  --ap-chart-4: oklch(0.828 0.189 84.429);
+  --ap-chart-5: oklch(0.769 0.188 70.08);
+
+  /* Sidebar */
+  --ap-sidebar: oklch(1 0 0);
+  --ap-sidebar-foreground: oklch(0.37 0.022 248.413);
+  --ap-sidebar-primary: oklch(0.578 0.198 268.129);
+  --ap-sidebar-primary-foreground: oklch(1 0 0);
+  --ap-sidebar-accent: oklch(0.578 0.198 268.129 / 0.07);
+  --ap-sidebar-accent-foreground: oklch(0.578 0.198 268.129);
+  --ap-sidebar-border: oklch(92.86% 0.009 247.92);
+  --ap-sidebar-ring: oklch(0.578 0.198 268.129 / 0.7);
+
+  /* Panel */
+  --ap-panel: oklch(0.45 0.229 265.091);
+  --ap-panel-foreground: oklch(1 0 0);
+  --ap-panel-primary: oklch(0.578 0.198 268.129);
+  --ap-panel-primary-foreground: oklch(1 0 0);
+  --ap-panel-border: oklch(0.9103 0.0177 246.73);
+  --ap-panel-input: oklch(1 0 0);
+  --ap-panel-ring: oklch(0.578 0.198 268.129 / 0.7);
 
   /* Modal */
   --ap-modal-backdrop: rgba(0, 0, 0, 0.5);
@@ -22,10 +83,6 @@
   --ap-inline-height: 600px;
   --ap-inline-radius: var(--ap-modal-radius);
   --ap-inline-border: 1px solid var(--ap-border);
-
-  /* Ring & Selection */
-  --ap-ring: oklch(0.65 0.19 258);
-  --ap-selection-bg: oklch(0.65 0.19 258 / 0.08);
 
   /* Typography */
   --ap-font-family: system-ui, -apple-system, sans-serif;

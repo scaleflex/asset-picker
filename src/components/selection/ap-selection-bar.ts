@@ -14,8 +14,8 @@ export class ApSelectionBar extends LitElement {
       display: flex;
       align-items: center;
       padding: 12px 20px;
-      background: var(--ap-card, #fff);
-      border-top: 1px solid var(--ap-border, #e4e4e7);
+      background: var(--ap-card, oklch(1 0 0));
+      border-top: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       animation: ap-bar-in 250ms ease-out;
     }
     @keyframes ap-bar-in {
@@ -25,12 +25,12 @@ export class ApSelectionBar extends LitElement {
     .count {
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-weight: 500;
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       white-space: nowrap;
     }
     .select-all-link {
       font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-primary, oklch(0.65 0.19 258));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
       background: none;
       border: none;
       cursor: pointer;
@@ -50,7 +50,7 @@ export class ApSelectionBar extends LitElement {
     }
     .limit-notice {
       font-size: var(--ap-font-size-xs, 0.75rem);
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       margin-left: 8px;
       white-space: nowrap;
     }
@@ -73,10 +73,10 @@ export class ApSelectionBar extends LitElement {
       cursor: pointer;
       border: 2px solid transparent;
       transition: border-color 100ms;
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
     }
     .thumb:hover {
-      border-color: var(--ap-primary, oklch(0.65 0.19 258));
+      border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
     .thumb.chess {
       background-image: conic-gradient(var(--ap-chess-a, #f0f0f0) 25%, var(--ap-chess-b, #fff) 25% 50%, var(--ap-chess-a, #f0f0f0) 50% 75%, var(--ap-chess-b, #fff) 75%);
@@ -115,15 +115,15 @@ export class ApSelectionBar extends LitElement {
       opacity: 0.9;
     }
     .btn-primary {
-      background: var(--ap-primary, oklch(0.65 0.19 258));
-      color: var(--ap-primary-foreground, #fff);
+      background: var(--ap-primary, oklch(0.578 0.198 268.129));
+      color: var(--ap-primary-foreground, oklch(1 0 0));
     }
     .btn-ghost {
       background: none;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
     .btn-ghost:hover {
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
     @media (prefers-reduced-motion: reduce) {
       .bar { animation: none; }

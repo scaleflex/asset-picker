@@ -16,8 +16,8 @@ export class ApFilterPopover extends LitElement {
       max-height: 400px;
       overflow-y: auto;
       overscroll-behavior: contain;
-      background: var(--ap-card, #fff);
-      border: 1px solid var(--ap-border, #e4e4e7);
+      background: var(--ap-card, oklch(1 0 0));
+      border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: var(--ap-radius, 8px);
       box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1);
       padding: 12px;
@@ -25,7 +25,7 @@ export class ApFilterPopover extends LitElement {
     .title {
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-weight: 600;
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       margin-bottom: 12px;
     }
   `;

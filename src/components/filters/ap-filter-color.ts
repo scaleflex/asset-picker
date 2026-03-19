@@ -55,8 +55,8 @@ export class ApFilterColor extends LitElement {
     }
 
     .swatch.selected {
-      border-color: var(--ap-primary, oklch(0.65 0.19 258));
-      box-shadow: 0 0 0 2px var(--ap-primary-10, oklch(0.65 0.19 258 / 0.1));
+      border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
+      box-shadow: 0 0 0 2px var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.1));
     }
 
     .swatch.disabled {
@@ -80,7 +80,7 @@ export class ApFilterColor extends LitElement {
       align-items: center;
       gap: 8px;
       font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       cursor: pointer;
       user-select: none;
     }
@@ -90,13 +90,13 @@ export class ApFilterColor extends LitElement {
       width: 32px;
       height: 18px;
       border-radius: 9px;
-      background: var(--ap-border, #d4d4d8);
+      background: var(--ap-border, oklch(92.86% 0.009 247.92));
       transition: background 150ms;
       flex-shrink: 0;
     }
 
     .toggle-track.on {
-      background: var(--ap-primary, oklch(0.65 0.19 258));
+      background: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
 
     .toggle-thumb {
@@ -133,25 +133,25 @@ export class ApFilterColor extends LitElement {
       width: 36px;
       height: 36px;
       border-radius: var(--ap-radius-sm, 6px);
-      border: 1px solid var(--ap-border, #e4e4e7);
+      border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       flex-shrink: 0;
     }
 
     .color-hex-input {
       height: 36px;
       padding: 0 8px;
-      border: 1px solid var(--ap-border, #e4e4e7);
+      border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: var(--ap-radius-sm, 6px);
       font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       font-family: var(--ap-font-family, system-ui, sans-serif);
-      background: var(--ap-background, #fff);
+      background: var(--ap-background, oklch(1 0 0));
       min-width: 0;
     }
 
     .color-hex-input:focus {
       outline: none;
-      border-color: var(--ap-primary, oklch(0.65 0.19 258));
+      border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
 
     /* Normal mode: hex input takes remaining space */
@@ -167,7 +167,7 @@ export class ApFilterColor extends LitElement {
       height: 20px;
       border: none;
       background: none;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       cursor: pointer;
       padding: 0;
       flex-shrink: 0;
@@ -175,8 +175,8 @@ export class ApFilterColor extends LitElement {
     }
 
     .remove-btn:hover {
-      color: var(--ap-destructive, #ef4444);
-      background: var(--ap-muted, #f4f4f5);
+      color: var(--ap-destructive, oklch(0.577 0.215 27.325));
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
     }
 
     /* ── Advanced layout: full-width grid ── */
@@ -196,7 +196,7 @@ export class ApFilterColor extends LitElement {
 
     .adv-field-label {
       font-size: 0.6875rem;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       line-height: 1;
     }
 
@@ -204,19 +204,19 @@ export class ApFilterColor extends LitElement {
       display: flex;
       align-items: center;
       height: 36px;
-      border: 1px solid var(--ap-border, #e4e4e7);
+      border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: var(--ap-radius-sm, 6px);
-      background: var(--ap-background, #fff);
+      background: var(--ap-background, oklch(1 0 0));
       overflow: hidden;
     }
 
     .coverage-wrap:focus-within {
-      border-color: var(--ap-primary, oklch(0.65 0.19 258));
+      border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
 
     .coverage-unit {
       font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       padding-left: 8px;
       flex-shrink: 0;
       line-height: 36px;
@@ -229,7 +229,7 @@ export class ApFilterColor extends LitElement {
       padding: 0 6px 0 2px;
       border: none;
       font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       font-family: var(--ap-font-family, system-ui, sans-serif);
       background: transparent;
       outline: none;
@@ -251,19 +251,19 @@ export class ApFilterColor extends LitElement {
       align-items: center;
       gap: 4px;
       padding: 6px 12px;
-      border: 1px dashed var(--ap-border, #e4e4e7);
+      border: 1px dashed var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: var(--ap-radius-sm, 6px);
       background: none;
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-family: inherit;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       cursor: pointer;
       transition: border-color 150ms, color 150ms;
     }
 
     .add-color-btn:hover {
-      border-color: var(--ap-primary, oklch(0.65 0.19 258));
-      color: var(--ap-primary, oklch(0.65 0.19 258));
+      border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
   `];
 

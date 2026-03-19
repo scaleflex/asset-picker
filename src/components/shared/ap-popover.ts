@@ -16,8 +16,8 @@ export class ApPopover extends LitElement {
         left: 0;
         z-index: 50;
         min-width: 200px;
-        background: var(--ap-card, #fff);
-        border: 1px solid var(--ap-border, #e4e4e7);
+        background: var(--ap-card, oklch(1 0 0));
+        border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
         border-radius: var(--ap-radius, 8px);
         box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
         padding: 8px;

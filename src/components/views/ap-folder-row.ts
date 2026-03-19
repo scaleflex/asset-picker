@@ -15,15 +15,15 @@ export class ApFolderRow extends LitElement {
       gap: 12px;
       padding: 8px 12px;
       align-items: center;
-      border-bottom: 1px solid var(--ap-border, #e4e4e7);
+      border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       cursor: pointer;
       transition: background 100ms;
     }
     .row:hover {
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
     }
     .icon {
-      color: var(--ap-primary, oklch(0.65 0.19 258));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
       display: flex;
       align-items: center;
       justify-content: center;
@@ -31,11 +31,11 @@ export class ApFolderRow extends LitElement {
     .name {
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-weight: 500;
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
     .meta {
       font-size: 0.8125rem;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
   `;
 

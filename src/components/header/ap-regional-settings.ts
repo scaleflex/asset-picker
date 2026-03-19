@@ -18,15 +18,15 @@ export class ApRegionalSettings extends LitElement {
       border: 1px solid transparent;
       border-radius: var(--ap-radius-sm, 6px);
       background: none;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       cursor: pointer;
     }
     .trigger:hover {
-      background: var(--ap-muted, #f4f4f5);
-      color: var(--ap-foreground, #09090b);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
     .trigger.active {
-      color: var(--ap-primary, oklch(0.65 0.19 258));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
     .popover {
       display: none;
@@ -37,8 +37,8 @@ export class ApRegionalSettings extends LitElement {
       min-width: 220px;
       max-height: 320px;
       overflow-y: auto;
-      background: var(--ap-card, #fff);
-      border: 1px solid var(--ap-border, #e4e4e7);
+      background: var(--ap-card, oklch(1 0 0));
+      border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: var(--ap-radius, 8px);
       box-shadow: 0 4px 12px rgb(0 0 0 / 0.12);
       padding: 8px 0;
@@ -50,7 +50,7 @@ export class ApRegionalSettings extends LitElement {
       padding: 8px 12px 4px;
       font-size: 0.75rem;
       font-weight: 600;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
@@ -58,13 +58,13 @@ export class ApRegionalSettings extends LitElement {
       padding: 4px 0;
     }
     .group + .group {
-      border-top: 1px solid var(--ap-border, #e4e4e7);
+      border-top: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     }
     .group-label {
       padding: 6px 12px 2px;
       font-size: 0.75rem;
       font-weight: 500;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
     .variant-option {
       display: flex;
@@ -74,7 +74,7 @@ export class ApRegionalSettings extends LitElement {
       padding: 6px 12px;
       border: none;
       background: none;
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-family: inherit;
       text-align: left;
@@ -82,10 +82,10 @@ export class ApRegionalSettings extends LitElement {
       border-radius: 0;
     }
     .variant-option:hover {
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
     }
     .variant-option[data-selected] {
-      color: var(--ap-primary, oklch(0.65 0.19 258));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
       font-weight: 500;
     }
     .check-mark {
@@ -137,7 +137,7 @@ export class ApRegionalSettings extends LitElement {
       <div class="popover ${this._open ? 'open' : ''}">
         <div class="popover-title">Regional settings</div>
         ${!hasGroups ? html`
-          <div style="padding: 12px 12px; font-size: 0.8125rem; color: var(--ap-muted-foreground, #71717a);">
+          <div style="padding: 12px 12px; font-size: 0.8125rem; color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));">
             No regional settings configured
           </div>
         ` : nothing}

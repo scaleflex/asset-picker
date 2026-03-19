@@ -14,32 +14,32 @@ export class ApCheckbox extends LitElement {
       .box {
         width: 18px;
         height: 18px;
-        border: 2px solid var(--ap-border, #e4e4e7);
+        border: 2px solid var(--ap-border, oklch(92.86% 0.009 247.92));
         border-radius: 4px;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 150ms;
-        background: var(--ap-background, #fff);
+        background: var(--ap-background, oklch(1 0 0));
       }
       :host([checked]) .box {
-        background: var(--ap-primary, #3b82f6);
-        border-color: var(--ap-primary, #3b82f6);
+        background: var(--ap-primary, oklch(0.578 0.198 268.129));
+        border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
       }
       .check {
         display: none;
-        color: var(--ap-primary-foreground, #fff);
+        color: var(--ap-primary-foreground, oklch(1 0 0));
       }
       :host([checked]) .check {
         display: block;
       }
       :host([indeterminate]) .box {
-        background: var(--ap-primary, #3b82f6);
-        border-color: var(--ap-primary, #3b82f6);
+        background: var(--ap-primary, oklch(0.578 0.198 268.129));
+        border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
       }
       .dash {
         display: none;
-        color: var(--ap-primary-foreground, #fff);
+        color: var(--ap-primary-foreground, oklch(1 0 0));
       }
       :host([indeterminate]:not([checked])) .dash {
         display: block;
@@ -54,7 +54,7 @@ export class ApCheckbox extends LitElement {
       .label {
         margin-left: 8px;
         font-size: var(--ap-font-size-sm, 0.875rem);
-        color: var(--ap-foreground, #09090b);
+        color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       }
     `,
   ];

@@ -14,7 +14,7 @@ export class ApFilterType extends LitElement {
       display: block;
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-weight: 600;
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       margin-bottom: 8px;
       cursor: default;
     }
@@ -36,21 +36,21 @@ export class ApFilterType extends LitElement {
     }
 
     .option:hover {
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
     }
 
     .option-label {
       font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
 
     ap-icon {
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       flex-shrink: 0;
     }
 
     .option.selected ap-icon {
-      color: var(--ap-primary, #3b82f6);
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
   `;
 

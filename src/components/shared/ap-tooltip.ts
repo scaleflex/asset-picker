@@ -19,8 +19,8 @@ export class ApTooltip extends LitElement {
         white-space: nowrap;
         padding: 4px 8px;
         font-size: 0.75rem;
-        background: var(--ap-foreground, #09090b);
-        color: var(--ap-background, #fff);
+        background: var(--ap-foreground, oklch(0.37 0.022 248.413));
+        color: var(--ap-background, oklch(1 0 0));
         border-radius: 4px;
         pointer-events: none;
         z-index: 100;

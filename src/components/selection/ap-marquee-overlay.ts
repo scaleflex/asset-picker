@@ -17,8 +17,8 @@ export class ApMarqueeOverlay extends LitElement {
     }
     .marquee {
       position: absolute;
-      border: 2px solid var(--ap-primary, oklch(0.65 0.19 258));
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.1));
+      border: 2px solid var(--ap-primary, oklch(0.578 0.198 268.129));
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.1));
       border-radius: 2px;
     }
   `;

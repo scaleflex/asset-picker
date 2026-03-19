@@ -17,24 +17,24 @@ export class ApAssetRow extends LitElement {
       gap: 12px;
       padding: 8px 12px;
       align-items: center;
-      border-bottom: 1px solid var(--ap-border, #e4e4e7);
+      border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       cursor: pointer;
       user-select: none;
       -webkit-user-drag: none;
       transition: background 100ms;
     }
     .row:hover {
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
     }
     :host([selected]) .row {
-      background: var(--ap-selection-bg, oklch(0.65 0.19 258 / 0.08));
+      background: var(--ap-selection-bg, oklch(0.578 0.198 268.129 / 0.08));
     }
     .thumb {
       width: 40px;
       height: 40px;
       border-radius: 4px;
       overflow: hidden;
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
       display: flex;
       align-items: center;
       justify-content: center;
@@ -55,14 +55,14 @@ export class ApAssetRow extends LitElement {
     .name {
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-weight: 500;
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .type, .desc, .date {
       font-size: 0.8125rem;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -85,12 +85,12 @@ export class ApAssetRow extends LitElement {
       border: none;
       border-radius: 4px;
       background: none;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       cursor: pointer;
     }
     .icon-btn:hover {
-      background: var(--ap-background, #fff);
-      color: var(--ap-foreground, #09090b);
+      background: var(--ap-background, oklch(1 0 0));
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
     .thumb.chess {
       background-image: conic-gradient(var(--ap-chess-a, #f0f0f0) 25%, var(--ap-chess-b, #fff) 25% 50%, var(--ap-chess-a, #f0f0f0) 50% 75%, var(--ap-chess-b, #fff) 75%);
@@ -105,21 +105,21 @@ export class ApAssetRow extends LitElement {
     .check-box {
       width: 18px;
       height: 18px;
-      border: 2px solid var(--ap-border, #e4e4e7);
+      border: 2px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 150ms;
-      background: var(--ap-background, #fff);
+      background: var(--ap-background, oklch(1 0 0));
     }
     :host([selected]) .check-box {
-      background: var(--ap-primary, #3b82f6);
-      border-color: var(--ap-primary, #3b82f6);
+      background: var(--ap-primary, oklch(0.578 0.198 268.129));
+      border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
     .check-icon {
       display: none;
-      color: var(--ap-primary-foreground, #fff);
+      color: var(--ap-primary-foreground, oklch(1 0 0));
     }
     :host([selected]) .check-icon {
       display: block;

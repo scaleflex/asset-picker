@@ -49,20 +49,20 @@ export class ApFiltersBar extends LitElement {
       align-items: center;
       gap: 4px;
       padding: 4px 12px;
-      border: 1px solid var(--ap-primary-20, oklch(0.65 0.19 258 / 0.25));
+      border: 1px solid var(--ap-primary-20, oklch(0.578 0.198 268.129 / 0.2));
       border-radius: 9999px;
       font-size: 0.8125rem;
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.1));
-      color: var(--ap-primary, oklch(0.65 0.19 258));
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.1));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
       cursor: pointer;
       white-space: nowrap;
       transition: all 150ms;
     }
     .chip:hover {
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.15));
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.15));
     }
     .chip.active {
-      background: var(--ap-primary-20, oklch(0.65 0.19 258 / 0.2));
+      background: var(--ap-primary-20, oklch(0.578 0.198 268.129 / 0.2));
     }
     .chip-label {
       font-weight: 500;
@@ -99,21 +99,21 @@ export class ApFiltersBar extends LitElement {
       border-radius: 6px;
       font-size: 0.8125rem;
       background: none;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       cursor: pointer;
       white-space: nowrap;
       transition: all 150ms;
     }
     .clear-all:hover {
-      background: var(--ap-muted, #f4f4f5);
-      color: var(--ap-foreground, #09090b);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
     .chip.forced {
       cursor: default;
       opacity: 0.85;
     }
     .chip.forced:hover {
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.1));
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.1));
     }
     .chip-lock {
       display: flex;
@@ -125,19 +125,19 @@ export class ApFiltersBar extends LitElement {
     .chip.pinned-empty {
       border-style: dashed;
       background: transparent;
-      color: var(--ap-muted-foreground, #71717a);
-      border-color: var(--ap-border, #e4e4e7);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+      border-color: var(--ap-border, oklch(92.86% 0.009 247.92));
     }
     .chip.pinned-empty:hover {
-      background: var(--ap-muted, #f4f4f5);
-      color: var(--ap-foreground, #09090b);
-      border-color: var(--ap-muted-foreground, #a1a1aa);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
+      border-color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
     .chip.pinned-empty.active {
       border-style: solid;
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.1));
-      color: var(--ap-primary, oklch(0.65 0.19 258));
-      border-color: var(--ap-primary-20, oklch(0.65 0.19 258 / 0.25));
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.1));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
+      border-color: var(--ap-primary-20, oklch(0.578 0.198 268.129 / 0.2));
     }
   `;
 

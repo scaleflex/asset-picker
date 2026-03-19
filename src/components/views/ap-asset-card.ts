@@ -19,29 +19,29 @@ export class ApAssetCard extends LitElement {
     }
     .card {
       position: relative;
-      border: 1px solid var(--ap-border, #e4e4e7);
+      border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: var(--ap-radius, 8px);
       overflow: hidden;
       cursor: pointer;
       user-select: none;
       -webkit-user-drag: none;
       transition: box-shadow 150ms, border-color 150ms;
-      background: var(--ap-card, #fff);
+      background: var(--ap-card, oklch(1 0 0));
     }
     .card:focus-visible {
-      outline: 2px solid var(--ap-ring, oklch(0.65 0.19 258));
+      outline: 2px solid var(--ap-ring, oklch(0.578 0.198 268.129 / 0.7));
       outline-offset: 2px;
     }
     .card:hover {
       box-shadow: 0 4px 12px rgb(0 0 0 / 0.08);
     }
     :host([selected]) .card {
-      border-color: var(--ap-primary, oklch(0.65 0.19 258));
-      box-shadow: 0 0 0 2px var(--ap-primary-10, oklch(0.65 0.19 258 / 0.1));
+      border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
+      box-shadow: 0 0 0 2px var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.1));
     }
     .thumbnail {
       aspect-ratio: 6/4;
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
       overflow: hidden;
       position: relative;
       display: flex;
@@ -93,7 +93,7 @@ export class ApAssetCard extends LitElement {
       border: none;
       border-radius: var(--ap-radius, 8px);
       background: rgba(255, 255, 255, 0.9);
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       cursor: pointer;
       transition: transform 100ms;
       font-size: 0.875rem;
@@ -104,8 +104,8 @@ export class ApAssetCard extends LitElement {
       transform: scale(1.05);
     }
     .overlay-btn.select-btn {
-      background: var(--ap-primary, oklch(0.65 0.19 258));
-      color: var(--ap-primary-foreground, #fff);
+      background: var(--ap-primary, oklch(0.578 0.198 268.129));
+      color: var(--ap-primary-foreground, oklch(1 0 0));
     }
     .info {
       padding: 10px 12px;
@@ -113,14 +113,14 @@ export class ApAssetCard extends LitElement {
     .name {
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-weight: 500;
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .meta {
       font-size: 0.75rem;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       margin-top: 2px;
     }
     .check {
@@ -133,21 +133,21 @@ export class ApAssetCard extends LitElement {
     .check-box {
       width: 18px;
       height: 18px;
-      border: 2px solid var(--ap-border, #e4e4e7);
+      border: 2px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 150ms;
-      background: var(--ap-background, #fff);
+      background: var(--ap-background, oklch(1 0 0));
     }
     :host([selected]) .check-box {
-      background: var(--ap-primary, #3b82f6);
-      border-color: var(--ap-primary, #3b82f6);
+      background: var(--ap-primary, oklch(0.578 0.198 268.129));
+      border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
     .check-icon {
       display: none;
-      color: var(--ap-primary-foreground, #fff);
+      color: var(--ap-primary-foreground, oklch(1 0 0));
     }
     :host([selected]) .check-icon {
       display: block;
@@ -162,7 +162,7 @@ export class ApAssetCard extends LitElement {
       justify-content: center;
       width: 100%;
       height: 100%;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
     .duration {
       position: absolute;

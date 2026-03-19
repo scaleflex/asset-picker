@@ -22,9 +22,9 @@ export class ApGridView extends LitElement {
       border-radius: var(--ap-radius, 8px);
       background: linear-gradient(
         90deg,
-        var(--ap-muted, #f4f4f5) 25%,
+        var(--ap-muted, oklch(0.974 0.006 239.819)) 25%,
         #e8e8ea 50%,
-        var(--ap-muted, #f4f4f5) 75%
+        var(--ap-muted, oklch(0.974 0.006 239.819)) 75%
       );
       background-size: 200% 100%;
       animation: shimmer 1.5s infinite;

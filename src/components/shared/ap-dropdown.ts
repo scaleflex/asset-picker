@@ -23,31 +23,31 @@ export class ApDropdown extends LitElement {
         gap: 4px;
         height: 36px;
         padding: 0 12px;
-        border: 1px solid var(--ap-border, #e4e4e7);
+        border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
         border-radius: var(--ap-radius-sm, 6px);
-        background: var(--ap-background, #fff);
-        color: var(--ap-foreground, #09090b);
+        background: var(--ap-background, oklch(1 0 0));
+        color: var(--ap-foreground, oklch(0.37 0.022 248.413));
         font-family: inherit;
         font-size: var(--ap-font-size-sm, 0.875rem);
         cursor: pointer;
         white-space: nowrap;
       }
       .trigger:hover {
-        background: var(--ap-muted, #f4f4f5);
+        background: var(--ap-muted, oklch(0.974 0.006 239.819));
       }
       :host([variant="borderless"]) .trigger {
         border-color: transparent;
         background: none;
       }
       :host([variant="borderless"]) .trigger:hover {
-        background: var(--ap-muted, #f4f4f5);
+        background: var(--ap-muted, oklch(0.974 0.006 239.819));
       }
       .menu {
         position: fixed;
         z-index: 50;
         min-width: 160px;
-        background: var(--ap-card, #fff);
-        border: 1px solid var(--ap-border, #e4e4e7);
+        background: var(--ap-card, oklch(1 0 0));
+        border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
         border-radius: var(--ap-radius, 8px);
         box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
         padding: 4px;
@@ -64,7 +64,7 @@ export class ApDropdown extends LitElement {
         padding: 6px 12px;
         border: none;
         background: none;
-        color: var(--ap-foreground, #09090b);
+        color: var(--ap-foreground, oklch(0.37 0.022 248.413));
         font-family: inherit;
         font-size: var(--ap-font-size-sm, 0.875rem);
         text-align: left;
@@ -72,11 +72,11 @@ export class ApDropdown extends LitElement {
         border-radius: 4px;
       }
       .option:hover, .option.focused {
-        background: var(--ap-muted, #f4f4f5);
+        background: var(--ap-muted, oklch(0.974 0.006 239.819));
       }
       .option[aria-selected="true"] {
-        background: var(--ap-selection-bg, oklch(0.65 0.19 258 / 0.08));
-        color: var(--ap-primary, oklch(0.65 0.19 258));
+        background: var(--ap-selection-bg, oklch(0.578 0.198 268.129 / 0.08));
+        color: var(--ap-primary, oklch(0.578 0.198 268.129));
       }
     `,
   ];

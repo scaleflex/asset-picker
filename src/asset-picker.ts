@@ -108,7 +108,7 @@ export class AssetPicker extends LitElement {
         align-items: center;
         justify-content: center;
         padding: 64px 20px;
-        color: var(--ap-muted-foreground, #71717a);
+        color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
         text-align: center;
       }
       .empty-state ap-icon {
@@ -118,7 +118,7 @@ export class AssetPicker extends LitElement {
       .empty-title {
         font-size: var(--ap-font-size-base, 1rem);
         font-weight: 500;
-        color: var(--ap-foreground, #09090b);
+        color: var(--ap-foreground, oklch(0.37 0.022 248.413));
         margin-bottom: 4px;
       }
       .empty-desc {
@@ -137,13 +137,13 @@ export class AssetPicker extends LitElement {
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        background: var(--ap-background, #fff);
+        background: var(--ap-background, oklch(1 0 0));
         font-family: var(--ap-font-family, system-ui, -apple-system, sans-serif);
-        color: var(--ap-foreground, #09090b);
+        color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       }
       .ap-inline .inline-header {
         flex-shrink: 0;
-        border-bottom: 1px solid var(--ap-border, #e4e4e7);
+        border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       }
       .ap-inline .inline-content {
         flex: 1;

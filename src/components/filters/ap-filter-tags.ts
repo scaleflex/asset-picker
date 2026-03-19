@@ -20,7 +20,7 @@ export class ApFilterTags extends LitElement {
     }
 
     .tag-item:hover:not(.disabled) {
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
     }
 
     .tag-item.disabled {
@@ -34,7 +34,7 @@ export class ApFilterTags extends LitElement {
 
     .tag-name {
       font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       flex: 1;
       min-width: 0;
       overflow: hidden;
@@ -44,7 +44,7 @@ export class ApFilterTags extends LitElement {
 
     .hint-message {
       font-size: 0.8125rem;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       padding: 8px 0;
     }
 
@@ -53,7 +53,7 @@ export class ApFilterTags extends LitElement {
       position: sticky;
       top: -10px;
       z-index: 1;
-      background: var(--ap-card, #fff);
+      background: var(--ap-card, oklch(1 0 0));
       margin: -10px -8px 10px;
     }
 
@@ -61,16 +61,16 @@ export class ApFilterTags extends LitElement {
       width: 100%;
       padding: 8px 10px;
       border: none;
-      border-bottom: 1px solid var(--ap-border, #e4e4e7);
+      border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       background: transparent;
       outline: none;
       font-family: var(--ap-font-family, system-ui, sans-serif);
     }
 
     .tag-search::placeholder {
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
 
     .search-clear {

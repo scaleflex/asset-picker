@@ -10,8 +10,8 @@ export class ApSpinner extends LitElement {
         display: inline-flex;
       }
       .spinner {
-        border: 2px solid var(--ap-border, #e4e4e7);
-        border-top-color: var(--ap-primary, #3b82f6);
+        border: 2px solid var(--ap-border, oklch(92.86% 0.009 247.92));
+        border-top-color: var(--ap-primary, oklch(0.578 0.198 268.129));
         border-radius: 50%;
         animation: spin 0.6s linear infinite;
       }

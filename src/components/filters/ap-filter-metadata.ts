@@ -52,11 +52,11 @@ export class ApFilterMetadata extends LitElement {
       align-items: center;
       gap: 6px;
       padding: 6px 12px;
-      border: 1px dashed var(--ap-border, #e4e4e7);
+      border: 1px dashed var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: var(--ap-radius-sm, 6px);
       background: none;
       font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       cursor: pointer;
       width: 100%;
       font-family: var(--ap-font-family, system-ui, sans-serif);
@@ -64,14 +64,14 @@ export class ApFilterMetadata extends LitElement {
     }
 
     .add-field-btn:hover {
-      border-color: var(--ap-primary, oklch(0.65 0.19 258));
-      color: var(--ap-primary, oklch(0.65 0.19 258));
+      border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
 
     .field-selection {
-      border: 1px solid var(--ap-border, #e4e4e7);
+      border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: var(--ap-radius-sm, 6px);
-      background: var(--ap-background, #fff);
+      background: var(--ap-background, oklch(1 0 0));
       margin-bottom: 12px;
     }
 
@@ -80,27 +80,27 @@ export class ApFilterMetadata extends LitElement {
       align-items: center;
       justify-content: space-between;
       padding: 8px 12px;
-      border-bottom: 1px solid var(--ap-border, #e4e4e7);
+      border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     }
 
     .field-selection-title {
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-weight: 500;
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
 
     .field-selection-close {
       background: none;
       border: none;
       cursor: pointer;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       padding: 2px;
       display: flex;
       align-items: center;
     }
 
     .field-selection-close:hover {
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
 
     .selector-wrap {
@@ -114,16 +114,16 @@ export class ApFilterMetadata extends LitElement {
       width: 100%;
       padding: 8px 12px;
       border: none;
-      border-bottom: 1px solid var(--ap-border, #e4e4e7);
+      border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
-      background: var(--ap-card, #fff);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
+      background: var(--ap-card, oklch(1 0 0));
       outline: none;
       font-family: var(--ap-font-family, system-ui, sans-serif);
     }
 
     .field-search::placeholder {
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
 
     .field-list {
@@ -136,7 +136,7 @@ export class ApFilterMetadata extends LitElement {
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
 
     .field-item {
@@ -146,12 +146,12 @@ export class ApFilterMetadata extends LitElement {
       padding: 6px 12px;
       cursor: pointer;
       font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       transition: background 100ms;
     }
 
     .field-item:hover {
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
     }
 
     .field-item.disabled {
@@ -160,24 +160,24 @@ export class ApFilterMetadata extends LitElement {
     }
 
     .field-item.selected {
-      color: var(--ap-primary, oklch(0.65 0.19 258));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
 
     .limit-note {
       padding: 8px 12px;
       font-size: 0.75rem;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       text-align: center;
     }
 
     .limit-note.at-limit {
-      color: var(--ap-destructive, #ef4444);
+      color: var(--ap-destructive, oklch(0.577 0.215 27.325));
     }
 
     .empty-msg {
       padding: 16px 12px;
       font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       text-align: center;
     }
 
@@ -190,7 +190,7 @@ export class ApFilterMetadata extends LitElement {
     }
 
     .field-section {
-      border: 1px solid var(--ap-border, #e4e4e7);
+      border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: var(--ap-radius-sm, 6px);
       overflow: hidden;
     }
@@ -200,7 +200,7 @@ export class ApFilterMetadata extends LitElement {
       align-items: center;
       justify-content: space-between;
       padding: 8px 12px;
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
       cursor: pointer;
       user-select: none;
     }
@@ -211,7 +211,7 @@ export class ApFilterMetadata extends LitElement {
       gap: 6px;
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-weight: 500;
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
 
     .field-header-actions {
@@ -224,7 +224,7 @@ export class ApFilterMetadata extends LitElement {
       background: none;
       border: none;
       cursor: pointer;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       padding: 2px;
       display: flex;
       align-items: center;
@@ -233,12 +233,12 @@ export class ApFilterMetadata extends LitElement {
     }
 
     .icon-btn:hover {
-      color: var(--ap-foreground, #09090b);
-      background: var(--ap-border, #e4e4e7);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
+      background: var(--ap-border, oklch(92.86% 0.009 247.92));
     }
 
     .icon-btn.remove:hover {
-      color: var(--ap-destructive, #ef4444);
+      color: var(--ap-destructive, oklch(0.577 0.215 27.325));
     }
 
     .field-body {
@@ -259,7 +259,7 @@ export class ApFilterMetadata extends LitElement {
       flex-wrap: wrap;
       gap: 6px;
       padding: 6px;
-      border: 1px solid var(--ap-border, #e4e4e7);
+      border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: var(--ap-radius-sm, 6px);
       min-height: 36px;
       align-items: center;
@@ -272,8 +272,8 @@ export class ApFilterMetadata extends LitElement {
       padding: 2px 8px;
       border-radius: 9999px;
       font-size: 0.8125rem;
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.1));
-      color: var(--ap-primary, oklch(0.65 0.19 258));
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.1));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
 
     .tag-chip-remove {
@@ -297,13 +297,13 @@ export class ApFilterMetadata extends LitElement {
       font-size: var(--ap-font-size-sm, 0.875rem);
       flex: 1;
       min-width: 80px;
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       background: transparent;
       font-family: var(--ap-font-family, system-ui, sans-serif);
     }
 
     .tag-input::placeholder {
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
 
     /* ── Geo inputs ─────────────────────────────────────── */
@@ -331,12 +331,12 @@ export class ApFilterMetadata extends LitElement {
       border-radius: var(--ap-radius-sm, 6px);
       cursor: pointer;
       font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       transition: background 150ms;
     }
 
     .option-item:hover:not(.disabled) {
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
     }
 
     .option-item.disabled {
@@ -368,7 +368,7 @@ export class ApFilterMetadata extends LitElement {
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: var(--ap-primary, oklch(0.65 0.19 258));
+      background: var(--ap-primary, oklch(0.578 0.198 268.129));
       flex-shrink: 0;
     }
 
@@ -382,7 +382,7 @@ export class ApFilterMetadata extends LitElement {
       background: none;
       cursor: pointer;
       padding: 0;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       border-radius: 4px;
       flex-shrink: 0;
       margin-left: auto;
@@ -396,16 +396,16 @@ export class ApFilterMetadata extends LitElement {
     }
 
     .field-item-pin:hover {
-      color: var(--ap-primary, oklch(0.65 0.19 258));
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.08));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.08));
     }
 
     .field-item-pin.pinned {
-      color: var(--ap-primary, oklch(0.65 0.19 258));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
 
     .field-item.has-filter {
-      color: var(--ap-primary, oklch(0.65 0.19 258));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
   `];
 

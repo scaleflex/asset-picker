@@ -21,8 +21,8 @@ export class ApPreviewPanel extends LitElement {
       min-width: 420px;
       max-width: 100%;
       height: 100%;
-      background: var(--ap-background, #fff);
-      border-left: 1px solid var(--ap-border, #e4e4e7);
+      background: var(--ap-background, oklch(1 0 0));
+      border-left: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       display: flex;
       flex-direction: column;
       animation: ap-panel-in 300ms ease-out;
@@ -38,12 +38,12 @@ export class ApPreviewPanel extends LitElement {
       align-items: center;
       justify-content: space-between;
       padding: 16px;
-      border-bottom: 1px solid var(--ap-border, #e4e4e7);
+      border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     }
     .panel-title {
       font-size: var(--ap-font-size-base, 1rem);
       font-weight: 600;
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -62,23 +62,23 @@ export class ApPreviewPanel extends LitElement {
       border: none;
       border-radius: var(--ap-radius-sm, 6px);
       background: none;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       cursor: pointer;
     }
     .icon-btn:hover:not(:disabled) {
-      background: var(--ap-muted, #f4f4f5);
-      color: var(--ap-foreground, #09090b);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
     .icon-btn:disabled {
       opacity: 0.3;
       cursor: default;
     }
     .icon-btn.selected {
-      background: var(--ap-primary, #3b82f6);
+      background: var(--ap-primary, oklch(0.578 0.198 268.129));
       color: #fff;
     }
     .icon-btn.selected:hover {
-      background: var(--ap-primary, #3b82f6);
+      background: var(--ap-primary, oklch(0.578 0.198 268.129));
       color: #fff;
       opacity: 0.9;
     }
@@ -88,7 +88,7 @@ export class ApPreviewPanel extends LitElement {
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
       min-height: 300px;
       height: 300px;
       flex-shrink: 0;
@@ -100,14 +100,14 @@ export class ApPreviewPanel extends LitElement {
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
       z-index: 3;
     }
     .preview-loading .spinner {
       width: 24px;
       height: 24px;
-      border: 2.5px solid var(--ap-border, #e4e4e7);
-      border-top-color: var(--ap-primary, #3b82f6);
+      border: 2.5px solid var(--ap-border, oklch(92.86% 0.009 247.92));
+      border-top-color: var(--ap-primary, oklch(0.578 0.198 268.129));
       border-radius: 50%;
       animation: ap-spin 0.6s linear infinite;
     }
@@ -210,14 +210,14 @@ export class ApPreviewPanel extends LitElement {
       height: 32px;
       border: none;
       border-radius: 50%;
-      background: var(--ap-background, #fff);
-      color: var(--ap-foreground, #09090b);
+      background: var(--ap-background, oklch(1 0 0));
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       cursor: pointer;
       box-shadow: 0 1px 3px rgba(0,0,0,0.2);
       z-index: 2;
     }
     .nav-btn:hover:not(:disabled) {
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
     }
     .nav-btn:disabled {
       opacity: 0.3;
@@ -239,7 +239,7 @@ export class ApPreviewPanel extends LitElement {
     }
     /* Accordion styles */
     .accordion {
-      border-top: 1px solid var(--ap-border, #e4e4e7);
+      border-top: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     }
     .accordion-trigger {
       display: flex;
@@ -253,15 +253,15 @@ export class ApPreviewPanel extends LitElement {
       font-family: inherit;
       font-size: 0.8125rem;
       font-weight: 600;
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       text-align: left;
     }
     .accordion-trigger:hover {
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
     }
     .accordion-chevron {
       transition: transform 200ms;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
     .accordion-trigger[aria-expanded="true"] .accordion-chevron {
       transform: rotate(180deg);
@@ -277,14 +277,14 @@ export class ApPreviewPanel extends LitElement {
       display: flex;
       gap: 12px;
       padding: 6px 0;
-      border-bottom: 1px solid var(--ap-border, #e4e4e7);
+      border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     }
     .meta-row:last-child {
       border-bottom: none;
     }
     .meta-label {
       font-size: 0.8125rem;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       flex-shrink: 0;
       width: 100px;
       overflow: hidden;
@@ -293,7 +293,7 @@ export class ApPreviewPanel extends LitElement {
     }
     .meta-value {
       font-size: 0.8125rem;
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       min-width: 0;
       user-select: text;
       word-break: break-word;

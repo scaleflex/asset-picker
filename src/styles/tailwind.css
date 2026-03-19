@@ -3,18 +3,82 @@
 @import "./animations.css";
 
 @theme {
-  --color-primary: var(--ap-primary);
-  --color-primary-foreground: var(--ap-primary-foreground);
+  /* Base */
   --color-background: var(--ap-background);
   --color-foreground: var(--ap-foreground);
   --color-card: var(--ap-card);
-  --color-border: var(--ap-border);
+  --color-card-foreground: var(--ap-card-foreground);
+  --color-popover: var(--ap-popover);
+  --color-popover-foreground: var(--ap-popover-foreground);
+
+  /* Primary */
+  --color-primary: var(--ap-primary);
+  --color-primary-foreground: var(--ap-primary-foreground);
+
+  /* Secondary */
+  --color-secondary: var(--ap-secondary);
+  --color-secondary-foreground: var(--ap-secondary-foreground);
+
+  /* Muted */
   --color-muted: var(--ap-muted);
   --color-muted-foreground: var(--ap-muted-foreground);
+
+  /* Accent */
+  --color-accent: var(--ap-accent);
+  --color-accent-foreground: var(--ap-accent-foreground);
+
+  /* Status */
+  --color-success: var(--ap-success);
+  --color-success-foreground: var(--ap-success-foreground);
+  --color-success-10: var(--ap-success-10);
+  --color-destructive: var(--ap-destructive);
+  --color-destructive-foreground: var(--ap-destructive-foreground);
+  --color-destructive-10: var(--ap-destructive-10);
+  --color-info: var(--ap-info);
+  --color-info-foreground: var(--ap-info-foreground);
+  --color-info-10: var(--ap-info-10);
+  --color-warning: var(--ap-warning);
+  --color-warning-foreground: var(--ap-warning-foreground);
+  --color-warning-10: var(--ap-warning-10);
+
+  /* Border / Input / Ring / Shadow */
+  --color-border: var(--ap-border);
+  --color-input: var(--ap-input);
   --color-ring: var(--ap-ring);
+  --color-shadow: var(--ap-shadow);
   --color-selection: var(--ap-selection-bg);
+
+  /* Charts */
+  --color-chart-1: var(--ap-chart-1);
+  --color-chart-2: var(--ap-chart-2);
+  --color-chart-3: var(--ap-chart-3);
+  --color-chart-4: var(--ap-chart-4);
+  --color-chart-5: var(--ap-chart-5);
+
+  /* Sidebar */
+  --color-sidebar: var(--ap-sidebar);
+  --color-sidebar-foreground: var(--ap-sidebar-foreground);
+  --color-sidebar-primary: var(--ap-sidebar-primary);
+  --color-sidebar-primary-foreground: var(--ap-sidebar-primary-foreground);
+  --color-sidebar-accent: var(--ap-sidebar-accent);
+  --color-sidebar-accent-foreground: var(--ap-sidebar-accent-foreground);
+  --color-sidebar-border: var(--ap-sidebar-border);
+  --color-sidebar-ring: var(--ap-sidebar-ring);
+
+  /* Panel */
+  --color-panel: var(--ap-panel);
+  --color-panel-foreground: var(--ap-panel-foreground);
+  --color-panel-primary: var(--ap-panel-primary);
+  --color-panel-primary-foreground: var(--ap-panel-primary-foreground);
+  --color-panel-border: var(--ap-panel-border);
+  --color-panel-input: var(--ap-panel-input);
+  --color-panel-ring: var(--ap-panel-ring);
+
+  /* Radius */
   --radius-DEFAULT: var(--ap-radius);
   --radius-sm: var(--ap-radius-sm);
   --radius-lg: var(--ap-radius-lg);
+
+  /* Typography */
   --font-family-sans: var(--ap-font-family);
 }
