@@ -20,7 +20,7 @@ export class ApDropdown extends LitElement {
       .trigger {
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 8px;
         height: 36px;
         padding: 0 12px;
         border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
@@ -59,7 +59,7 @@ export class ApDropdown extends LitElement {
       .option {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
         width: 100%;
         padding: 6px 12px;
         border: none;
