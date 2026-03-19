@@ -48,9 +48,10 @@ export class ApFiltersBar extends LitElement {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 4px 12px;
+      height: 32px;
+      padding: 0 12px;
       border: 1px solid var(--ap-primary-20, oklch(0.578 0.198 268.129 / 0.2));
-      border-radius: 9999px;
+      border-radius: 6px;
       font-size: 0.8125rem;
       background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.1));
       color: var(--ap-primary, oklch(0.578 0.198 268.129));
@@ -127,11 +128,16 @@ export class ApFiltersBar extends LitElement {
       padding: 0 12px;
       gap: 6px;
       border-style: solid;
-      border-radius: 8px;
+      border-radius: 6px;
       background: transparent;
       color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       border-color: var(--ap-input, oklch(0.871 0.016 241.798));
       font-weight: 400;
+    }
+    .chip .chip-icon {
+      display: flex;
+      align-items: center;
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
     .chip.pinned-empty .chip-icon {
       display: flex;
@@ -369,7 +375,9 @@ export class ApFiltersBar extends LitElement {
     return html`
       <span class="chip ${key === this.activeFilter ? 'active' : ''}" @click=${(e: Event) => this._openFilter(key, e)}>
         ${(isDate || key === FILTER_KEYS.TYPE || key === FILTER_KEYS.SIZE) && summary
-          ? html`<span class="chip-label">${summary}</span>`
+          ? html`
+              <span class="chip-icon"><ap-icon name=${this._getFilterIcon(key)} .size=${16}></ap-icon></span>
+              <span class="chip-label">${summary}</span>`
           : html`
               <span class="chip-label">${FILTER_LABELS[key] || key}</span>
               ${summary ? html`<span class="chip-summary">${summary}</span>` : nothing}
