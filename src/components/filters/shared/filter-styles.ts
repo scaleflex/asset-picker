@@ -46,8 +46,8 @@ export const filterPopoverStyles = css`
   .section-label {
     display: block;
     font-size: var(--ap-font-size-sm, 0.875rem);
-    font-weight: 600;
-    color: var(--ap-foreground, oklch(0.37 0.022 248.413));
+    font-weight: 400;
+    color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     margin-bottom: 8px;
     cursor: default;
   }

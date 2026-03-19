@@ -316,7 +316,7 @@ export class ApContentToolbar extends LitElement {
       border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: 0 8px 8px 8px;
       box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1);
-      padding: 10px 8px;
+      padding: 12px;
     }
     .popover-anchor.external {
       padding: 0;

@@ -14,7 +14,7 @@ export class ApCheckbox extends LitElement {
       .box {
         width: 18px;
         height: 18px;
-        border: 2px solid var(--ap-border, oklch(92.86% 0.009 247.92));
+        border: 1px solid var(--ap-input, oklch(0.871 0.016 241.798));
         border-radius: 4px;
         display: flex;
         align-items: center;
