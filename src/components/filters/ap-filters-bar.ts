@@ -30,7 +30,7 @@ export class ApFiltersBar extends LitElement {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 0 20px 12px;
+      padding: 0 20px 16px;
     }
     .chips {
       display: flex;

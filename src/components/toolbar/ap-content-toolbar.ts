@@ -37,7 +37,7 @@ export class ApContentToolbar extends LitElement {
   static styles = css`
     :host {
       display: block;
-      padding: 8px 20px 12px;
+      padding: 8px 20px 6px;
     }
     .toolbar-row {
       display: flex;
