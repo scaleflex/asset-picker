@@ -104,7 +104,7 @@ export class ApFilterMetadata extends LitElement {
     }
 
     .selector-wrap {
-      margin: 0 -8px;
+      margin: 0;
     }
 
     .field-search {
@@ -129,14 +129,13 @@ export class ApFilterMetadata extends LitElement {
     }
 
     .field-list {
-      padding: 12px;
+      padding: 12px 0;
     }
 
     .field-group-label {
       padding: 6px 12px 4px;
       font-size: 0.875rem;
       font-weight: 400;
-      letter-spacing: 0.05em;
       color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
 
@@ -144,7 +143,7 @@ export class ApFilterMetadata extends LitElement {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 12px;
+      padding: 6px 16px 6px 24px;
       cursor: pointer;
       font-size: var(--ap-font-size-sm, 0.875rem);
       color: var(--ap-foreground, oklch(0.37 0.022 248.413));
@@ -165,7 +164,7 @@ export class ApFilterMetadata extends LitElement {
     }
 
     .limit-note {
-      padding: 8px 12px;
+      padding: 8px 16px 8px 24px;
       font-size: 0.75rem;
       color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       text-align: center;
@@ -176,7 +175,7 @@ export class ApFilterMetadata extends LitElement {
     }
 
     .empty-msg {
-      padding: 16px 12px;
+      padding: 16px 16px 16px 24px;
       font-size: var(--ap-font-size-sm, 0.875rem);
       color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       text-align: center;
