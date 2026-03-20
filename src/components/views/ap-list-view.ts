@@ -17,11 +17,9 @@ export class ApListView extends LitElement {
       grid-template-columns: 28px 48px 1fr 100px 200px 120px 60px;
       gap: 12px;
       padding: 8px 12px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
       border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     }
     .list-header:not(.has-checkbox) {
@@ -36,7 +34,7 @@ export class ApListView extends LitElement {
     .header-check-box {
       width: 18px;
       height: 18px;
-      border: 2px solid var(--ap-border, oklch(92.86% 0.009 247.92));
+      border: 1px solid var(--ap-input, oklch(0.871 0.016 241.798));
       border-radius: 4px;
       display: flex;
       align-items: center;

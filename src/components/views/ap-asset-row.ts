@@ -60,7 +60,14 @@ export class ApAssetRow extends LitElement {
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .type, .desc, .date {
+    .type {
+      font-size: 0.8125rem;
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .desc, .date {
       font-size: 0.8125rem;
       color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       white-space: nowrap;
@@ -105,7 +112,7 @@ export class ApAssetRow extends LitElement {
     .check-box {
       width: 18px;
       height: 18px;
-      border: 2px solid var(--ap-border, oklch(92.86% 0.009 247.92));
+      border: 1px solid var(--ap-input, oklch(0.871 0.016 241.798));
       border-radius: 4px;
       display: flex;
       align-items: center;
