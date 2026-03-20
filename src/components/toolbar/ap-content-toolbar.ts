@@ -83,7 +83,8 @@ export class ApContentToolbar extends LitElement {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 14px;
+      height: 36px;
+      padding: 0 14px;
       border: none;
       border-radius: 6px;
       font-size: 0.875rem;
