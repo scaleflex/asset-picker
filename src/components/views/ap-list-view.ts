@@ -32,6 +32,7 @@ export class ApListView extends LitElement {
       cursor: pointer;
     }
     .header-check-box {
+      box-sizing: border-box;
       width: 22px;
       height: 22px;
       border: 1px solid var(--ap-input, oklch(0.871 0.016 241.798));
