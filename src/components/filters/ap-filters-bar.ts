@@ -95,12 +95,13 @@ export class ApFiltersBar extends LitElement {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 4px 10px;
+      height: 34px;
+      padding: 0 10px;
       border: none;
       border-radius: 6px;
       font-size: 0.8125rem;
       background: none;
-      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+      color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
       cursor: pointer;
       white-space: nowrap;
       transition: all 150ms;
@@ -460,6 +461,9 @@ export class ApFiltersBar extends LitElement {
           ${this.pinnedMetadataFields.map((fieldKey) =>
             this._renderMetadataChip(fieldKey, this.appliedMetadata[fieldKey])
           )}
+          ${hasApplied
+            ? html`<button class="clear-all" @click=${this._clearAll}>Clear filters</button>`
+            : nothing}
           ${nonPinnedApplied.map((key) =>
             this._renderFilterChip(key, this.appliedFilters[key])
           )}
@@ -481,9 +485,6 @@ export class ApFiltersBar extends LitElement {
             </span>
           ` : nothing}
         </div>
-        ${hasApplied
-          ? html`<button class="clear-all" @click=${this._clearAll}>Clear filters</button>`
-          : nothing}
       </div>
     `;
   }
