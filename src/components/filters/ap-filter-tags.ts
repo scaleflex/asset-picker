@@ -12,7 +12,7 @@ export class ApFilterTags extends LitElement {
     .tag-item {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
       padding: 6px 8px;
       border-radius: var(--ap-radius-sm, 6px);
       cursor: pointer;
