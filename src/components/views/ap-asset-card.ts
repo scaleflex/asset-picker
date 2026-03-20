@@ -2,7 +2,7 @@ import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import type { Asset } from '../../types/asset.types';
 import { getAssetThumbnailUrl, getVideoThumbnailUrl, getPdfPreviewUrl } from '../../utils/thumbnail';
-import { formatFileSize } from '../../utils/format';
+import { formatFileSize, formatDimensions } from '../../utils/format';
 import { getFileTypeFromMime, getFileTypeIconUrl, getDefaultFileTypeIconUrl, isFileTypeIcon, hasThumbnailSupport, hasTransparencySupport } from '../../utils/file-type';
 
 @customElement('ap-asset-card')
@@ -121,7 +121,7 @@ export class ApAssetCard extends LitElement {
     .meta {
       font-size: 0.75rem;
       color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
-      margin-top: 2px;
+      margin-top: 6px;
     }
     .check {
       position: absolute;
@@ -308,7 +308,7 @@ export class ApAssetCard extends LitElement {
         </div>
         <div class="info">
           <div class="name" title=${a.name}>${a.name}</div>
-          <div class="meta">${a.extension?.toUpperCase()} · ${formatFileSize(a.size?.bytes || 0)}</div>
+          <div class="meta">${a.extension?.toUpperCase()}${(() => { const w = a.info?.img_w || a.info?.video_w; const h = a.info?.img_h || a.info?.video_h; const dim = formatDimensions(w, h); return dim ? ` · ${dim}` : ''; })()} · ${formatFileSize(a.size?.bytes || 0)}</div>
         </div>
       </div>
     `;
