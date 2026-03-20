@@ -73,6 +73,14 @@ export class ApCheckbox extends LitElement {
     this.removeEventListener('click', this._handleHostClick);
   }
 
+  private _hasLabel = false;
+
+  private _onSlotChange(e: Event) {
+    const slot = e.target as HTMLSlotElement;
+    this._hasLabel = slot.assignedNodes({ flatten: true }).length > 0;
+    this.requestUpdate();
+  }
+
   private _handleHostClick = () => {
     this.dispatchEvent(new CustomEvent('ap-toggle', {
       detail: { checked: !this.checked },
@@ -91,7 +99,7 @@ export class ApCheckbox extends LitElement {
           <path d="M5 12h14"></path>
         </svg>
       </div>
-      <span class="label"><slot></slot></span>
+      <span class="label" ?hidden=${!this._hasLabel}><slot @slotchange=${this._onSlotChange}></slot></span>
     `;
   }
 }
