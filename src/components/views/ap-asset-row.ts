@@ -13,7 +13,7 @@ export class ApAssetRow extends LitElement {
     }
     .row {
       display: grid;
-      grid-template-columns: 28px 48px 1fr 100px 200px 120px 60px;
+      grid-template-columns: 32px 48px 1fr 100px 200px 120px 60px;
       gap: 12px;
       padding: 8px 12px;
       align-items: center;
@@ -110,8 +110,8 @@ export class ApAssetRow extends LitElement {
       justify-content: center;
     }
     .check-box {
-      width: 18px;
-      height: 18px;
+      width: 22px;
+      height: 22px;
       border: 1px solid var(--ap-input, oklch(0.871 0.016 241.798));
       border-radius: 4px;
       display: flex;
@@ -191,7 +191,7 @@ export class ApAssetRow extends LitElement {
         ${this.multiSelect ? html`
           <div class="check">
             <div class="check-box">
-              <svg class="check-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 6 9 17l-5-5"></path>
               </svg>
             </div>
