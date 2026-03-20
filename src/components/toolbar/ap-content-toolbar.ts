@@ -37,7 +37,7 @@ export class ApContentToolbar extends LitElement {
   static styles = css`
     :host {
       display: block;
-      padding: 8px 20px 0;
+      padding: 8px 20px 12px;
     }
     .toolbar-row {
       display: flex;
@@ -186,7 +186,7 @@ export class ApContentToolbar extends LitElement {
     }
     .filter-btn.active .filter-btn-icon,
     .filter-btn.pinned .filter-btn-icon {
-      color: var(--ap-primary, oklch(0.578 0.198 268.129));
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
     .filter-btn-label {
       display: flex;

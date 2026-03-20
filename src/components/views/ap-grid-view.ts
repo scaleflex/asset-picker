@@ -10,7 +10,7 @@ export class ApGridView extends LitElement {
   static styles = css`
     :host {
       display: block;
-      padding: 12px 20px 16px;
+      padding: 0 20px 16px;
     }
     .grid {
       display: grid;
