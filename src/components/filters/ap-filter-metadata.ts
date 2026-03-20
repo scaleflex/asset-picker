@@ -112,7 +112,9 @@ export class ApFilterMetadata extends LitElement {
       top: -12px;
       z-index: 2;
       width: 100%;
-      padding: 8px 12px;
+      height: 34px;
+      padding: 0 12px;
+      box-sizing: border-box;
       border: none;
       border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       font-size: var(--ap-font-size-sm, 0.875rem);
@@ -127,14 +129,13 @@ export class ApFilterMetadata extends LitElement {
     }
 
     .field-list {
-      padding: 4px 0;
+      padding: 12px;
     }
 
     .field-group-label {
       padding: 6px 12px 4px;
-      font-size: 0.6875rem;
-      font-weight: 600;
-      text-transform: uppercase;
+      font-size: 0.875rem;
+      font-weight: 400;
       letter-spacing: 0.05em;
       color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
@@ -406,6 +407,7 @@ export class ApFilterMetadata extends LitElement {
 
     .field-item.has-filter {
       color: var(--ap-primary, oklch(0.578 0.198 268.129));
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.1));
     }
   `];
 
@@ -2044,9 +2046,6 @@ export class ApFilterMetadata extends LitElement {
               @click=${() => !isDisabled && this._emitFieldSelect(field)}
             >
               <span class="field-item-label">${field.label}</span>
-              ${hasFilter
-                ? html`<span class="field-item-dot"></span>`
-                : nothing}
               <button
                 class="field-item-pin ${isPinned ? 'pinned' : ''}"
                 @click=${(e: Event) => {
@@ -2057,6 +2056,9 @@ export class ApFilterMetadata extends LitElement {
               >
                 <ap-icon name="pin" .size=${12}></ap-icon>
               </button>
+              ${hasFilter
+                ? html`<ap-icon name="check" .size=${14}></ap-icon>`
+                : nothing}
             </div>
           `;
         })}
