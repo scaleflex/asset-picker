@@ -114,7 +114,7 @@ export class ApListView extends LitElement {
           ? html`<span class="header-checkbox" @click=${this._handleHeaderCheckboxClick}>
               <div class="header-check-box ${allSelected ? 'checked' : this.selectedIds.length > 0 ? 'indeterminate' : ''}">
                 <svg class="header-check-icon check" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M4.5 12.75l6 6 9-13.5"></path>
+                  <path d="M20 6 9 17l-5-5"></path>
                 </svg>
                 <svg class="header-check-icon dash" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M5 12h14"></path>

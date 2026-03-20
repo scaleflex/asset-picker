@@ -93,7 +93,7 @@ export class ApCheckbox extends LitElement {
     return html`
       <div class="box">
         <svg class="check" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4.5 12.75l6 6 9-13.5"></path>
+          <path d="M20 6 9 17l-5-5"></path>
         </svg>
         <svg class="dash" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
           <path d="M5 12h14"></path>
