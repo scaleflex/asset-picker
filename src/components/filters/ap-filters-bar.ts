@@ -461,9 +461,6 @@ export class ApFiltersBar extends LitElement {
           ${this.pinnedMetadataFields.map((fieldKey) =>
             this._renderMetadataChip(fieldKey, this.appliedMetadata[fieldKey])
           )}
-          ${hasApplied
-            ? html`<button class="clear-all" @click=${this._clearAll}>Clear filters</button>`
-            : nothing}
           ${nonPinnedApplied.map((key) =>
             this._renderFilterChip(key, this.appliedFilters[key])
           )}
@@ -484,6 +481,9 @@ export class ApFiltersBar extends LitElement {
               <span class="chip-chevron"><ap-icon name="chevron-down" .size=${14}></ap-icon></span>
             </span>
           ` : nothing}
+          ${hasApplied
+            ? html`<button class="clear-all" @click=${this._clearAll}>Clear filters</button>`
+            : nothing}
         </div>
       </div>
     `;
