@@ -1067,15 +1067,6 @@ export class ApFilterMetadata extends LitElement {
                 ${renderGroup('Product fields', productFields)}
               `}
         </div>
-        ${this.visibleFields.length > 0
-          ? html`
-              <div
-                class="limit-note ${this._atFieldLimit ? 'at-limit' : ''}"
-              >
-                ${this.visibleFields.length} / ${SELECTED_METADATA_FIELDS_LIMIT} fields selected
-              </div>
-            `
-          : nothing}
       </div>
     `;
   }
@@ -2084,15 +2075,6 @@ export class ApFilterMetadata extends LitElement {
                 ${renderGroup('Product fields', productFields)}
               `}
         </div>
-        ${this.visibleFields.length > 0
-          ? html`
-              <div
-                class="limit-note ${this._atFieldLimit ? 'at-limit' : ''}"
-              >
-                ${this.visibleFields.length} / ${SELECTED_METADATA_FIELDS_LIMIT} fields selected
-              </div>
-            `
-          : nothing}
       </div>
     `;
   }

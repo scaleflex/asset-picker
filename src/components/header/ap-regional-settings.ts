@@ -46,14 +46,6 @@ export class ApRegionalSettings extends LitElement {
     .popover.open {
       display: block;
     }
-    .popover-title {
-      padding: 8px 12px 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
     .group {
       padding: 4px 0;
     }
@@ -61,17 +53,18 @@ export class ApRegionalSettings extends LitElement {
       border-top: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     }
     .group-label {
-      padding: 6px 12px 2px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+      padding: 6px 12px 8px;
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
     }
     .variant-option {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 8px;
       width: 100%;
-      padding: 6px 12px;
+      padding: 6px 16px 6px 24px;
       border: none;
       background: none;
       color: var(--ap-foreground, oklch(0.37 0.022 248.413));
@@ -80,6 +73,9 @@ export class ApRegionalSettings extends LitElement {
       text-align: left;
       cursor: pointer;
       border-radius: 0;
+    }
+    .variant-label {
+      flex: 1;
     }
     .variant-option:hover {
       background: var(--ap-muted, oklch(0.974 0.006 239.819));
@@ -135,7 +131,6 @@ export class ApRegionalSettings extends LitElement {
         <ap-icon name="globe" .size=${18}></ap-icon>
       </button>
       <div class="popover ${this._open ? 'open' : ''}">
-        <div class="popover-title">Regional settings</div>
         ${!hasGroups ? html`
           <div style="padding: 12px 12px; font-size: 0.8125rem; color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));">
             No regional settings configured
@@ -152,8 +147,8 @@ export class ApRegionalSettings extends LitElement {
                   ?data-selected=${isSelected}
                   @click=${() => this._selectVariant(group.uuid, variant.api_value)}
                 >
+                  <span class="variant-label">${variant.label}</span>
                   <span class="check-mark">${isSelected ? html`<ap-icon name="check" .size=${14}></ap-icon>` : ''}</span>
-                  ${variant.label}
                 </button>
               `;
             })}
