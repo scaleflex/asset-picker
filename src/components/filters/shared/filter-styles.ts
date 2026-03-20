@@ -47,7 +47,7 @@ export const filterPopoverStyles = css`
     display: block;
     font-size: var(--ap-font-size-sm, 0.875rem);
     font-weight: 400;
-    color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+    color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
     margin-bottom: 8px;
     cursor: default;
   }

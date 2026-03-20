@@ -13,8 +13,8 @@ export class ApFilterType extends LitElement {
     .section-label {
       display: block;
       font-size: var(--ap-font-size-sm, 0.875rem);
-      font-weight: 600;
-      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
+      font-weight: 400;
+      color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
       margin-bottom: 8px;
       cursor: default;
     }
