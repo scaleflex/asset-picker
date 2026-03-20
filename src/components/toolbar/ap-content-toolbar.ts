@@ -184,7 +184,8 @@ export class ApContentToolbar extends LitElement {
       color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       flex-shrink: 0;
     }
-    .filter-btn.active .filter-btn-icon {
+    .filter-btn.active .filter-btn-icon,
+    .filter-btn.pinned .filter-btn-icon {
       color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
     .filter-btn-label {
