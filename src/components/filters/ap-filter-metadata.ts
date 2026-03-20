@@ -104,16 +104,16 @@ export class ApFilterMetadata extends LitElement {
     }
 
     .selector-wrap {
-      margin: -10px -8px;
+      margin: 0 -8px;
     }
 
     .field-search {
       position: sticky;
-      top: -12px;
+      top: 0;
       z-index: 2;
       width: 100%;
       height: 34px;
-      padding: 0 12px;
+      padding: 0 20px;
       box-sizing: border-box;
       border: none;
       border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));

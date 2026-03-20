@@ -140,7 +140,7 @@ export class ApContentToolbar extends LitElement {
       width: 280px;
       padding: 0;
       max-height: 400px;
-      overflow: hidden;
+      overflow-y: auto;
     }
 
     /* Filter button in dropdown */
