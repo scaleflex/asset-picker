@@ -41,7 +41,7 @@ export class ApRegionalSettings extends LitElement {
       border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: var(--ap-radius, 8px);
       box-shadow: 0 4px 12px rgb(0 0 0 / 0.12);
-      padding: 8px 0;
+      padding: 0;
     }
     .popover.open {
       display: block;
@@ -81,8 +81,9 @@ export class ApRegionalSettings extends LitElement {
       background: var(--ap-muted, oklch(0.974 0.006 239.819));
     }
     .variant-option[data-selected] {
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.08));
       color: var(--ap-primary, oklch(0.578 0.198 268.129));
-      font-weight: 500;
+      font-weight: 400;
     }
     .check-mark {
       width: 16px;
