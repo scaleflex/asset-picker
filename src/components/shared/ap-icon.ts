@@ -24,6 +24,11 @@ const ICONS: Record<string, IconDef> = {
     { tag: 'path', attrs: { d: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4' } },
     { tag: 'path', attrs: { d: 'm7 10 5 5 5-5' } },
   ],
+  upload: [
+    { tag: 'path', attrs: { d: 'M12 3v12' } },
+    { tag: 'path', attrs: { d: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4' } },
+    { tag: 'path', attrs: { d: 'm17 8-5-5-5 5' } },
+  ],
   fullscreen: [
     { tag: 'path', attrs: { d: 'M8 3H5a2 2 0 0 0-2 2v3' } },
     { tag: 'path', attrs: { d: 'M21 8V5a2 2 0 0 0-2-2h-3' } },

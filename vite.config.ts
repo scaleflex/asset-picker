@@ -25,7 +25,7 @@ export default defineConfig({
       },
     },
     rollupOptions: {
-      external: [/^lit(\/|$)/, /^@lit(\/|$)/, 'react', 'react-dom', 'react/jsx-runtime'],
+      external: [/^lit(\/|$)/, /^@lit(\/|$)/, /^@scaleflex\/uploader(\/|$)/, 'react', 'react-dom', 'react/jsx-runtime'],
       output: {
         globals: {
           lit: 'Lit',

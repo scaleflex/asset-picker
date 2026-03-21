@@ -59,6 +59,7 @@ const page: Page = {
             <tr><td><code>rememberLastView</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Persist the last used view mode (grid/list) and restore on next open</td></tr>
             <tr><td><code>defaultFilters</code></td><td><code>FiltersInput</code></td><td><code>undefined</code></td><td>Filters pre-applied on open. User can modify/remove</td></tr>
             <tr><td><code>forcedFilters</code></td><td><code>FiltersInput</code></td><td><code>undefined</code></td><td>Filters always active. Locked chips the user cannot remove</td></tr>
+            <tr><td><code>uploader</code></td><td><code>UploaderIntegrationConfig</code></td><td><code>undefined</code></td><td>Enable the integrated uploader. Shows an Upload button &amp; drop zone. Requires <code>@scaleflex/uploader</code> (optional peer dep, loaded dynamically)</td></tr>
             <tr><td><code>onSelect</code></td><td><code>(assets: Asset[]) =&gt; void</code></td><td><code>undefined</code></td><td>Callback when assets are selected</td></tr>
             <tr><td><code>onCancel</code></td><td><code>() =&gt; void</code></td><td><code>undefined</code></td><td>Callback when the picker is cancelled</td></tr>
           </tbody>

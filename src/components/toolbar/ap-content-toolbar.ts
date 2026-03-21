@@ -249,6 +249,29 @@ export class ApContentToolbar extends LitElement {
       outline: 2px solid var(--ap-ring, oklch(0.65 0.19 258));
       outline-offset: -2px;
     }
+    .upload-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 4px;
+      padding: 6px 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      background: var(--ap-primary, oklch(0.65 0.19 258));
+      color: var(--ap-primary-foreground, #fff);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 150ms;
+    }
+    .upload-btn:hover {
+      opacity: 0.9;
+    }
+    .upload-btn:focus-visible {
+      outline: 2px solid var(--ap-ring, oklch(0.65 0.19 258));
+      outline-offset: 2px;
+    }
 
     /* Popover anchor row */
     .popover-anchor {
@@ -330,6 +353,7 @@ export class ApContentToolbar extends LitElement {
   @property({ type: Number }) totalCount = 0;
   @property({ type: Number }) totalFolderCount = 0;
   @property({ type: Boolean }) isLoading = false;
+  @property({ type: Boolean }) showUpload = false;
   @property() sortBy: SortBy = 'created_at';
   @property() sortDirection: SortDirection = 'desc';
   @property({ type: Array }) sortOptions: SortOption[] = MAIN_SORT_OPTIONS;
@@ -444,6 +468,10 @@ export class ApContentToolbar extends LitElement {
     this._externalTrigger = false;
     this._externalLeft = null;
     this._sortDropdown?.close();
+  }
+
+  private _handleUploadClick() {
+    this.dispatchEvent(new CustomEvent('upload-click', { bubbles: true, composed: true }));
   }
 
   private _toggleDropdown() {
@@ -838,6 +866,12 @@ export class ApContentToolbar extends LitElement {
           >
             <ap-icon name=${this.sortDirection === 'asc' ? 'sort-asc' : 'sort-desc'} .size=${18}></ap-icon>
           </button>
+          ${this.showUpload ? html`
+            <button class="upload-btn" @click=${this._handleUploadClick}>
+              <ap-icon name="upload" .size=${16}></ap-icon>
+              Upload
+            </button>
+          ` : nothing}
         </div>
       </div>
       ${this._openFilter ? html`

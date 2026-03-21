@@ -155,6 +155,125 @@ export class AssetPicker extends LitElement {
       .ap-inline .inline-footer {
         flex-shrink: 0;
       }
+
+      /* Upload drop zone overlay */
+      .drop-zone-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.08));
+        border: 2px dashed var(--ap-primary, oklch(0.65 0.19 258));
+        border-radius: var(--ap-radius, 8px);
+        pointer-events: none;
+        animation: drop-zone-in 150ms ease-out;
+      }
+      .drop-zone-overlay .drop-zone-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        color: var(--ap-primary, oklch(0.65 0.19 258));
+        font-size: 1rem;
+        font-weight: 500;
+      }
+      @keyframes drop-zone-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .drop-zone-overlay { animation: none; }
+      }
+
+      /* Uploader overlay panel — fills the entire modal/inline container */
+      .uploader-overlay {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        background: var(--ap-background, #fff);
+        animation: uploader-slide-in 250ms ease-out;
+      }
+      @keyframes uploader-slide-in {
+        from { transform: translateX(100%); }
+        to   { transform: translateX(0); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .uploader-overlay { animation: none; }
+      }
+      .uploader-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--ap-border, #e4e4e7);
+        flex-shrink: 0;
+      }
+      .uploader-back-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border: none;
+        border-radius: var(--ap-radius-sm, 6px);
+        background: none;
+        color: var(--ap-muted-foreground, #71717a);
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 150ms;
+      }
+      .uploader-back-btn:hover {
+        background: var(--ap-muted, #f4f4f5);
+        color: var(--ap-foreground, #09090b);
+      }
+      .uploader-back-btn:focus-visible {
+        outline: 2px solid var(--ap-ring, oklch(0.65 0.19 258));
+        outline-offset: -2px;
+      }
+      .uploader-title {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--ap-foreground, #09090b);
+      }
+      .uploader-header .spacer {
+        flex: 1;
+      }
+      .uploader-close-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: none;
+        border-radius: var(--ap-radius-sm, 6px);
+        background: none;
+        color: var(--ap-muted-foreground, #71717a);
+        cursor: pointer;
+        transition: all 150ms;
+      }
+      .uploader-close-btn:hover {
+        background: var(--ap-muted, #f4f4f5);
+        color: var(--ap-foreground, #09090b);
+      }
+      .uploader-close-btn:focus-visible {
+        outline: 2px solid var(--ap-ring, oklch(0.65 0.19 258));
+        outline-offset: -2px;
+      }
+      .uploader-body {
+        flex: 1;
+        overflow: hidden;
+        min-height: 0;
+      }
+      .uploader-body sfx-uploader {
+        display: block;
+        width: 100%;
+        height: 100%;
+        --sfx-up-border: transparent;
+        --sfx-up-radius: 0;
+      }
     `,
   ];
 
@@ -174,6 +293,13 @@ export class AssetPicker extends LitElement {
   private _pendingFilter: string | null = null;
   private _pendingMetadataField: string | null = null;
 
+  // ── Uploader integration ──────────────────────────────────────────
+  private _uploaderEl: HTMLElement | null = null;
+  private _uploaderImportPromise: Promise<void> | null = null;
+  private _dragCounter = 0;
+  @state() private _isDragOver = false;
+  @state() private _isUploaderOpen = false;
+
   @property({ type: Object }) config?: AssetPickerConfig;
 
   constructor() {
@@ -191,6 +317,19 @@ export class AssetPicker extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    // Clean up uploader element reference
+    if (this._uploaderEl) {
+      this._uploaderEl.remove();
+      this._uploaderEl = null;
+    }
+    this._uploaderImportPromise = null;
+    this._dragCounter = 0;
+    this._isDragOver = false;
+    this._isUploaderOpen = false;
   }
 
   updated(changed: Map<string, unknown>) {
@@ -309,6 +448,158 @@ export class AssetPicker extends LitElement {
     }
   }
 
+  // ── Uploader integration ────────────────────────────────────────────
+
+  /**
+   * Ensure the uploader module is loaded (dynamic import).
+   * Only called when config.uploader is set — zero cost otherwise.
+   * Guards against concurrent calls via a shared promise.
+   */
+  private _ensureUploaderImport(): Promise<void> {
+    if (this._uploaderImportPromise) return this._uploaderImportPromise;
+
+    this._uploaderImportPromise = import('@scaleflex/uploader/define').then(() => {}, (err) => {
+      // Clear so next call retries instead of returning a rejected promise
+      this._uploaderImportPromise = null;
+      throw err;
+    });
+    return this._uploaderImportPromise;
+  }
+
+  /** Build the uploader config from asset-picker state + user config. */
+  private _buildUploaderConfig() {
+    const config = this.config!;
+    const uploaderCfg = config.uploader!;
+    const state = this.store.getState();
+
+    // Map asset-picker auth → uploader auth
+    let uploaderAuth: any;
+    if (config.auth.mode === 'securityTemplate') {
+      uploaderAuth = {
+        mode: 'security-template',
+        container: config.auth.projectToken,
+        securityTemplateId: config.auth.securityTemplateKey,
+      };
+    } else {
+      uploaderAuth = {
+        mode: 'session',
+        container: config.auth.projectToken,
+        sessionToken: config.auth.sessionToken,
+        companyToken: config.auth.companyToken,
+      };
+    }
+
+    return {
+      auth: uploaderAuth,
+      targetFolder: state.currentFolderPath || '/',
+      mode: 'inline' as const,
+      restrictions: uploaderCfg.restrictions,
+      concurrency: uploaderCfg.concurrency,
+      autoProceed: uploaderCfg.autoProceed,
+      showFillMetadata: uploaderCfg.showFillMetadata,
+      connectors: uploaderCfg.connectors,
+    };
+  }
+
+  /** Open the uploader panel, optionally pre-loading files (from drop). */
+  private async _openUploader(files?: File[]) {
+    if (!this.config?.uploader) return;
+
+    try {
+      await this._ensureUploaderImport();
+    } catch (err) {
+      // @scaleflex/uploader is not installed or failed to load
+      this.dispatchEvent(new CustomEvent('ap-error', {
+        detail: {
+          error: err instanceof Error ? err : new Error(String(err)),
+          context: 'uploader-load',
+        },
+        bubbles: true,
+        composed: true,
+      }));
+      return;
+    }
+
+    // Create a fresh uploader element each time to reset file state
+    this._uploaderEl = document.createElement('sfx-uploader');
+    const el = this._uploaderEl;
+
+    // Re-attach event listeners on the new element
+    el.addEventListener('sfx-all-complete', () => {
+      if (this.store.getState().isOpen) {
+        this._loadData();
+      }
+    });
+    el.addEventListener('sfx-complete-action', () => {
+      this._closeUploader();
+    });
+
+    // Show the overlay first so the element is connected to the DOM
+    this._isUploaderOpen = true;
+    await this.updateComplete;
+
+    // Now set config — the element is in the DOM and can resolve auth, etc.
+    (el as any).config = this._buildUploaderConfig();
+    await (el as any).updateComplete;
+
+    if (files?.length) {
+      (el as any).addFiles(files);
+    }
+  }
+
+  /** Close the uploader panel and return to the asset picker. */
+  private _closeUploader() {
+    this._isUploaderOpen = false;
+  }
+
+  private _handleUploadClick() {
+    this._openUploader();
+  }
+
+  // ── Drop zone handlers ──────────────────────────────────────────────
+
+  /** Check if the drag event contains files (not text selections, links, etc.). */
+  private _hasFileTransfer(e: DragEvent): boolean {
+    return !!e.dataTransfer?.types?.includes('Files');
+  }
+
+  private _onDragEnter = (e: DragEvent) => {
+    if (!this.config?.uploader || !this._hasFileTransfer(e)) return;
+    e.preventDefault();
+    this._dragCounter++;
+    if (this._dragCounter === 1) {
+      this._isDragOver = true;
+    }
+  };
+
+  private _onDragOver = (e: DragEvent) => {
+    if (!this.config?.uploader || !this._hasFileTransfer(e)) return;
+    e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+  };
+
+  private _onDragLeave = (e: DragEvent) => {
+    if (!this.config?.uploader || !this._hasFileTransfer(e)) return;
+    e.preventDefault();
+    this._dragCounter--;
+    if (this._dragCounter <= 0) {
+      this._dragCounter = 0;
+      this._isDragOver = false;
+    }
+  };
+
+  private _onDrop = (e: DragEvent) => {
+    if (!this.config?.uploader || !this._hasFileTransfer(e)) return;
+    e.preventDefault();
+    this._dragCounter = 0;
+    this._isDragOver = false;
+
+    const files = Array.from(e.dataTransfer?.files ?? []);
+    if (files.length > 0) {
+      this._openUploader(files);
+    }
+  };
+
   async open() {
     const state = this.store.getState();
     const normalizedForced = normalizeFilters(this.config?.forcedFilters);
@@ -347,6 +638,9 @@ export class AssetPicker extends LitElement {
       isLoading: true,
       isSelectingAll: false,
     });
+    // Reset drag state
+    this._dragCounter = 0;
+    this._isDragOver = false;
     this.dispatchEvent(new CustomEvent('ap-open', {
       detail: { timestamp: Date.now() },
       bubbles: true,
@@ -368,6 +662,9 @@ export class AssetPicker extends LitElement {
 
   close() {
     this.store.setState({ isOpen: false });
+    this._dragCounter = 0;
+    this._isDragOver = false;
+    this._isUploaderOpen = false;
   }
 
   private _scrollToTop() {
@@ -1235,8 +1532,23 @@ export class AssetPicker extends LitElement {
       ></ap-header>
     `;
 
+    const hasUploader = !!this.config?.uploader;
+
     const contentTemplate = html`
-      <div class="content-area">
+      <div class="content-area"
+        @dragenter=${this._onDragEnter}
+        @dragover=${this._onDragOver}
+        @dragleave=${this._onDragLeave}
+        @drop=${this._onDrop}
+      >
+        ${this._isDragOver ? html`
+          <div class="drop-zone-overlay">
+            <div class="drop-zone-label">
+              <ap-icon name="upload" .size=${32}></ap-icon>
+              Drop files to upload
+            </div>
+          </div>
+        ` : nothing}
         <div class="main-content">
           ${s.breadcrumb.length > 0
             ? html`<ap-breadcrumb
@@ -1250,6 +1562,7 @@ export class AssetPicker extends LitElement {
               .isLoading=${s.isLoading}
               .totalCount=${s.totalCount}
               .totalFolderCount=${s.totalFolderCount}
+              .showUpload=${hasUploader}
               .sortBy=${s.sortBy}
               .sortDirection=${s.sortDirection}
               .sortOptions=${this._getSortOptions()}
@@ -1269,6 +1582,7 @@ export class AssetPicker extends LitElement {
               @metadata-pin=${this._handleMetadataPin}
               @filter-panel-change=${this._handleFilterPanelChange}
               @filter-pending=${this._handleFilterPending}
+              @upload-click=${this._handleUploadClick}
             ></ap-content-toolbar>
 
             <ap-filters-bar
@@ -1334,13 +1648,34 @@ export class AssetPicker extends LitElement {
       ></ap-selection-bar>
     `;
 
+    const uploaderTemplate = this._isUploaderOpen ? html`
+      <div class="uploader-overlay">
+        <div class="uploader-header">
+          <button class="uploader-back-btn" @click=${this._closeUploader}>
+            <ap-icon name="chevron-left" .size=${16}></ap-icon>
+            Back
+          </button>
+          <span class="uploader-title">Upload files</span>
+          <span class="spacer"></span>
+          ${this._isInline ? nothing : html`
+            <button class="uploader-close-btn" @click=${() => this._handleCancel('close-button')} title="Close">
+              <ap-icon name="close" .size=${18}></ap-icon>
+            </button>
+          `}
+        </div>
+        <div class="uploader-body">${this._uploaderEl}</div>
+      </div>
+    ` : nothing;
+
     if (this._isInline) {
       if (!s.isOpen) return nothing;
       return html`
         <div class="ap-inline">
-          <div class="inline-header">${headerTemplate}</div>
-          <div class="inline-content">${contentTemplate}</div>
-          <div class="inline-footer">${footerTemplate}</div>
+          ${this._isUploaderOpen ? uploaderTemplate : html`
+            <div class="inline-header">${headerTemplate}</div>
+            <div class="inline-content">${contentTemplate}</div>
+            <div class="inline-footer">${footerTemplate}</div>
+          `}
         </div>
       `;
     }
@@ -1350,9 +1685,11 @@ export class AssetPicker extends LitElement {
         ?open=${s.isOpen}
         @ap-cancel=${(e: CustomEvent) => this._handleCancel(e.detail.reason)}
       >
-        <div slot="header">${headerTemplate}</div>
-        ${contentTemplate}
-        <div slot="footer">${footerTemplate}</div>
+        ${this._isUploaderOpen ? uploaderTemplate : html`
+          <div slot="header">${headerTemplate}</div>
+          ${contentTemplate}
+          <div slot="footer">${footerTemplate}</div>
+        `}
       </ap-modal>
     `;
   }

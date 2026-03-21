@@ -55,4 +55,39 @@ export interface AssetPickerConfig {
   rememberLastView?: boolean;
   onSelect?: (assets: import('./asset.types').Asset[]) => void;
   onCancel?: () => void;
+  /**
+   * Enable the integrated uploader. When provided, an "Upload" button appears in the toolbar
+   * and the content area becomes a drop zone. Requires `@scaleflex/uploader` to be installed
+   * (optional peer dependency — not loaded unless this config is set).
+   *
+   * Auth and target folder are derived automatically from the asset picker's state.
+   */
+  uploader?: UploaderIntegrationConfig;
+}
+
+/**
+ * Configuration for the integrated uploader.
+ * Auth and targetFolder are derived automatically — do not set them here.
+ */
+export interface UploaderIntegrationConfig {
+  /** File restrictions (max size, allowed types, etc.). */
+  restrictions?: {
+    maxFileSize?: number | null;
+    maxTotalFilesSize?: number | null;
+    maxNumberOfFiles?: number | null;
+    minNumberOfFiles?: number | null;
+    allowedFileTypes?: string[] | null;
+    blockedFileTypes?: string[] | null;
+  };
+  /** Max concurrent uploads. Defaults to 3. */
+  concurrency?: number;
+  /** Automatically start uploading when files are added. Defaults to false. */
+  autoProceed?: boolean;
+  /** Show "Fill Metadata" button in the uploader. */
+  showFillMetadata?: boolean;
+  /** Third-party connector config (Google Drive, Dropbox, etc.). */
+  connectors?: {
+    companionUrl: string;
+    providers: ('google-drive' | 'dropbox' | 'onedrive' | 'box' | 'instagram' | 'facebook' | 'unsplash')[];
+  };
 }

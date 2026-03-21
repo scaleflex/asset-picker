@@ -53,6 +53,7 @@ document.getElementById('openSingleBtn')!.addEventListener('click', () => {
   } catch { /* logged above */ }
 });
 
+
 picker.addEventListener('ap-select', ((e: CustomEvent) => {
   log(`ap-select event: ${JSON.stringify(e.detail.assets.map((a: { uuid: string; name: string }) => ({ uuid: a.uuid, name: a.name })))}`);
 }) as EventListener);
