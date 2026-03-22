@@ -458,13 +458,6 @@
     argparse "~1.0.9"
     string-argv "~0.3.1"
 
-"@scaleflex/uploader@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.npmjs.org/@scaleflex/uploader/-/uploader-0.1.0.tgz"
-  integrity sha512-Ayirv1ykFeg07pfcfzsJfS7RZ2zvsFQtOy0vhy5RL9TqQG0S87JPwHjdrLwgUFtulhVX8fXNFMdYf6XT+FcPRQ==
-  dependencies:
-    lit "^3.2.0"
-
 "@tailwindcss/node@4.2.1":
   version "4.2.1"
   resolved "https://registry.npmjs.org/@tailwindcss/node/-/node-4.2.1.tgz"

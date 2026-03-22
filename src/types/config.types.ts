@@ -89,5 +89,26 @@ export interface UploaderIntegrationConfig {
   connectors?: {
     companionUrl: string;
     providers: ('google-drive' | 'dropbox' | 'onedrive' | 'box' | 'instagram' | 'facebook' | 'unsplash')[];
+    customSources?: Array<{
+      id: string;
+      name: string;
+      icon?: string;
+      [key: string]: unknown;
+    }>;
   };
+  /** Layout for import-from sources: horizontal pills (default) or cards grid. */
+  sourcesLayout?: 'pills' | 'cards';
+  /**
+   * Controls the header navigation button.
+   * - `'none'`  — no button (default for inline)
+   * - `'close'` — X icon on the right (default for modal)
+   * - `'back'`  — back arrow on the left (for wizard flows)
+   */
+  headerButton?: 'none' | 'close' | 'back';
+  /** Whether closing clears all files. Default: true. */
+  clearOnClose?: boolean;
+  /** Whether the "Done" action clears all files. Default: true. */
+  clearOnComplete?: boolean;
+  /** Auto-remove rejected files after this delay (ms). Default: 4000. Set 0 or false to disable. */
+  rejectedFileAutoRemoveDelay?: number | false;
 }

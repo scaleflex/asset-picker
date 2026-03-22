@@ -13,6 +13,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
+      '@scaleflex/uploader/define': resolve(__dirname, '../uploader/dist/define.js'),
+      '@scaleflex/uploader': resolve(__dirname, '../uploader/dist/index.js'),
     },
   },
 });

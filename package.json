@@ -52,7 +52,7 @@
     "vite-plugin-dts": "^4.0.0"
   },
   "peerDependencies": {
-    "@scaleflex/uploader": ">=0.1.0",
+    "@scaleflex/uploader": "^0.2.0",
     "react": ">=18",
     "react-dom": ">=18"
   },

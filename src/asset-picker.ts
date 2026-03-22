@@ -188,6 +188,7 @@ export class AssetPicker extends LitElement {
 
       /* Uploader overlay panel — fills the entire modal/inline container */
       .uploader-overlay {
+        position: relative;
         display: flex;
         flex-direction: column;
         flex: 1;
@@ -195,57 +196,16 @@ export class AssetPicker extends LitElement {
         background: var(--ap-background, #fff);
         animation: uploader-slide-in 250ms ease-out;
       }
-      @keyframes uploader-slide-in {
-        from { transform: translateX(100%); }
-        to   { transform: translateX(0); }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        .uploader-overlay { animation: none; }
-      }
-      .uploader-header {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px 20px;
-        border-bottom: 1px solid var(--ap-border, #e4e4e7);
-        flex-shrink: 0;
-      }
-      .uploader-back-btn {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 12px;
-        border: none;
-        border-radius: var(--ap-radius-sm, 6px);
-        background: none;
-        color: var(--ap-muted-foreground, #71717a);
-        font-size: 0.875rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 150ms;
-      }
-      .uploader-back-btn:hover {
-        background: var(--ap-muted, #f4f4f5);
-        color: var(--ap-foreground, #09090b);
-      }
-      .uploader-back-btn:focus-visible {
-        outline: 2px solid var(--ap-ring, oklch(0.65 0.19 258));
-        outline-offset: -2px;
-      }
-      .uploader-title {
-        font-size: 0.9375rem;
-        font-weight: 600;
-        color: var(--ap-foreground, #09090b);
-      }
-      .uploader-header .spacer {
-        flex: 1;
-      }
       .uploader-close-btn {
+        position: absolute;
+        top: 14px;
+        right: 20px;
+        z-index: 1;
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 32px;
-        height: 32px;
+        width: 30px;
+        height: 30px;
         border: none;
         border-radius: var(--ap-radius-sm, 6px);
         background: none;
@@ -260,6 +220,13 @@ export class AssetPicker extends LitElement {
       .uploader-close-btn:focus-visible {
         outline: 2px solid var(--ap-ring, oklch(0.65 0.19 258));
         outline-offset: -2px;
+      }
+      @keyframes uploader-slide-in {
+        from { transform: translateX(100%); }
+        to   { transform: translateX(0); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .uploader-overlay { animation: none; }
       }
       .uploader-body {
         flex: 1;
@@ -497,12 +464,17 @@ export class AssetPicker extends LitElement {
       autoProceed: uploaderCfg.autoProceed,
       showFillMetadata: uploaderCfg.showFillMetadata,
       connectors: uploaderCfg.connectors,
+      sourcesLayout: uploaderCfg.sourcesLayout,
+      headerButton: uploaderCfg.headerButton ?? 'back',
+      clearOnClose: uploaderCfg.clearOnClose,
+      clearOnComplete: uploaderCfg.clearOnComplete,
+      rejectedFileAutoRemoveDelay: uploaderCfg.rejectedFileAutoRemoveDelay,
     };
   }
 
   /** Open the uploader panel, optionally pre-loading files (from drop). */
   private async _openUploader(files?: File[]) {
-    if (!this.config?.uploader) return;
+    if (!this.config?.uploader || this._isUploaderOpen) return;
 
     try {
       await this._ensureUploaderImport();
@@ -523,13 +495,15 @@ export class AssetPicker extends LitElement {
     this._uploaderEl = document.createElement('sfx-uploader');
     const el = this._uploaderEl;
 
-    // Re-attach event listeners on the new element
     el.addEventListener('sfx-all-complete', () => {
       if (this.store.getState().isOpen) {
         this._loadData();
       }
     });
     el.addEventListener('sfx-complete-action', () => {
+      this._closeUploader();
+    });
+    el.addEventListener('sfx-cancel', () => {
       this._closeUploader();
     });
 
@@ -549,6 +523,7 @@ export class AssetPicker extends LitElement {
   /** Close the uploader panel and return to the asset picker. */
   private _closeUploader() {
     this._isUploaderOpen = false;
+    this._uploaderEl = null;
   }
 
   private _handleUploadClick() {
@@ -1649,19 +1624,11 @@ export class AssetPicker extends LitElement {
 
     const uploaderTemplate = this._isUploaderOpen ? html`
       <div class="uploader-overlay">
-        <div class="uploader-header">
-          <button class="uploader-back-btn" @click=${this._closeUploader}>
-            <ap-icon name="chevron-left" .size=${16}></ap-icon>
-            Back
+        ${this._isInline ? nothing : html`
+          <button class="uploader-close-btn" @click=${() => this._handleCancel('close-button')} title="Close">
+            <ap-icon name="close" .size=${18}></ap-icon>
           </button>
-          <span class="uploader-title">Upload files</span>
-          <span class="spacer"></span>
-          ${this._isInline ? nothing : html`
-            <button class="uploader-close-btn" @click=${() => this._handleCancel('close-button')} title="Close">
-              <ap-icon name="close" .size=${18}></ap-icon>
-            </button>
-          `}
-        </div>
+        `}
         <div class="uploader-body">${this._uploaderEl}</div>
       </div>
     ` : nothing;
