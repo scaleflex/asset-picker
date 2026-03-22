@@ -7,24 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-03-22
+
 ### Added
 
+- `@scaleflex/uploader` integration with drop zone and upload panel
+- Uploader uses built-in header with back button; close (X) button in modal mode
 - Select-all functionality for asset selection
 - Stats endpoint integration
 - Tags filter with suggested and other tags from API
-- GitHub Pages demo
+- Resolution info on asset cards
+- Custom theming example
+- GitHub Pages demo with centered layout and auth UX
 
 ### Changed
 
+- Adopted Scaleflex design system with oklch color tokens across all components
+- Polished header: search sizing, close button, box-shadow replaced with border-bottom
+- Styled filter system: rounded pinned chips, accent backgrounds, icon colors, Clear filters button
+- Styled selection bar: primary background, outline Confirm button
+- Styled dropdowns: metadata field selector, regional settings, filter options
+- Styled list view: checkbox borders, header labels, type column color
+- Increased asset checkbox size to 22x22px in grid and list views
+- Used Lucide icons for checkboxes, calendar, grid view, and select button
 - Improved filter UX: temporary chips, search focus, "Clear all" placement, and outside click handling
-- Improved sort system
-- Filter validation and debounced filter application
-- SVG preview rendering
+- Improved sort system, filter validation, and debounced filter application
+- SVG preview rendering improvements
 
 ### Fixed
 
 - Filter popover overflowing right edge of widget
 - Filter popover not closing on filters-bar empty area click
+- Size filter inputs overlapping
+- List view checkboxes rendering at exact 22x22px with border-box sizing
+- Metadata field selector dropdown being clipped at the top
 - Approval filter and filter constants
 - Date presets and serialization
 - Filter component UX issues
