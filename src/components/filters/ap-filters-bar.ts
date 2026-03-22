@@ -14,7 +14,7 @@ import {
 } from '../../types/filter.types';
 import type { TagWithLabel } from '../../types/tag.types';
 import type { Label } from '../../types/label.types';
-import { FILTER_LABELS, DATE_FIELD_OPTIONS, DATE_RANGE_OPTIONS, LICENSE_DATE_RANGE_OPTIONS, ASSET_TYPE_OPTIONS } from './filters.constants';
+import { FILTER_LABELS, ALL_FILTER_ITEMS, DATE_FIELD_OPTIONS, DATE_RANGE_OPTIONS, LICENSE_DATE_RANGE_OPTIONS, ASSET_TYPE_OPTIONS } from './filters.constants';
 import { normalizeFilters } from '../../utils/filter-normalize';
 
 @customElement('ap-filters-bar')
@@ -30,7 +30,7 @@ export class ApFiltersBar extends LitElement {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 0 20px 8px;
+      padding: 0 20px 16px;
     }
     .chips {
       display: flex;
@@ -48,21 +48,22 @@ export class ApFiltersBar extends LitElement {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 4px 12px;
-      border: 1px solid var(--ap-primary-20, oklch(0.65 0.19 258 / 0.25));
-      border-radius: 9999px;
+      height: 32px;
+      padding: 0 12px;
+      border: 1px solid var(--ap-primary-20, oklch(0.578 0.198 268.129 / 0.2));
+      border-radius: 6px;
       font-size: 0.8125rem;
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.1));
-      color: var(--ap-primary, oklch(0.65 0.19 258));
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.1));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
       cursor: pointer;
       white-space: nowrap;
       transition: all 150ms;
     }
     .chip:hover {
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.15));
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.15));
     }
     .chip.active {
-      background: var(--ap-primary-20, oklch(0.65 0.19 258 / 0.2));
+      background: var(--ap-primary-20, oklch(0.578 0.198 268.129 / 0.2));
     }
     .chip-label {
       font-weight: 500;
@@ -94,26 +95,27 @@ export class ApFiltersBar extends LitElement {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 4px 10px;
+      height: 34px;
+      padding: 0 10px;
       border: none;
       border-radius: 6px;
       font-size: 0.8125rem;
       background: none;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
       cursor: pointer;
       white-space: nowrap;
       transition: all 150ms;
     }
     .clear-all:hover {
-      background: var(--ap-muted, #f4f4f5);
-      color: var(--ap-foreground, #09090b);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
     .chip.forced {
       cursor: default;
       opacity: 0.85;
     }
     .chip.forced:hover {
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.1));
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.1));
     }
     .chip-lock {
       display: flex;
@@ -123,21 +125,46 @@ export class ApFiltersBar extends LitElement {
       margin-left: 4px;
     }
     .chip.pinned-empty {
-      border-style: dashed;
+      height: 32px;
+      padding: 0 12px;
+      gap: 6px;
+      border-style: solid;
+      border-radius: 6px;
       background: transparent;
-      color: var(--ap-muted-foreground, #71717a);
-      border-color: var(--ap-border, #e4e4e7);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
+      border-color: var(--ap-input, oklch(0.871 0.016 241.798));
+      font-weight: 400;
+    }
+    .chip .chip-icon {
+      display: flex;
+      align-items: center;
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
+    }
+    .chip.pinned-empty .chip-icon {
+      display: flex;
+      align-items: center;
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
     .chip.pinned-empty:hover {
-      background: var(--ap-muted, #f4f4f5);
-      color: var(--ap-foreground, #09090b);
-      border-color: var(--ap-muted-foreground, #a1a1aa);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
+      border-color: var(--ap-input, oklch(0.871 0.016 241.798));
+    }
+    .chip.pinned-empty:hover .chip-icon {
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
     .chip.pinned-empty.active {
-      border-style: solid;
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.1));
-      color: var(--ap-primary, oklch(0.65 0.19 258));
-      border-color: var(--ap-primary-20, oklch(0.65 0.19 258 / 0.25));
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.1));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
+      border-color: var(--ap-primary-20, oklch(0.578 0.198 268.129 / 0.2));
+    }
+    .chip.pinned-empty.active .chip-icon {
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
+    }
+    .chip-chevron {
+      display: flex;
+      align-items: center;
+      opacity: 0.6;
     }
   `;
 
@@ -253,6 +280,10 @@ export class ApFiltersBar extends LitElement {
     return `${fieldLabel}: ${value}`;
   }
 
+  private _getFilterIcon(key: AnyFilterKey): string {
+    return ALL_FILTER_ITEMS.find((i) => i.key === key)?.icon || 'filter';
+  }
+
   private _getMetadataLabel(fieldKey: string): string {
     // fieldKey is prefixed (e.g. "text_description"), so strip prefix to match field.key
     const strippedKey = this._stripMetadataPrefix(fieldKey);
@@ -333,7 +364,9 @@ export class ApFiltersBar extends LitElement {
       // Empty pinned chip
       return html`
         <span class="chip pinned-empty ${key === this.activeFilter ? 'active' : ''}" @click=${(e: Event) => this._openFilter(key, e)}>
+          <span class="chip-icon"><ap-icon name=${this._getFilterIcon(key)} .size=${16}></ap-icon></span>
           <span class="chip-label">${FILTER_LABELS[key] || key}</span>
+          <span class="chip-chevron"><ap-icon name="chevron-down" .size=${14}></ap-icon></span>
         </span>
       `;
     }
@@ -343,7 +376,9 @@ export class ApFiltersBar extends LitElement {
     return html`
       <span class="chip ${key === this.activeFilter ? 'active' : ''}" @click=${(e: Event) => this._openFilter(key, e)}>
         ${(isDate || key === FILTER_KEYS.TYPE || key === FILTER_KEYS.SIZE) && summary
-          ? html`<span class="chip-label">${summary}</span>`
+          ? html`
+              <span class="chip-icon"><ap-icon name=${this._getFilterIcon(key)} .size=${16}></ap-icon></span>
+              <span class="chip-label">${summary}</span>`
           : html`
               <span class="chip-label">${FILTER_LABELS[key] || key}</span>
               ${summary ? html`<span class="chip-summary">${summary}</span>` : nothing}
@@ -361,7 +396,9 @@ export class ApFiltersBar extends LitElement {
       const label = this._getMetadataLabel(fieldKey);
       return html`
         <span class="chip pinned-empty ${fieldKey === this.activeMetadataField ? 'active' : ''}" @click=${(e: Event) => this._openMetadataFilter(fieldKey, e)}>
+          <span class="chip-icon"><ap-icon name="file-text" .size=${16}></ap-icon></span>
           <span class="chip-label">${label}</span>
+          <span class="chip-chevron"><ap-icon name="chevron-down" .size=${14}></ap-icon></span>
         </span>
       `;
     }
@@ -429,7 +466,9 @@ export class ApFiltersBar extends LitElement {
           )}
           ${hasPending ? html`
             <span class="chip pinned-empty active pending" @click=${(e: Event) => this._openFilter(this.pendingFilter!, e)}>
+              <span class="chip-icon"><ap-icon name=${this._getFilterIcon(this.pendingFilter!)} .size=${16}></ap-icon></span>
               <span class="chip-label">${FILTER_LABELS[this.pendingFilter!] || this.pendingFilter}</span>
+              <span class="chip-chevron"><ap-icon name="chevron-down" .size=${14}></ap-icon></span>
             </span>
           ` : nothing}
           ${nonPinnedMetaApplied.map((fieldKey) =>
@@ -437,13 +476,15 @@ export class ApFiltersBar extends LitElement {
           )}
           ${hasPendingMeta ? html`
             <span class="chip pinned-empty active pending" @click=${(e: Event) => this._openMetadataFilter(this.pendingMetadataField!, e)}>
+              <span class="chip-icon"><ap-icon name="file-text" .size=${16}></ap-icon></span>
               <span class="chip-label">${this._getMetadataLabel(this.pendingMetadataField!)}</span>
+              <span class="chip-chevron"><ap-icon name="chevron-down" .size=${14}></ap-icon></span>
             </span>
           ` : nothing}
+          ${hasApplied
+            ? html`<button class="clear-all" @click=${this._clearAll}>Clear filters</button>`
+            : nothing}
         </div>
-        ${hasApplied
-          ? html`<button class="clear-all" @click=${this._clearAll}>Clear filters</button>`
-          : nothing}
       </div>
     `;
   }

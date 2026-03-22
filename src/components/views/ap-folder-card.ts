@@ -94,10 +94,10 @@ export class ApFolderCard extends LitElement {
     .preview-slot {
       display: flex;
       position: relative;
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
     }
     .preview-slot.icon-bg {
-      background: var(--ap-card, #f3f7fa);
+      background: var(--ap-card, oklch(1 0 0));
     }
     .preview-img {
       position: absolute;
@@ -117,7 +117,7 @@ export class ApFolderCard extends LitElement {
       justify-content: center;
       width: 100%;
       height: 100%;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
     .info {
       flex-shrink: 0;
@@ -126,7 +126,7 @@ export class ApFolderCard extends LitElement {
     .name {
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-weight: 400;
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -135,7 +135,7 @@ export class ApFolderCard extends LitElement {
       display: flex;
       justify-content: space-between;
       font-size: 0.75rem;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       margin-top: 2px;
     }
   `];

@@ -22,12 +22,12 @@ export class ApModal extends LitElement {
       border: none;
       border-radius: var(--ap-modal-radius, 12px);
       box-shadow: var(--ap-modal-shadow, 0 25px 50px -12px rgb(0 0 0 / 0.25));
-      background: var(--ap-background, #fff);
+      background: var(--ap-background, oklch(1 0 0));
       overflow: hidden;
       display: flex;
       flex-direction: column;
       font-family: var(--ap-font-family, system-ui, -apple-system, sans-serif);
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
     dialog[open] {
       animation: ap-modal-in 200ms ease-out;
@@ -60,7 +60,6 @@ export class ApModal extends LitElement {
     }
     .modal-header {
       flex-shrink: 0;
-      border-bottom: 1px solid var(--ap-border, #e4e4e7);
     }
     .modal-content {
       flex: 1;

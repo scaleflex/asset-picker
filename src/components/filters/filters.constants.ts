@@ -48,7 +48,7 @@ export const METADATA_MODEL_INDEX = 0;
 // ── Filter Items (for "Add filter" UI) ──────────────────────────────
 
 export const FILTER_ITEMS: FilterItemConfig[] = [
-  { key: FILTER_KEYS.DATE, label: 'Date', icon: 'calendar-days', type: 'date' },
+  { key: FILTER_KEYS.DATE, label: 'Date', icon: 'calendar', type: 'date' },
   { key: FILTER_KEYS.TYPE, label: 'Format', icon: 'file-type', type: 'string' },
   { key: FILTER_KEYS.SIZE, label: 'Size', icon: 'scaling', type: 'string' },
   { key: FILTER_KEYS.LICENSE_EXPIRY, label: 'License expiry', icon: 'history', type: 'date' },
@@ -257,10 +257,10 @@ export const APPROVAL_PERSON_OPERATOR_OPTIONS = [
 ];
 
 export const APPROVAL_STATUS_ONLY_OPTIONS = [
-  { value: 'APPROVED', label: 'Approved', icon: 'circle-check-big', iconColor: 'var(--ap-success, #22c55e)' },
-  { value: 'PENDING', label: 'Pending', icon: 'clock', iconColor: 'var(--ap-warning, #eab308)' },
-  { value: 'REJECTED', label: 'Rejected', icon: 'x-circle', iconColor: 'var(--ap-destructive, #ef4444)' },
-  { value: 'CANCELLED', label: 'Cancelled', icon: 'ban', iconColor: 'var(--ap-muted-foreground, #71717a)' },
+  { value: 'APPROVED', label: 'Approved', icon: 'circle-check-big', iconColor: 'var(--ap-success, oklch(0.637 0.17 151.295))' },
+  { value: 'PENDING', label: 'Pending', icon: 'clock', iconColor: 'var(--ap-warning, oklch(0.734 0.157 69.419))' },
+  { value: 'REJECTED', label: 'Rejected', icon: 'x-circle', iconColor: 'var(--ap-destructive, oklch(0.577 0.215 27.325))' },
+  { value: 'CANCELLED', label: 'Cancelled', icon: 'ban', iconColor: 'var(--ap-muted-foreground, oklch(0.685 0.033 249.82))' },
 ];
 
 // ── Empty / Special Values ──────────────────────────────────────────

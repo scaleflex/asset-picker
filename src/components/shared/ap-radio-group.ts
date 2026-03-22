@@ -48,13 +48,13 @@ export class ApRadioGroup extends LitElement {
         width: 18px;
         height: 18px;
         min-width: 18px;
-        border: 2px solid var(--ap-border, #e4e4e7);
+        border: 1px solid var(--ap-input, oklch(0.871 0.016 241.798));
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: border-color 150ms;
-        background: var(--ap-background, #fff);
+        background: var(--ap-background, oklch(1 0 0));
       }
       .radio .dot {
         width: 10px;
@@ -64,14 +64,14 @@ export class ApRadioGroup extends LitElement {
         transition: background 150ms;
       }
       .option[aria-checked="true"] .radio {
-        border-color: var(--ap-primary, oklch(0.65 0.19 258));
+        border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
       }
       .option[aria-checked="true"] .radio .dot {
-        background: var(--ap-primary, oklch(0.65 0.19 258));
+        background: var(--ap-primary, oklch(0.578 0.198 268.129));
       }
       .label {
         font-size: var(--ap-font-size-sm, 0.875rem);
-        color: var(--ap-foreground, #09090b);
+        color: var(--ap-foreground, oklch(0.37 0.022 248.413));
         font-family: inherit;
         user-select: none;
       }

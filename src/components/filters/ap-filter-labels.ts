@@ -11,7 +11,7 @@ export class ApFilterLabels extends LitElement {
     .label-item {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
       padding: 6px 8px;
       border-radius: var(--ap-radius-sm, 6px);
       cursor: pointer;
@@ -19,7 +19,7 @@ export class ApFilterLabels extends LitElement {
     }
 
     .label-item:hover:not(.disabled) {
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
     }
 
     .label-item.disabled {
@@ -38,7 +38,7 @@ export class ApFilterLabels extends LitElement {
 
     .label-name {
       font-size: var(--ap-font-size-sm, 0.875rem);
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       flex: 1;
       min-width: 0;
       overflow: hidden;
@@ -48,7 +48,7 @@ export class ApFilterLabels extends LitElement {
 
     .count {
       font-size: 0.75rem;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       flex-shrink: 0;
     }
 

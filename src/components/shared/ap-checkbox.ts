@@ -12,34 +12,34 @@ export class ApCheckbox extends LitElement {
         cursor: pointer;
       }
       .box {
-        width: 18px;
-        height: 18px;
-        border: 2px solid var(--ap-border, #e4e4e7);
+        width: 16px;
+        height: 16px;
+        border: 1px solid var(--ap-input, oklch(0.871 0.016 241.798));
         border-radius: 4px;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 150ms;
-        background: var(--ap-background, #fff);
+        background: var(--ap-background, oklch(1 0 0));
       }
       :host([checked]) .box {
-        background: var(--ap-primary, #3b82f6);
-        border-color: var(--ap-primary, #3b82f6);
+        background: var(--ap-primary, oklch(0.578 0.198 268.129));
+        border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
       }
       .check {
         display: none;
-        color: var(--ap-primary-foreground, #fff);
+        color: var(--ap-primary-foreground, oklch(1 0 0));
       }
       :host([checked]) .check {
         display: block;
       }
       :host([indeterminate]) .box {
-        background: var(--ap-primary, #3b82f6);
-        border-color: var(--ap-primary, #3b82f6);
+        background: var(--ap-primary, oklch(0.578 0.198 268.129));
+        border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
       }
       .dash {
         display: none;
-        color: var(--ap-primary-foreground, #fff);
+        color: var(--ap-primary-foreground, oklch(1 0 0));
       }
       :host([indeterminate]:not([checked])) .dash {
         display: block;
@@ -54,7 +54,7 @@ export class ApCheckbox extends LitElement {
       .label {
         margin-left: 8px;
         font-size: var(--ap-font-size-sm, 0.875rem);
-        color: var(--ap-foreground, #09090b);
+        color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       }
     `,
   ];
@@ -73,6 +73,14 @@ export class ApCheckbox extends LitElement {
     this.removeEventListener('click', this._handleHostClick);
   }
 
+  private _hasLabel = false;
+
+  private _onSlotChange(e: Event) {
+    const slot = e.target as HTMLSlotElement;
+    this._hasLabel = slot.assignedNodes({ flatten: true }).length > 0;
+    this.requestUpdate();
+  }
+
   private _handleHostClick = () => {
     this.dispatchEvent(new CustomEvent('ap-toggle', {
       detail: { checked: !this.checked },
@@ -85,13 +93,13 @@ export class ApCheckbox extends LitElement {
     return html`
       <div class="box">
         <svg class="check" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4.5 12.75l6 6 9-13.5"></path>
+          <path d="M20 6 9 17l-5-5"></path>
         </svg>
         <svg class="dash" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
           <path d="M5 12h14"></path>
         </svg>
       </div>
-      <span class="label"><slot></slot></span>
+      <span class="label" ?hidden=${!this._hasLabel}><slot @slotchange=${this._onSlotChange}></slot></span>
     `;
   }
 }

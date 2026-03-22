@@ -18,7 +18,7 @@ export class ApBreadcrumb extends LitElement {
     button {
       border: none;
       background: none;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       cursor: pointer;
       padding: 4px 6px;
       border-radius: 4px;
@@ -26,16 +26,16 @@ export class ApBreadcrumb extends LitElement {
       font-size: var(--ap-font-size-sm, 0.875rem);
     }
     button:hover {
-      background: var(--ap-muted, #f4f4f5);
-      color: var(--ap-foreground, #09090b);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
     .current {
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       font-weight: 500;
       padding: 4px 6px;
     }
     ap-icon {
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
   `;
 

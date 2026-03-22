@@ -18,15 +18,15 @@ export class ApRegionalSettings extends LitElement {
       border: 1px solid transparent;
       border-radius: var(--ap-radius-sm, 6px);
       background: none;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
       cursor: pointer;
     }
     .trigger:hover {
-      background: var(--ap-muted, #f4f4f5);
-      color: var(--ap-foreground, #09090b);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
     .trigger.active {
-      color: var(--ap-primary, oklch(0.65 0.19 258));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
     .popover {
       display: none;
@@ -37,56 +37,53 @@ export class ApRegionalSettings extends LitElement {
       min-width: 220px;
       max-height: 320px;
       overflow-y: auto;
-      background: var(--ap-card, #fff);
-      border: 1px solid var(--ap-border, #e4e4e7);
+      background: var(--ap-card, oklch(1 0 0));
+      border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: var(--ap-radius, 8px);
       box-shadow: 0 4px 12px rgb(0 0 0 / 0.12);
-      padding: 8px 0;
+      padding: 0;
     }
     .popover.open {
       display: block;
-    }
-    .popover-title {
-      padding: 8px 12px 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--ap-muted-foreground, #71717a);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
     }
     .group {
       padding: 4px 0;
     }
     .group + .group {
-      border-top: 1px solid var(--ap-border, #e4e4e7);
+      border-top: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     }
     .group-label {
-      padding: 6px 12px 2px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--ap-muted-foreground, #71717a);
+      padding: 6px 12px 8px;
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
     }
     .variant-option {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 8px;
       width: 100%;
-      padding: 6px 12px;
+      padding: 6px 16px 6px 24px;
       border: none;
       background: none;
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-family: inherit;
       text-align: left;
       cursor: pointer;
       border-radius: 0;
     }
+    .variant-label {
+      flex: 1;
+    }
     .variant-option:hover {
-      background: var(--ap-muted, #f4f4f5);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
     }
     .variant-option[data-selected] {
-      color: var(--ap-primary, oklch(0.65 0.19 258));
-      font-weight: 500;
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.08));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
+      font-weight: 400;
     }
     .check-mark {
       width: 16px;
@@ -135,9 +132,8 @@ export class ApRegionalSettings extends LitElement {
         <ap-icon name="globe" .size=${18}></ap-icon>
       </button>
       <div class="popover ${this._open ? 'open' : ''}">
-        <div class="popover-title">Regional settings</div>
         ${!hasGroups ? html`
-          <div style="padding: 12px 12px; font-size: 0.8125rem; color: var(--ap-muted-foreground, #71717a);">
+          <div style="padding: 12px 12px; font-size: 0.8125rem; color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));">
             No regional settings configured
           </div>
         ` : nothing}
@@ -152,8 +148,8 @@ export class ApRegionalSettings extends LitElement {
                   ?data-selected=${isSelected}
                   @click=${() => this._selectVariant(group.uuid, variant.api_value)}
                 >
+                  <span class="variant-label">${variant.label}</span>
                   <span class="check-mark">${isSelected ? html`<ap-icon name="check" .size=${14}></ap-icon>` : ''}</span>
-                  ${variant.label}
                 </button>
               `;
             })}

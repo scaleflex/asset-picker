@@ -37,7 +37,7 @@ export class ApContentToolbar extends LitElement {
   static styles = css`
     :host {
       display: block;
-      padding: 8px 20px 0;
+      padding: 8px 20px 6px;
     }
     .toolbar-row {
       display: flex;
@@ -46,7 +46,7 @@ export class ApContentToolbar extends LitElement {
     }
     .count {
       font-size: 0.8125rem;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
       white-space: nowrap;
     }
     .count-skeleton {
@@ -54,7 +54,7 @@ export class ApContentToolbar extends LitElement {
       width: 80px;
       height: 14px;
       border-radius: 4px;
-      background: linear-gradient(90deg, var(--ap-muted, #f4f4f5) 25%, #e8e8ea 50%, var(--ap-muted, #f4f4f5) 75%);
+      background: linear-gradient(90deg, var(--ap-muted, oklch(0.974 0.006 239.819)) 25%, #e8e8ea 50%, var(--ap-muted, oklch(0.974 0.006 239.819)) 75%);
       background-size: 200% 100%;
       animation: shimmer 1.5s infinite;
     }
@@ -83,19 +83,20 @@ export class ApContentToolbar extends LitElement {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 14px;
+      height: 36px;
+      padding: 0 14px;
       border: none;
       border-radius: 6px;
       font-size: 0.875rem;
       font-weight: 500;
       background: none;
-      color: var(--ap-primary, oklch(0.65 0.19 258));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
       cursor: pointer;
       white-space: nowrap;
       transition: background 150ms;
     }
     .add-btn:hover {
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.08));
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.08));
     }
     .add-btn ap-icon {
       transition: transform 200ms;
@@ -111,8 +112,8 @@ export class ApContentToolbar extends LitElement {
       height: 18px;
       padding: 0 5px;
       border-radius: 9px;
-      background: var(--ap-primary, oklch(0.65 0.19 258));
-      color: var(--ap-primary-foreground, #fff);
+      background: var(--ap-primary, oklch(0.578 0.198 268.129));
+      color: var(--ap-primary-foreground, oklch(1 0 0));
       font-size: 0.6875rem;
       font-weight: 600;
       line-height: 1;
@@ -123,8 +124,8 @@ export class ApContentToolbar extends LitElement {
       right: 0;
       z-index: 50;
       min-width: 480px;
-      background: var(--ap-card, #fff);
-      border: 1px solid var(--ap-border, #e4e4e7);
+      background: var(--ap-card, oklch(1 0 0));
+      border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: var(--ap-radius, 8px);
       box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
       padding: 16px;
@@ -139,7 +140,7 @@ export class ApContentToolbar extends LitElement {
       width: 280px;
       padding: 0;
       max-height: 400px;
-      overflow: hidden;
+      overflow-y: auto;
     }
 
     /* Filter button in dropdown */
@@ -148,10 +149,10 @@ export class ApContentToolbar extends LitElement {
       align-items: center;
       gap: 8px;
       padding: 8px 12px;
-      border: 1px solid var(--ap-border, #e4e4e7);
+      border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: var(--ap-radius, 8px);
-      background: var(--ap-background, #fff);
-      color: var(--ap-foreground, #09090b);
+      background: var(--ap-background, oklch(1 0 0));
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       font-size: 0.9375rem;
       cursor: pointer;
       transition: all 150ms;
@@ -159,25 +160,33 @@ export class ApContentToolbar extends LitElement {
       box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     }
     .filter-btn:hover {
-      background: var(--ap-muted, #f4f4f5);
-      border-color: var(--ap-muted-foreground, #a1a1aa);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
+      border-color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
     .filter-btn.active {
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.08));
-      border-color: var(--ap-primary-20, oklch(0.65 0.19 258 / 0.25));
-      color: var(--ap-foreground, #09090b);
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.08));
+      border-color: var(--ap-primary-20, oklch(0.578 0.198 268.129 / 0.2));
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
     .filter-btn.active:hover {
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.12));
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.12));
+    }
+    .filter-btn.pinned {
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.08));
+      border-color: var(--ap-primary-20, oklch(0.578 0.198 268.129 / 0.2));
+    }
+    .filter-btn.pinned:hover {
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.12));
     }
     .filter-btn-icon {
       display: flex;
       align-items: center;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       flex-shrink: 0;
     }
-    .filter-btn.active .filter-btn-icon {
-      color: var(--ap-primary, oklch(0.65 0.19 258));
+    .filter-btn.active .filter-btn-icon,
+    .filter-btn.pinned .filter-btn-icon {
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
     .filter-btn-label {
       display: flex;
@@ -187,7 +196,7 @@ export class ApContentToolbar extends LitElement {
       min-width: 0;
     }
     .filter-btn-label ap-icon {
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
     }
     .pin-btn {
       display: flex;
@@ -199,7 +208,7 @@ export class ApContentToolbar extends LitElement {
       background: none;
       cursor: pointer;
       padding: 0;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       border-radius: 4px;
       flex-shrink: 0;
       margin-left: auto;
@@ -211,23 +220,23 @@ export class ApContentToolbar extends LitElement {
       opacity: 1;
     }
     .pin-btn:hover {
-      color: var(--ap-primary, oklch(0.65 0.19 258));
-      background: var(--ap-primary-10, oklch(0.65 0.19 258 / 0.08));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
+      background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.08));
     }
     .pin-btn.pinned {
-      color: var(--ap-primary, oklch(0.65 0.19 258));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
     .submenu-chevron {
       display: flex;
       align-items: center;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       margin-left: auto;
     }
 
     .divider {
       width: 1px;
       height: 24px;
-      background: var(--ap-border, #e4e4e7);
+      background: var(--ap-border, oklch(92.86% 0.009 247.92));
     }
     .icon-btn {
       display: flex;
@@ -238,15 +247,15 @@ export class ApContentToolbar extends LitElement {
       border: 1px solid transparent;
       border-radius: var(--ap-radius-sm, 6px);
       background: none;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
       cursor: pointer;
     }
     .icon-btn:hover {
-      background: var(--ap-muted, #f4f4f5);
-      color: var(--ap-foreground, #09090b);
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
     .icon-btn:focus-visible {
-      outline: 2px solid var(--ap-ring, oklch(0.65 0.19 258));
+      outline: 2px solid var(--ap-ring, oklch(0.578 0.198 268.129 / 0.7));
       outline-offset: -2px;
     }
     .upload-btn {
@@ -289,13 +298,13 @@ export class ApContentToolbar extends LitElement {
       align-items: center;
       gap: 6px;
       padding: 6px 14px;
-      border: 1px solid var(--ap-border, #e4e4e7);
-      border-bottom: 1px solid var(--ap-card, #fff);
+      border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
+      border-bottom: 1px solid var(--ap-card, oklch(1 0 0));
       border-radius: 8px 8px 0 0;
-      background: var(--ap-card, #fff);
+      background: var(--ap-card, oklch(1 0 0));
       font-size: 0.875rem;
       font-weight: 500;
-      color: var(--ap-primary, oklch(0.65 0.19 258));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
       position: relative;
       z-index: 51;
       margin-bottom: -1px;
@@ -307,11 +316,11 @@ export class ApContentToolbar extends LitElement {
       border: none;
       cursor: pointer;
       padding: 0;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       transition: color 150ms;
     }
     .anchor-close:hover {
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
     .anchor-back {
       display: flex;
@@ -320,11 +329,11 @@ export class ApContentToolbar extends LitElement {
       border: none;
       cursor: pointer;
       padding: 0;
-      color: var(--ap-muted-foreground, #71717a);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       transition: color 150ms;
     }
     .anchor-back:hover {
-      color: var(--ap-foreground, #09090b);
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
     .popover-panel {
       position: absolute;
@@ -335,11 +344,11 @@ export class ApContentToolbar extends LitElement {
       max-height: 400px;
       overflow-y: auto;
       overscroll-behavior: contain;
-      background: var(--ap-card, #fff);
-      border: 1px solid var(--ap-border, #e4e4e7);
+      background: var(--ap-card, oklch(1 0 0));
+      border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       border-radius: 0 8px 8px 8px;
       box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1);
-      padding: 10px 8px;
+      padding: 12px;
     }
     .popover-anchor.external {
       padding: 0;
@@ -781,7 +790,7 @@ export class ApContentToolbar extends LitElement {
 
     return html`
       <button
-        class="filter-btn ${active ? 'active' : ''}"
+        class="filter-btn ${active ? 'active' : ''} ${isPinned ? 'pinned' : ''}"
         @click=${() => isMetadata ? this._toggleMetadataSelector() : this.openFilterPanel(item.key)}
       >
         <span class="filter-btn-icon">
@@ -798,7 +807,7 @@ export class ApContentToolbar extends LitElement {
                 title=${isPinned ? 'Unpin filter' : 'Pin filter'}
                 @click=${(e: Event) => this._togglePin(item.key as AnyFilterKey, e)}
               >
-                <ap-icon name=${isPinned ? 'pin-off' : 'pin'} .size=${14}></ap-icon>
+                <ap-icon name="pin" .size=${14}></ap-icon>
               </span>
             `}
       </button>
@@ -849,7 +858,6 @@ export class ApContentToolbar extends LitElement {
               </div>
             ` : nothing}
           </div>
-          <div class="divider"></div>
           <ap-dropdown
             variant="borderless"
             label="Sort"

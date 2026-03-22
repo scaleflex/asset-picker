@@ -63,6 +63,8 @@ export function applyBrandColor(el: HTMLElement, hex: string): void {
     '--ap-primary-foreground',
     '--ap-primary-10',
     '--ap-primary-20',
+    '--ap-accent',
+    '--ap-accent-foreground',
     '--ap-ring',
     '--ap-selection-bg',
   ];
@@ -84,6 +86,8 @@ export function applyBrandColor(el: HTMLElement, hex: string): void {
   el.style.setProperty('--ap-primary-foreground', fg);
   el.style.setProperty('--ap-primary-10', `oklch(${L.toFixed(3)} ${C.toFixed(3)} ${h.toFixed(1)} / 0.1)`);
   el.style.setProperty('--ap-primary-20', `oklch(${L.toFixed(3)} ${C.toFixed(3)} ${h.toFixed(1)} / 0.2)`);
-  el.style.setProperty('--ap-ring', base);
+  el.style.setProperty('--ap-accent', `oklch(${L.toFixed(3)} ${C.toFixed(3)} ${h.toFixed(1)} / 0.07)`);
+  el.style.setProperty('--ap-accent-foreground', base);
+  el.style.setProperty('--ap-ring', `oklch(${L.toFixed(3)} ${C.toFixed(3)} ${h.toFixed(1)} / 0.7)`);
   el.style.setProperty('--ap-selection-bg', `oklch(${L.toFixed(3)} ${C.toFixed(3)} ${h.toFixed(1)} / 0.08)`);
 }

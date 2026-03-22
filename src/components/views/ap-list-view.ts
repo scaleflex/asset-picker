@@ -14,15 +14,13 @@ export class ApListView extends LitElement {
     }
     .list-header {
       display: grid;
-      grid-template-columns: 28px 48px 1fr 100px 200px 120px 60px;
+      grid-template-columns: 32px 48px 1fr 100px 200px 120px 60px;
       gap: 12px;
       padding: 8px 12px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--ap-muted-foreground, #71717a);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-bottom: 1px solid var(--ap-border, #e4e4e7);
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
+      border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     }
     .list-header:not(.has-checkbox) {
       grid-template-columns: 48px 1fr 100px 200px 120px 60px;
@@ -34,24 +32,25 @@ export class ApListView extends LitElement {
       cursor: pointer;
     }
     .header-check-box {
-      width: 18px;
-      height: 18px;
-      border: 2px solid var(--ap-border, #e4e4e7);
+      box-sizing: border-box;
+      width: 22px;
+      height: 22px;
+      border: 1px solid var(--ap-input, oklch(0.871 0.016 241.798));
       border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 150ms;
-      background: var(--ap-background, #fff);
+      background: var(--ap-background, oklch(1 0 0));
     }
     .header-check-box.checked,
     .header-check-box.indeterminate {
-      background: var(--ap-primary, #3b82f6);
-      border-color: var(--ap-primary, #3b82f6);
+      background: var(--ap-primary, oklch(0.578 0.198 268.129));
+      border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
     .header-check-icon {
       display: none;
-      color: var(--ap-primary-foreground, #fff);
+      color: var(--ap-primary-foreground, oklch(1 0 0));
     }
     .header-check-box.checked .header-check-icon.check {
       display: block;
@@ -69,9 +68,9 @@ export class ApListView extends LitElement {
       border-radius: 4px;
       background: linear-gradient(
         90deg,
-        var(--ap-muted, #f4f4f5) 25%,
+        var(--ap-muted, oklch(0.974 0.006 239.819)) 25%,
         #e8e8ea 50%,
-        var(--ap-muted, #f4f4f5) 75%
+        var(--ap-muted, oklch(0.974 0.006 239.819)) 75%
       );
       background-size: 200% 100%;
       animation: shimmer 1.5s infinite;
@@ -115,10 +114,10 @@ export class ApListView extends LitElement {
         ${this.multiSelect
           ? html`<span class="header-checkbox" @click=${this._handleHeaderCheckboxClick}>
               <div class="header-check-box ${allSelected ? 'checked' : this.selectedIds.length > 0 ? 'indeterminate' : ''}">
-                <svg class="header-check-icon check" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M4.5 12.75l6 6 9-13.5"></path>
+                <svg class="header-check-icon check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 6 9 17l-5-5"></path>
                 </svg>
-                <svg class="header-check-icon dash" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="header-check-icon dash" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M5 12h14"></path>
                 </svg>
               </div>
