@@ -1,4 +1,4 @@
-import type { AuthConfig, SessionAuth, SecurityTemplateAuth } from '../types/config.types';
+import type { AuthConfig, SecurityTemplateAuth, SassKeyAuth } from '../types/config.types';
 
 export class ApiClient {
   private baseUrl: string;
@@ -9,6 +9,11 @@ export class ApiClient {
     this.auth = auth;
     const token = auth.projectToken;
     this.baseUrl = apiBase || `https://api.filerobot.com/${token}/v5`;
+
+    // If sassKey auth, use the provided key immediately
+    if (auth.mode === 'sassKey') {
+      this.sassKey = (auth as SassKeyAuth).sassKey;
+    }
   }
 
   setSassKey(key: string): void {
@@ -20,6 +25,14 @@ export class ApiClient {
       return (this.auth as SecurityTemplateAuth).securityTemplateKey;
     }
     return undefined;
+  }
+
+  private _applyAuthHeaders(headers: Record<string, string>): void {
+    if (this.sassKey) {
+      headers['X-Filerobot-Key'] = this.sassKey;
+    } else if (this.auth.mode === 'securityTemplate') {
+      headers['X-Filerobot-Key'] = (this.auth as SecurityTemplateAuth).securityTemplateKey;
+    }
   }
 
   async request<T>(path: string, params?: Record<string, unknown>): Promise<T> {
@@ -38,19 +51,7 @@ export class ApiClient {
 
     const headers: Record<string, string> = {};
 
-    if (this.auth.mode === 'session') {
-      const session = this.auth as SessionAuth;
-      headers['X-Session-Token'] = session.sessionToken;
-      headers['X-Company-Token'] = session.companyToken;
-      headers['X-Project-Token'] = session.projectToken;
-    } else {
-      const secTemplate = this.auth as SecurityTemplateAuth;
-      if (this.sassKey) {
-        headers['X-Filerobot-Key'] = this.sassKey;
-      } else {
-        headers['X-Filerobot-Key'] = secTemplate.securityTemplateKey;
-      }
-    }
+    this._applyAuthHeaders(headers);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
@@ -90,20 +91,7 @@ export class ApiClient {
       'Content-Type': 'application/json',
     };
 
-    // Same auth header logic as request()
-    if (this.auth.mode === 'session') {
-      const session = this.auth as SessionAuth;
-      headers['X-Session-Token'] = session.sessionToken;
-      headers['X-Company-Token'] = session.companyToken;
-      headers['X-Project-Token'] = session.projectToken;
-    } else {
-      const secTemplate = this.auth as SecurityTemplateAuth;
-      if (this.sassKey) {
-        headers['X-Filerobot-Key'] = this.sassKey;
-      } else {
-        headers['X-Filerobot-Key'] = secTemplate.securityTemplateKey;
-      }
-    }
+    this._applyAuthHeaders(headers);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);

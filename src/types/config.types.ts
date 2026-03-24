@@ -1,13 +1,6 @@
 import type { FilterKey, FiltersInput } from './filter.types';
 
-export type AuthMode = 'session' | 'securityTemplate';
-
-export interface SessionAuth {
-  mode: 'session';
-  sessionToken: string;
-  companyToken: string;
-  projectToken: string;
-}
+export type AuthMode = 'securityTemplate' | 'sassKey';
 
 export interface SecurityTemplateAuth {
   mode: 'securityTemplate';
@@ -15,7 +8,13 @@ export interface SecurityTemplateAuth {
   projectToken: string;
 }
 
-export type AuthConfig = SessionAuth | SecurityTemplateAuth;
+export interface SassKeyAuth {
+  mode: 'sassKey';
+  sassKey: string;
+  projectToken: string;
+}
+
+export type AuthConfig = SecurityTemplateAuth | SassKeyAuth;
 
 export type DisplayMode = 'modal' | 'inline';
 export type ViewMode = 'grid' | 'list';

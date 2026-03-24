@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://www.scaleflex.com">
-    <img src="https://scaleflex.cloudimg.io/v7/plugins/js-cloudimage-360-view/logo_scaleflex_on_white_bg.jpg?vh=91b12d&w=700" alt="Scaleflex" width="350">
+    <img src="https://scaleflex.cloudimg.io/v7/plugins/scaleflex/logo.png?vh=b0a502&radius=25&w=700" alt="Scaleflex" width="350">
   </a>
 </p>
 
@@ -54,6 +54,7 @@
   - [Asset](#asset)
   - [Folder](#folder)
 - [Browser Support](#browser-support)
+- [Claude Code Integration](#claude-code-integration)
 - [License](#license)
 
 ---
@@ -68,7 +69,7 @@ The npm package contains **only pre-built, minified production files** (`dist/`)
 
 - **Framework-agnostic** — standard `<sfx-asset-picker>` custom element, works in any stack
 - **First-class React wrapper** — `forwardRef` component with controlled `open` prop and imperative ref
-- **Two auth modes** — session tokens or security templates
+- **Two auth modes** — security templates or direct SASS key
 - **Grid & list views** — switchable with persistent user preference
 - **Full-text search** — real-time search across your DAM
 - **14+ filter types** — type, date, size, tags, labels, color, approval status, metadata, and more
@@ -88,7 +89,7 @@ The npm package contains **only pre-built, minified production files** (`dist/`)
 ## Requirements
 
 - A [Scaleflex](https://www.scaleflex.com) VXP DAM account with a project token
-- Either **session credentials** or a **security template key** for authentication
+- Either a **security template key** or a **SASS key** for authentication
 - Modern browser with Custom Elements v1 support (see [Browser Support](#browser-support))
 
 ## Installation
@@ -198,7 +199,7 @@ The picker supports two authentication modes:
 
 #### Security template (external / public apps)
 
-Use for client-side integrations where you don't want to expose session tokens. The picker automatically exchanges the key for a SASS key on init.
+Use for client-side integrations. The picker automatically exchanges the security template key for a SASS key on init.
 
 ```ts
 {
@@ -210,17 +211,16 @@ Use for client-side integrations where you don't want to expose session tokens. 
 }
 ```
 
-#### Session (internal / Scaleflex apps)
+#### SASS key (internal / Scaleflex apps)
 
-Use when your backend already manages Scaleflex sessions.
+Use when your application already has a SASS key — e.g. inside the Scaleflex Hub where the host app manages SASS key generation and renewal.
 
 ```ts
 {
   auth: {
-    mode: 'session',
-    sessionToken: string,   // X-Session-Token
-    companyToken: string,    // X-Company-Token
-    projectToken: string,    // X-Project-Token
+    mode: 'sassKey',
+    sassKey: string,         // X-Filerobot-Key
+    projectToken: string,
   }
 }
 ```
@@ -583,8 +583,8 @@ All types are exported from the main entry point:
 import type {
   AssetPickerConfig,
   AuthConfig,
-  SessionAuth,
   SecurityTemplateAuth,
+  SassKeyAuth,
   Asset,
   Folder,
   FilterKey,
@@ -688,6 +688,38 @@ interface Folder {
 | Edge (Chromium) | 79+ |
 
 Requires native support for Custom Elements v1, Shadow DOM, and ES2020+. Internet Explorer is **not** supported.
+
+---
+
+## Claude Code Integration
+
+If you use [Claude Code](https://docs.anthropic.com/en/docs/claude-code), this package ships with a ready-made skill that helps Claude add the asset picker to your project — detecting your framework, wiring auth, events, theming, and filters automatically.
+
+### Option 1: Project-level (recommended)
+
+Copy the skill into your project so every team member who uses Claude Code gets it:
+
+```bash
+mkdir -p .claude/skills/integrate-asset-picker
+cp node_modules/@scaleflex/asset-picker/.claude/skills/integrate-asset-picker/SKILL.md \
+   .claude/skills/integrate-asset-picker/SKILL.md
+```
+
+Commit the `.claude/skills/` directory to version control. The skill is now available to everyone on the team.
+
+### Option 2: Global (personal)
+
+Install it once for all your projects:
+
+```bash
+mkdir -p ~/.claude/skills/integrate-asset-picker
+cp node_modules/@scaleflex/asset-picker/.claude/skills/integrate-asset-picker/SKILL.md \
+   ~/.claude/skills/integrate-asset-picker/SKILL.md
+```
+
+### Usage
+
+Type `/integrate-asset-picker` in Claude Code and it will walk you through the full integration — install, config, events, and theming — tailored to your stack (React, Vue, vanilla JS, etc.).
 
 ---
 

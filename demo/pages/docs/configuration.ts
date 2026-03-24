@@ -12,7 +12,7 @@ const page: Page = {
         <p>The picker supports two authentication modes:</p>
 
         <h3>Security template (external / public apps)</h3>
-        <p>Use for client-side integrations where you don't want to expose session tokens. The picker automatically exchanges the key for a SASS key on init.</p>
+        <p>Use for client-side integrations. The picker automatically exchanges the security template key for a SASS key on init.</p>
         ${code(
           'typescript',
           `{
@@ -24,16 +24,15 @@ const page: Page = {
 }`,
         )}
 
-        <h3>Session (internal / Scaleflex apps)</h3>
-        <p>Use when your backend already manages Scaleflex sessions.</p>
+        <h3>SASS key (internal / Scaleflex apps)</h3>
+        <p>Use when your application already has a SASS key — e.g. inside the Scaleflex Hub where the host app manages SASS key generation and renewal.</p>
         ${code(
           'typescript',
           `{
   auth: {
-    mode: 'session',
-    sessionToken: string,   // X-Session-Token
-    companyToken: string,   // X-Company-Token
-    projectToken: string,   // X-Project-Token
+    mode: 'sassKey',
+    sassKey: string,         // X-Filerobot-Key
+    projectToken: string,
   }
 }`,
         )}
