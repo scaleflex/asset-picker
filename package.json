@@ -1,6 +1,6 @@
 {
   "name": "@scaleflex/asset-picker",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Framework-agnostic Asset Picker for Scaleflex VXP DAM",
   "type": "module",
   "main": "dist/index.cjs",
@@ -34,6 +34,8 @@
     "dev": "vite serve dev",
     "dev:demo": "vite serve --config vite.demo.config.ts",
     "build": "vite build",
+    "build:cdn": "vite build --config vite.cdn.config.ts",
+    "release": "node scripts/release-cdn.mjs plugin",
     "typecheck": "tsc --noEmit",
     "build:demo": "vite build --config vite.demo.config.ts",
     "publish:github": "./scripts/publish-github.sh",
