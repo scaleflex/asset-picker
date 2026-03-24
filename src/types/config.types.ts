@@ -35,6 +35,8 @@ export interface AssetPickerConfig {
   defaultSortDirection?: SortDirection;
   /** Tabs to show. Defaults to ['assets', 'folders']. If only one tab, the dropdown is hidden. */
   tabs?: TabKey[];
+  /** Which tab to activate when the picker opens. Defaults to the first entry in `tabs`. */
+  defaultTab?: TabKey;
   enabledFilters?: FilterKey[];
   /** Start browsing from a specific folder path (e.g. '/marketing/banners/'). */
   rootFolderPath?: string;

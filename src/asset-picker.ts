@@ -586,7 +586,7 @@ export class AssetPicker extends LitElement {
     const defaultAppliedKeys = Object.keys(defaultApplied) as AnyFilterKey[];
     this.store.setState({
       isOpen: true,
-      activeTab: this.config?.tabs?.[0] ?? 'assets',
+      activeTab: this.config?.defaultTab ?? this.config?.tabs?.[0] ?? 'assets',
       searchQuery: '',
       filters: {
         metadata: {

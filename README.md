@@ -238,6 +238,7 @@ Use when your application already has a SASS key — e.g. inside the Scaleflex H
 | `defaultSortBy` | `SortBy` | `'created_at'` | Initial sort field (see table below) |
 | `defaultSortDirection` | `'asc' \| 'desc'` | `'desc'` | Initial sort direction |
 | `tabs` | `TabKey[]` | `['assets', 'folders']` | Tabs to show. If only one, the dropdown is hidden |
+| `defaultTab` | `TabKey` | first in `tabs` | Which tab to activate when the picker opens |
 | `enabledFilters` | `FilterKey[]` | all | Restrict which filters appear in the toolbar |
 | `rootFolderPath` | `string` | `'/'` | Start browsing from a specific folder path (e.g. `'/marketing/banners/'`) |
 | `showMetadata` | `boolean` | `true` | Show metadata sections in the preview panel |

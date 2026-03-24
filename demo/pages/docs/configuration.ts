@@ -50,6 +50,7 @@ const page: Page = {
             <tr><td><code>defaultSortBy</code></td><td><code>SortBy</code></td><td><code>'created_at'</code></td><td>Initial sort field (see table below)</td></tr>
             <tr><td><code>defaultSortDirection</code></td><td><code>'asc' | 'desc'</code></td><td><code>'desc'</code></td><td>Initial sort direction</td></tr>
             <tr><td><code>tabs</code></td><td><code>TabKey[]</code></td><td><code>['assets', 'folders']</code></td><td>Tabs to show. If only one, the dropdown is hidden</td></tr>
+            <tr><td><code>defaultTab</code></td><td><code>TabKey</code></td><td>first in <code>tabs</code></td><td>Which tab to activate when the picker opens</td></tr>
             <tr><td><code>enabledFilters</code></td><td><code>FilterKey[]</code></td><td>all</td><td>Restrict which filters appear in the toolbar</td></tr>
             <tr><td><code>rootFolderPath</code></td><td><code>string</code></td><td><code>'/'</code></td><td>Start browsing from a specific folder path (e.g. <code>'/marketing/banners/'</code>)</td></tr>
             <tr><td><code>showMetadata</code></td><td><code>boolean</code></td><td><code>true</code></td><td>Show metadata sections in the preview panel</td></tr>
