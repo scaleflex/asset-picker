@@ -211,6 +211,7 @@ picker.config = {
   defaultTab: 'assets',              // which tab opens first. Defaults to first in `tabs`
   rememberLastFolder: true,          // persist last folder in localStorage
   rememberLastView: true,            // persist grid/list preference
+  rememberLastTab: true,             // persist last active tab (assets/folders)
 
   // Sorting
   defaultSortBy: 'created_at',      // 'name' | 'created_at' | 'modified_at' | 'size' | 'type' | etc.

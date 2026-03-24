@@ -245,6 +245,7 @@ Use when your application already has a SASS key — e.g. inside the Scaleflex H
 | `brandColor` | `string` | from API | Brand accent colour as hex (e.g. `'#3b82f6'`). Overrides the API-fetched value |
 | `rememberLastFolder` | `boolean` | `false` | Persist the last browsed folder and restore on next open |
 | `rememberLastView` | `boolean` | `false` | Persist the last used view mode (grid/list) and restore on next open |
+| `rememberLastTab` | `boolean` | `false` | Persist the last active tab (assets/folders) and restore on next open |
 | `defaultFilters` | `FiltersInput` | `undefined` | Filters pre-applied on open. User can modify/remove |
 | `forcedFilters` | `FiltersInput` | `undefined` | Filters always active. Shown as locked chips the user cannot remove |
 | `onSelect` | `(assets: Asset[]) => void` | `undefined` | Callback when assets are selected |

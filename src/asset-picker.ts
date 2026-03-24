@@ -33,7 +33,7 @@ import { serializeFilters } from './utils/filter-serialize';
 import { normalizeFilters } from './utils/filter-normalize';
 import { loadPinnedFilters, savePinnedFilters, savePinnedMetadata } from './utils/filter-pin-storage';
 import { loadSortPreference, saveSortPreference } from './utils/sort-storage';
-import { loadLastFolder, saveLastFolder, loadLastView, saveLastView } from './utils/preference-storage';
+import { loadLastFolder, saveLastFolder, loadLastView, saveLastView, loadLastTab, saveLastTab } from './utils/preference-storage';
 import { applyBrandColor } from './utils/brand-color';
 import {
   MAIN_SORT_OPTIONS,
@@ -584,12 +584,16 @@ export class AssetPicker extends LitElement {
       if (!forcedKeys.has(k)) defaultApplied[k] = v;
     }
     const defaultAppliedKeys = Object.keys(defaultApplied) as AnyFilterKey[];
+    const tabs = this.config?.tabs ?? ['assets', 'folders'];
+    const savedTab = (this.config?.rememberLastTab) ? loadLastTab() : null;
+    const resolvedTab =
+      (savedTab && tabs.includes(savedTab) ? savedTab : null) ??
+      (this.config?.defaultTab && tabs.includes(this.config.defaultTab) ? this.config.defaultTab : null) ??
+      tabs[0] ?? 'assets';
+
     this.store.setState({
       isOpen: true,
-      activeTab:
-        this.config?.defaultTab && (!this.config.tabs || this.config.tabs.includes(this.config.defaultTab))
-          ? this.config.defaultTab
-          : this.config?.tabs?.[0] ?? 'assets',
+      activeTab: resolvedTab,
       searchQuery: '',
       filters: {
         metadata: {
@@ -887,8 +891,10 @@ export class AssetPicker extends LitElement {
   }
 
   private _handleTabChange(e: CustomEvent) {
+    const tab = e.detail.tab as TabKey;
+    if (this.config?.rememberLastTab) saveLastTab(tab);
     this.store.setState({
-      activeTab: e.detail.tab as TabKey,
+      activeTab: tab,
       currentFolder: null,
       currentFolderPath: this.config?.rootFolderPath ?? '/',
       breadcrumb: [],

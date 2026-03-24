@@ -98,6 +98,7 @@ function App() {
 | `rootFolderPath` | `string` | `'/'` | Starting folder path |
 | `rememberLastFolder` | `boolean` | `false` | Persist last browsed folder |
 | `rememberLastView` | `boolean` | `false` | Persist last view mode |
+| `rememberLastTab` | `boolean` | `false` | Persist last active tab |
 | `onSelect` | `(assets: Asset[]) => void` | - | Callback on confirm |
 | `onCancel` | `() => void` | - | Callback on cancel |
 

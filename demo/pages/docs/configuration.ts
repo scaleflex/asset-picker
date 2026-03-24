@@ -57,6 +57,7 @@ const page: Page = {
             <tr><td><code>brandColor</code></td><td><code>string</code></td><td>from API</td><td>Brand accent colour as hex (e.g. <code>'#3b82f6'</code>)</td></tr>
             <tr><td><code>rememberLastFolder</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Persist the last browsed folder and restore on next open</td></tr>
             <tr><td><code>rememberLastView</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Persist the last used view mode (grid/list) and restore on next open</td></tr>
+            <tr><td><code>rememberLastTab</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Persist the last active tab (assets/folders) and restore on next open</td></tr>
             <tr><td><code>defaultFilters</code></td><td><code>FiltersInput</code></td><td><code>undefined</code></td><td>Filters pre-applied on open. User can modify/remove</td></tr>
             <tr><td><code>forcedFilters</code></td><td><code>FiltersInput</code></td><td><code>undefined</code></td><td>Filters always active. Locked chips the user cannot remove</td></tr>
             <tr><td><code>uploader</code></td><td><code>UploaderIntegrationConfig</code></td><td><code>undefined</code></td><td>Enable the integrated uploader. Shows an Upload button &amp; drop zone. Requires <code>@scaleflex/uploader</code> (optional peer dep, loaded dynamically)</td></tr>

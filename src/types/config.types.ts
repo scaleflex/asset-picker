@@ -54,6 +54,8 @@ export interface AssetPickerConfig {
   rememberLastFolder?: boolean;
   /** Remember the last used view mode (grid/list) and restore it on next open. Defaults to false. */
   rememberLastView?: boolean;
+  /** Remember the last active tab and restore it on next open. Defaults to false. */
+  rememberLastTab?: boolean;
   onSelect?: (assets: import('./asset.types').Asset[]) => void;
   onCancel?: () => void;
   /**
