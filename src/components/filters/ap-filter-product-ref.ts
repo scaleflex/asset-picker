@@ -157,6 +157,7 @@ export class ApFilterProductRef extends LitElement {
       font-weight: 600;
       color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
+      text-align: center;
     }
 
     .dialog-body {
@@ -167,7 +168,7 @@ export class ApFilterProductRef extends LitElement {
     }
 
     .dialog-body .info-alert {
-      margin-bottom: 6px;
+      margin-bottom: 14px;
     }
 
     .dialog-textarea {
