@@ -134,12 +134,25 @@ export class ApContentToolbar extends LitElement {
       gap: 12px;
       overscroll-behavior: contain;
     }
-    .metadata-selector-section {
-      grid-column: 1 / -1;
-      border-top: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
-      margin: 4px -16px -16px;
-      max-height: 300px;
+    .filter-btn-wrapper {
+      position: relative;
+      display: flex;
+    }
+    .filter-btn-wrapper .filter-btn {
+      flex: 1;
+    }
+    .metadata-selector-overlay {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      z-index: 60;
+      width: 280px;
+      max-height: 400px;
       overflow-y: auto;
+      background: var(--ap-card, oklch(1 0 0));
+      border: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
+      border-radius: var(--ap-radius, 8px);
+      box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     }
 
     /* Filter button in dropdown */
@@ -409,11 +422,12 @@ export class ApContentToolbar extends LitElement {
         || el.classList.contains('popover-panel');
     });
 
-    // Check if click is inside the dropdown menu or its trigger button
+    // Check if click is inside the dropdown menu, metadata overlay, or its trigger button
     const isInsideDropdown = (this._showDropdown || this._showMetadataSelector) && path.some((el) =>
       el instanceof HTMLElement && (
         el.classList.contains('dropdown-menu')
         || el.classList.contains('filter-dropdown')
+        || el.classList.contains('metadata-selector-overlay')
       ),
     );
 
@@ -796,7 +810,7 @@ export class ApContentToolbar extends LitElement {
       : this._isFilterActive(item.key as AnyFilterKey);
     const isPinned = this.pinnedFilters.includes(item.key as AnyFilterKey);
 
-    return html`
+    const btn = html`
       <button
         class="filter-btn ${active ? 'active' : ''} ${isPinned ? 'pinned' : ''}"
         @click=${() => isMetadata ? this._toggleMetadataSelector() : this.openFilterPanel(item.key)}
@@ -819,6 +833,28 @@ export class ApContentToolbar extends LitElement {
               </span>
             `}
       </button>
+    `;
+
+    if (!isMetadata) return btn;
+
+    return html`
+      <div class="filter-btn-wrapper">
+        ${btn}
+        ${this._showMetadataSelector ? html`
+          <div class="metadata-selector-overlay">
+            <ap-filter-metadata
+              mode="selector"
+              .fields=${this.metadataFields}
+              .appliedMetadata=${this.filters.metadata.applied}
+              .visibleFields=${this.filters.metadata.visible}
+              .pinnedFields=${this.filters.metadata.pinned}
+              @metadata-field-select=${this._handleMetadataSelectorFieldSelect}
+              @metadata-field-toggle=${this._handleMetadataFieldToggle}
+              @metadata-pin=${this._handleMetadataPin}
+            ></ap-filter-metadata>
+          </div>
+        ` : nothing}
+      </div>
     `;
   }
 
@@ -849,20 +885,6 @@ export class ApContentToolbar extends LitElement {
                 ${ALL_FILTER_ITEMS
                   .filter((item) => !this.forcedFilterKeys.includes(item.key))
                   .map((item) => this._renderFilterButton(item))}
-                ${this._showMetadataSelector ? html`
-                  <div class="metadata-selector-section">
-                    <ap-filter-metadata
-                      mode="selector"
-                      .fields=${this.metadataFields}
-                      .appliedMetadata=${this.filters.metadata.applied}
-                      .visibleFields=${this.filters.metadata.visible}
-                      .pinnedFields=${this.filters.metadata.pinned}
-                      @metadata-field-select=${this._handleMetadataSelectorFieldSelect}
-                      @metadata-field-toggle=${this._handleMetadataFieldToggle}
-                      @metadata-pin=${this._handleMetadataPin}
-                    ></ap-filter-metadata>
-                  </div>
-                ` : nothing}
               </div>
             ` : nothing}
           </div>
