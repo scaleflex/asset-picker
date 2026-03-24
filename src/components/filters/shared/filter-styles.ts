@@ -125,6 +125,29 @@ export const filterPopoverStyles = css`
     color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
   }
 
+  /* ── Date input: Lucide calendar icon ── */
+  .filter-input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+  .filter-input[type="date"] {
+    position: relative;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px 16px;
+    padding-right: 32px;
+  }
+  .input-label:has(+ .filter-input[type="date"]) {
+    font-weight: 400;
+    color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
+  }
+
   textarea.filter-input {
     min-height: 60px;
     resize: vertical;
