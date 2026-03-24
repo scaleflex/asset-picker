@@ -87,16 +87,18 @@ export const filterPopoverStyles = css`
     display: flex;
     gap: 8px;
     padding: 10px 12px;
-    background: var(--ap-muted, oklch(0.974 0.006 239.819));
+    background: oklch(0.97 0.01 245);
+    border: 1px solid oklch(0.92 0.015 245);
     border-radius: var(--ap-radius-sm, 6px);
     font-size: 0.8125rem;
-    color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+    color: var(--ap-info-foreground, oklch(0.391 0.091 241.289));
     line-height: 1.4;
     margin-top: 16px;
   }
   .info-alert ap-icon {
     flex-shrink: 0;
     margin-top: 1px;
+    color: var(--ap-info, oklch(0.632 0.161 245.564));
   }
 
   /* ── Text/Number inputs ── */
