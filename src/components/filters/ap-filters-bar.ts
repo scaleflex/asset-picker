@@ -14,7 +14,7 @@ import {
 } from '../../types/filter.types';
 import type { TagWithLabel } from '../../types/tag.types';
 import type { Label } from '../../types/label.types';
-import { FILTER_LABELS, ALL_FILTER_ITEMS, DATE_FIELD_OPTIONS, DATE_RANGE_OPTIONS, LICENSE_DATE_RANGE_OPTIONS, ASSET_TYPE_OPTIONS } from './filters.constants';
+import { FILTER_LABELS, ALL_FILTER_ITEMS, DATE_FIELD_OPTIONS, DATE_RANGE_OPTIONS, LICENSE_DATE_RANGE_OPTIONS, ASSET_TYPE_OPTIONS, METADATA_FIELD_TYPE_ICONS } from './filters.constants';
 import { normalizeFilters } from '../../utils/filter-normalize';
 
 @customElement('ap-filters-bar')
@@ -291,6 +291,12 @@ export class ApFiltersBar extends LitElement {
     return field?.label || strippedKey;
   }
 
+  private _getMetadataIcon(fieldKey: string): string {
+    const strippedKey = this._stripMetadataPrefix(fieldKey);
+    const field = this.metadataFields.find((f) => f.key === strippedKey);
+    return (field && METADATA_FIELD_TYPE_ICONS[field.type]) || 'file-text';
+  }
+
   private _stripMetadataPrefix(key: string): string {
     for (const p of METADATA_PREFIXES) {
       if (key.startsWith(p)) return key.slice(p.length);
@@ -394,9 +400,10 @@ export class ApFiltersBar extends LitElement {
     if (!filter) {
       // Empty pinned chip
       const label = this._getMetadataLabel(fieldKey);
+      const icon = this._getMetadataIcon(fieldKey);
       return html`
         <span class="chip pinned-empty ${fieldKey === this.activeMetadataField ? 'active' : ''}" @click=${(e: Event) => this._openMetadataFilter(fieldKey, e)}>
-          <span class="chip-icon"><ap-icon name="file-text" .size=${16}></ap-icon></span>
+          <span class="chip-icon"><ap-icon name=${icon} .size=${16}></ap-icon></span>
           <span class="chip-label">${label}</span>
           <span class="chip-chevron"><ap-icon name="chevron-down" .size=${14}></ap-icon></span>
         </span>
@@ -405,8 +412,10 @@ export class ApFiltersBar extends LitElement {
     // Applied chip
     const summary = this._getFilterSummary(filter);
     const label = this._getMetadataLabel(fieldKey);
+    const icon = this._getMetadataIcon(fieldKey);
     return html`
       <span class="chip ${fieldKey === this.activeMetadataField ? 'active' : ''}" @click=${(e: Event) => this._openMetadataFilter(fieldKey, e)}>
+        <span class="chip-icon"><ap-icon name=${icon} .size=${16}></ap-icon></span>
         <span class="chip-label">${label}</span>
         ${summary ? html`<span class="chip-summary">${summary}</span>` : nothing}
         <button class="chip-remove" @click=${(e: Event) => { e.stopPropagation(); this._removeMetadataFilter(fieldKey); }} title="Remove filter">
@@ -476,7 +485,7 @@ export class ApFiltersBar extends LitElement {
           )}
           ${hasPendingMeta ? html`
             <span class="chip pinned-empty active pending" @click=${(e: Event) => this._openMetadataFilter(this.pendingMetadataField!, e)}>
-              <span class="chip-icon"><ap-icon name="file-text" .size=${16}></ap-icon></span>
+              <span class="chip-icon"><ap-icon name=${this._getMetadataIcon(this.pendingMetadataField!)} .size=${16}></ap-icon></span>
               <span class="chip-label">${this._getMetadataLabel(this.pendingMetadataField!)}</span>
               <span class="chip-chevron"><ap-icon name="chevron-down" .size=${14}></ap-icon></span>
             </span>
