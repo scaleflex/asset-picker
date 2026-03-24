@@ -163,7 +163,11 @@ export class ApFilterProductRef extends LitElement {
       padding: 16px 20px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 6px;
+    }
+
+    .dialog-body .info-alert {
+      margin-bottom: 6px;
     }
 
     .dialog-textarea {
@@ -535,7 +539,7 @@ export class ApFilterProductRef extends LitElement {
                     <ap-icon name="info" .size=${14}></ap-icon>
                     <span>Use "*" to select all references starting with your text.</span>
                   </div>
-                  <label class="input-label">Product references</label>
+                  <label class="input-label" style="margin-bottom: 0; font-weight: 400; color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));">Product references</label>
                   <textarea
                     class="dialog-textarea"
                     placeholder="Enter product references separated by new lines"
