@@ -1247,11 +1247,12 @@ export class AssetPicker extends LitElement {
     const wrapper = this.renderRoot.querySelector('.toolbar-filters-wrapper');
     const wrapperRect = wrapper?.getBoundingClientRect();
     const chipLeft = wrapperRect ? rect.left - wrapperRect.left : rect.left;
+    const chipTop = wrapperRect ? rect.bottom - wrapperRect.top : undefined;
 
     if (metadataFieldKey) {
-      toolbar.openMetadataFieldPanel(metadataFieldKey, true, chipLeft);
+      toolbar.openMetadataFieldPanel(metadataFieldKey, true, chipLeft, chipTop);
     } else if (key) {
-      toolbar.openFilterPanel(key, true, chipLeft);
+      toolbar.openFilterPanel(key, true, chipLeft, chipTop);
     }
   }
 
