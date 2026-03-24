@@ -13,8 +13,8 @@ const page: Page = {
           `import type {
   AssetPickerConfig,
   AuthConfig,
-  SessionAuth,
   SecurityTemplateAuth,
+  SassKeyAuth,
   Asset,
   Folder,
   FilterKey,

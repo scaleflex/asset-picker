@@ -16,7 +16,7 @@ const page: Page = {
         <ul>
           <li><strong>Framework-agnostic</strong> — standard <code>&lt;sfx-asset-picker&gt;</code> custom element, works in any stack</li>
           <li><strong>First-class React wrapper</strong> — <code>forwardRef</code> component with controlled <code>open</code> prop and imperative ref</li>
-          <li><strong>Two auth modes</strong> — session tokens or security templates</li>
+          <li><strong>Two auth modes</strong> — security templates or direct SASS key</li>
           <li><strong>Grid &amp; list views</strong> — switchable with persistent user preference</li>
           <li><strong>Full-text search</strong> — real-time search across your DAM</li>
           <li><strong>14+ filter types</strong> — type, date, size, tags, labels, color, approval status, metadata, and more</li>
@@ -35,7 +35,7 @@ const page: Page = {
         <h2>Requirements</h2>
         <ul>
           <li>A <a href="https://www.scaleflex.com" target="_blank" rel="noopener">Scaleflex</a> VXP DAM account with a project token</li>
-          <li>Either <strong>session credentials</strong> or a <strong>security template key</strong> for authentication</li>
+          <li>Either a <strong>security template key</strong> or a <strong>SASS key</strong> for authentication</li>
           <li>Modern browser with Custom Elements v1 support (see Browser support below)</li>
         </ul>
 

@@ -21,10 +21,13 @@ function getConfig(multiSelect = true): AssetPickerConfig {
     throw new Error('Project Token is required');
   }
 
+  if (!secTemplateKey) {
+    log('Error: Security Template Key is required');
+    throw new Error('Security Template Key is required');
+  }
+
   return {
-    auth: secTemplateKey
-      ? { mode: 'securityTemplate', securityTemplateKey: secTemplateKey, projectToken }
-      : { mode: 'session', sessionToken: '', companyToken: '', projectToken },
+    auth: { mode: 'securityTemplate', securityTemplateKey: secTemplateKey, projectToken },
     multiSelect,
     onSelect: (assets) => {
       log(`Selected ${assets.length} asset(s): ${assets.map((a) => a.name).join(', ')}`);

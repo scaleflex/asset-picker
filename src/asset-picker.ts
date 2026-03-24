@@ -448,10 +448,9 @@ export class AssetPicker extends LitElement {
       };
     } else {
       uploaderAuth = {
-        mode: 'session',
+        mode: 'sass-key',
         container: config.auth.projectToken,
-        sessionToken: config.auth.sessionToken,
-        companyToken: config.auth.companyToken,
+        sassKey: config.auth.sassKey,
       };
     }
 

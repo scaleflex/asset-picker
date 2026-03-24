@@ -69,7 +69,7 @@ The npm package contains **only pre-built, minified production files** (`dist/`)
 
 - **Framework-agnostic** — standard `<sfx-asset-picker>` custom element, works in any stack
 - **First-class React wrapper** — `forwardRef` component with controlled `open` prop and imperative ref
-- **Two auth modes** — session tokens or security templates
+- **Two auth modes** — security templates or direct SASS key
 - **Grid & list views** — switchable with persistent user preference
 - **Full-text search** — real-time search across your DAM
 - **14+ filter types** — type, date, size, tags, labels, color, approval status, metadata, and more
@@ -89,7 +89,7 @@ The npm package contains **only pre-built, minified production files** (`dist/`)
 ## Requirements
 
 - A [Scaleflex](https://www.scaleflex.com) VXP DAM account with a project token
-- Either **session credentials** or a **security template key** for authentication
+- Either a **security template key** or a **SASS key** for authentication
 - Modern browser with Custom Elements v1 support (see [Browser Support](#browser-support))
 
 ## Installation
@@ -199,7 +199,7 @@ The picker supports two authentication modes:
 
 #### Security template (external / public apps)
 
-Use for client-side integrations where you don't want to expose session tokens. The picker automatically exchanges the key for a SASS key on init.
+Use for client-side integrations. The picker automatically exchanges the security template key for a SASS key on init.
 
 ```ts
 {
@@ -211,17 +211,16 @@ Use for client-side integrations where you don't want to expose session tokens. 
 }
 ```
 
-#### Session (internal / Scaleflex apps)
+#### SASS key (internal / Scaleflex apps)
 
-Use when your backend already manages Scaleflex sessions.
+Use when your application already has a SASS key — e.g. inside the Scaleflex Hub where the host app manages SASS key generation and renewal.
 
 ```ts
 {
   auth: {
-    mode: 'session',
-    sessionToken: string,   // X-Session-Token
-    companyToken: string,    // X-Company-Token
-    projectToken: string,    // X-Project-Token
+    mode: 'sassKey',
+    sassKey: string,         // X-Filerobot-Key
+    projectToken: string,
   }
 }
 ```
@@ -584,8 +583,8 @@ All types are exported from the main entry point:
 import type {
   AssetPickerConfig,
   AuthConfig,
-  SessionAuth,
   SecurityTemplateAuth,
+  SassKeyAuth,
   Asset,
   Folder,
   FilterKey,

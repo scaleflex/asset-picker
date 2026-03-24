@@ -108,11 +108,11 @@ function App() {
 ```
 Exchanges the security template key for a SASS key via `GET /v5/key`.
 
-### Session (internal use)
+### SASS Key (internal use)
 ```typescript
-{ mode: 'session', sessionToken: '...', companyToken: '...', projectToken: '...' }
+{ mode: 'sassKey', sassKey: '...', projectToken: '...' }
 ```
-Uses session headers directly: `X-Session-Token`, `X-Company-Token`, `X-Project-Token`.
+Uses the SASS key directly as `X-Filerobot-Key` header. For Scaleflex Hub apps where the host already manages SASS key generation and renewal.
 
 ## Views
 

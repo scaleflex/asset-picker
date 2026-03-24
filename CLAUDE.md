@@ -48,7 +48,7 @@ Vite library mode → ESM + CJS dual format in `dist/`. TypeScript declarations 
 
 ### Services Layer (`src/services/`)
 
-- `api-client.ts` — HTTP client with auth headers (session or security template SASS key)
+- `api-client.ts` — HTTP client with auth headers (security template or direct SASS key)
 - `files.service.ts` — Asset list/search API
 - `folders.service.ts` — Folder tree navigation
 - `filters.service.ts` — Metadata settings + filter options

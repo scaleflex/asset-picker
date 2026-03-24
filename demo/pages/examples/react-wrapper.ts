@@ -156,7 +156,7 @@ import type {
   Asset,
   AuthConfig,
   SecurityTemplateAuth,
-  SessionAuth,
+  SassKeyAuth,
 } from '@scaleflex/asset-picker';
 
 import type {

@@ -176,16 +176,15 @@ auth: {
 }
 ```
 
-### Session (internal / Scaleflex apps)
+### SASS key (internal / Scaleflex apps)
 
-Use when the backend already manages Scaleflex sessions.
+Use when the application already has a SASS key — e.g. inside the Scaleflex Hub where the host app manages SASS key generation and renewal.
 
 ```ts
 auth: {
-  mode: 'session',
-  sessionToken: string,   // X-Session-Token
-  companyToken: string,    // X-Company-Token
-  projectToken: string,    // X-Project-Token
+  mode: 'sassKey',
+  sassKey: string,         // X-Filerobot-Key
+  projectToken: string,
 }
 ```
 
@@ -388,5 +387,5 @@ Requires `@scaleflex/uploader` installed as peer dependency.
 
 - **"customElements is not defined"** — SSR environment. The React wrapper handles this automatically. For vanilla JS, guard the import: `if (typeof customElements !== 'undefined') import('@scaleflex/asset-picker/define');`
 - **Styles not showing** — The component uses Shadow DOM; external CSS won't penetrate. Use `--ap-*` CSS custom properties for theming.
-- **Auth errors** — Check that the security template key or session tokens are valid and the project token matches.
+- **Auth errors** — Check that the security template key or SASS key is valid and the project token matches.
 - **`open()` does nothing** — `config` must be set before calling `open()`. Ensure `auth` is provided.
