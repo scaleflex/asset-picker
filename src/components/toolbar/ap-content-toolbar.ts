@@ -549,8 +549,12 @@ export class ApContentToolbar extends LitElement {
 
   private _handleSortOpen() {
     this._showDropdown = false;
+    this._showMetadataSelector = false;
     this._openFilter = null;
     this._openMetadataField = null;
+    this._externalTrigger = false;
+    this._externalLeft = null;
+    this._externalTop = null;
   }
 
   private _handleSort(e: CustomEvent) {
@@ -633,6 +637,7 @@ export class ApContentToolbar extends LitElement {
       return;
     }
     this._showDropdown = false;
+    this._showMetadataSelector = false;
     this._openFilter = 'metadata' as FilterKey;
     this._openMetadataField = fieldKey;
     this._externalTrigger = external;
