@@ -1158,14 +1158,16 @@ export class AssetPicker extends LitElement {
     const toolbar = this.renderRoot.querySelector('ap-content-toolbar') as
       import('./components/toolbar/ap-content-toolbar').ApContentToolbar | null;
     let chipLeft: number | undefined;
+    let chipTop: number | undefined;
     if (chipRect) {
       const wrapper = this.renderRoot.querySelector('.toolbar-filters-wrapper');
       if (wrapper) {
         const wrapperRect = wrapper.getBoundingClientRect();
         chipLeft = chipRect.left - wrapperRect.left;
+        chipTop = chipRect.bottom - wrapperRect.top;
       }
     }
-    toolbar?.openFilterPanel(key, true, chipLeft);
+    toolbar?.openFilterPanel(key, true, chipLeft, chipTop);
   }
 
   private _handleMetadataFilterOpen(e: CustomEvent) {
@@ -1173,14 +1175,16 @@ export class AssetPicker extends LitElement {
     const toolbar = this.renderRoot.querySelector('ap-content-toolbar') as
       import('./components/toolbar/ap-content-toolbar').ApContentToolbar | null;
     let chipLeft: number | undefined;
+    let chipTop: number | undefined;
     if (chipRect) {
       const wrapper = this.renderRoot.querySelector('.toolbar-filters-wrapper');
       if (wrapper) {
         const wrapperRect = wrapper.getBoundingClientRect();
         chipLeft = chipRect.left - wrapperRect.left;
+        chipTop = chipRect.bottom - wrapperRect.top;
       }
     }
-    toolbar?.openMetadataFieldPanel(fieldKey, true, chipLeft);
+    toolbar?.openMetadataFieldPanel(fieldKey, true, chipLeft, chipTop);
   }
 
   private _handleFilterPanelChange(e: CustomEvent) {

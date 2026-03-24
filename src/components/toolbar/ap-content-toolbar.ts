@@ -134,12 +134,11 @@ export class ApContentToolbar extends LitElement {
       gap: 12px;
       overscroll-behavior: contain;
     }
-    .dropdown-menu.metadata-selector-menu {
-      display: block;
-      min-width: 0;
-      width: 280px;
-      padding: 0;
-      max-height: 400px;
+    .metadata-selector-section {
+      grid-column: 1 / -1;
+      border-top: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
+      margin: 4px -16px -16px;
+      max-height: 300px;
       overflow-y: auto;
     }
 
@@ -352,10 +351,11 @@ export class ApContentToolbar extends LitElement {
     }
     .popover-anchor.external {
       padding: 0;
+      top: 0;
     }
     .popover-anchor.external .popover-panel {
       border-radius: 8px;
-      top: 4px;
+      top: 0;
     }
   `;
 
@@ -386,6 +386,7 @@ export class ApContentToolbar extends LitElement {
   @state() private _openMetadataField: string | null = null;
   @state() private _externalTrigger = false;
   @state() private _externalLeft: number | null = null;
+  @state() private _externalTop: number | null = null;
 
   private _outsideClickHandler = (e: MouseEvent) => {
     const path = e.composedPath();
@@ -425,6 +426,7 @@ export class ApContentToolbar extends LitElement {
       this._openMetadataField = null;
       this._externalTrigger = false;
       this._externalLeft = null;
+      this._externalTop = null;
     }
     if (this._showDropdown || this._showMetadataSelector) {
       this._showDropdown = false;
@@ -476,6 +478,7 @@ export class ApContentToolbar extends LitElement {
     this._openMetadataField = null;
     this._externalTrigger = false;
     this._externalLeft = null;
+    this._externalTop = null;
     this._sortDropdown?.close();
   }
 
@@ -491,7 +494,6 @@ export class ApContentToolbar extends LitElement {
 
   private _toggleMetadataSelector() {
     this._showMetadataSelector = !this._showMetadataSelector;
-    this._showDropdown = false;
   }
 
   /** Close any open filter panel */
@@ -500,10 +502,11 @@ export class ApContentToolbar extends LitElement {
     this._openMetadataField = null;
     this._externalTrigger = false;
     this._externalLeft = null;
+    this._externalTop = null;
   }
 
   /** Open a specific filter panel (also used programmatically by parent) */
-  public openFilterPanel(key: FilterKey, external = false, chipLeft?: number) {
+  public openFilterPanel(key: FilterKey, external = false, chipLeft?: number, chipTop?: number) {
     // Toggle: if already showing this filter externally, close it
     if (external && this._externalTrigger && this._openFilter === key && !this._openMetadataField) {
       this.closeFilterPanel();
@@ -513,6 +516,7 @@ export class ApContentToolbar extends LitElement {
     // show a temporary chip in the filters bar and open from there
     if (!external && !this._isFilterActive(key as AnyFilterKey)) {
       this._showDropdown = false;
+      this._showMetadataSelector = false;
       this.dispatchEvent(new CustomEvent('filter-pending', {
         detail: { key },
         bubbles: true,
@@ -521,10 +525,12 @@ export class ApContentToolbar extends LitElement {
       return;
     }
     this._showDropdown = false;
+    this._showMetadataSelector = false;
     this._openFilter = key;
     this._openMetadataField = null;
     this._externalTrigger = external;
     this._externalLeft = chipLeft ?? null;
+    this._externalTop = chipTop ?? null;
   }
 
   private _handleSortOpen() {
@@ -583,6 +589,7 @@ export class ApContentToolbar extends LitElement {
     e.stopPropagation();
     const fieldKey = e.detail.fieldKey as string;
     this._showMetadataSelector = false;
+    this._showDropdown = false;
     // If metadata field has no applied value, show a temporary chip
     if (!(fieldKey in (this.filters.metadata?.applied || {}))) {
       this.dispatchEvent(new CustomEvent('filter-pending', {
@@ -605,7 +612,7 @@ export class ApContentToolbar extends LitElement {
     }));
   }
 
-  public openMetadataFieldPanel(fieldKey: string, external = false, chipLeft?: number) {
+  public openMetadataFieldPanel(fieldKey: string, external = false, chipLeft?: number, chipTop?: number) {
     // Toggle: if already showing this metadata field externally, close it
     if (external && this._externalTrigger && this._openMetadataField === fieldKey) {
       this.closeFilterPanel();
@@ -616,6 +623,7 @@ export class ApContentToolbar extends LitElement {
     this._openMetadataField = fieldKey;
     this._externalTrigger = external;
     this._externalLeft = chipLeft ?? null;
+    this._externalTop = chipTop ?? null;
   }
 
   private _getMetadataFieldLabel(fieldKey: string): string {
@@ -841,20 +849,20 @@ export class ApContentToolbar extends LitElement {
                 ${ALL_FILTER_ITEMS
                   .filter((item) => !this.forcedFilterKeys.includes(item.key))
                   .map((item) => this._renderFilterButton(item))}
-              </div>
-            ` : nothing}
-            ${this._showMetadataSelector ? html`
-              <div class="dropdown-menu metadata-selector-menu">
-                <ap-filter-metadata
-                  mode="selector"
-                  .fields=${this.metadataFields}
-                  .appliedMetadata=${this.filters.metadata.applied}
-                  .visibleFields=${this.filters.metadata.visible}
-                  .pinnedFields=${this.filters.metadata.pinned}
-                  @metadata-field-select=${this._handleMetadataSelectorFieldSelect}
-                  @metadata-field-toggle=${this._handleMetadataFieldToggle}
-                  @metadata-pin=${this._handleMetadataPin}
-                ></ap-filter-metadata>
+                ${this._showMetadataSelector ? html`
+                  <div class="metadata-selector-section">
+                    <ap-filter-metadata
+                      mode="selector"
+                      .fields=${this.metadataFields}
+                      .appliedMetadata=${this.filters.metadata.applied}
+                      .visibleFields=${this.filters.metadata.visible}
+                      .pinnedFields=${this.filters.metadata.pinned}
+                      @metadata-field-select=${this._handleMetadataSelectorFieldSelect}
+                      @metadata-field-toggle=${this._handleMetadataFieldToggle}
+                      @metadata-pin=${this._handleMetadataPin}
+                    ></ap-filter-metadata>
+                  </div>
+                ` : nothing}
               </div>
             ` : nothing}
           </div>
@@ -883,7 +891,7 @@ export class ApContentToolbar extends LitElement {
         </div>
       </div>
       ${this._openFilter ? html`
-        <div class="popover-anchor ${this._externalTrigger ? 'external' : ''}">
+        <div class="popover-anchor ${this._externalTrigger ? 'external' : ''}" style=${this._externalTrigger && this._externalTop != null ? `top: ${this._externalTop + 4}px` : ''}>
           ${this._externalTrigger ? nothing : html`
             <div class="anchor-tab">
               ${this._openFilter === 'metadata' && this._openMetadataField
@@ -897,7 +905,7 @@ export class ApContentToolbar extends LitElement {
                     <ap-icon name=${this._getFilterIcon(this._openFilter!)} .size=${16}></ap-icon>
                     ${FILTER_LABELS[this._openFilter!] || this._openFilter}
                   `}
-              <button class="anchor-close" @click=${() => { this._openFilter = null; this._openMetadataField = null; this._externalTrigger = false; this._externalLeft = null; }} title="Close">
+              <button class="anchor-close" @click=${() => { this._openFilter = null; this._openMetadataField = null; this._externalTrigger = false; this._externalLeft = null; this._externalTop = null; }} title="Close">
                 <ap-icon name="close" .size=${14}></ap-icon>
               </button>
             </div>
