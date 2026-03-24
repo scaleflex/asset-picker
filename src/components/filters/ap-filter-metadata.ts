@@ -14,6 +14,7 @@ import {
 import {
   SELECTED_METADATA_FIELDS_LIMIT,
   METADATA_UI_TYPE_MAP,
+  METADATA_FIELD_TYPE_ICONS,
   TEXT_OPERATOR_OPTIONS,
   NUMBER_OPERATOR_OPTIONS,
   SINGLE_SELECT_OPERATOR_OPTIONS,
@@ -1004,16 +1005,23 @@ export class ApFilterMetadata extends LitElement {
 
   // ── Render: Field selection panel ────────────────────────────────
 
+  private _getGroupedFields(fields: MetadataModelField[]): Map<string, MetadataModelField[]> {
+    const grouped = new Map<string, MetadataModelField[]>();
+    for (const field of fields) {
+      const groupName = field.group || 'Root fields';
+      if (!grouped.has(groupName)) grouped.set(groupName, []);
+      grouped.get(groupName)!.push(field);
+    }
+    return grouped;
+  }
+
   private _renderFieldSelection() {
     const search = this._fieldSearch.toLowerCase();
     const filtered = this.fields.filter((f) =>
       f.label.toLowerCase().includes(search),
     );
 
-    const rootFields = filtered.filter(
-      (f) => !f.group || f.group === 'root',
-    );
-    const productFields = filtered.filter((f) => f.group === 'product');
+    const groupedFields = this._getGroupedFields(filtered);
 
     const renderGroup = (label: string, fields: MetadataModelField[]) => {
       if (fields.length === 0) return nothing;
@@ -1030,7 +1038,7 @@ export class ApFilterMetadata extends LitElement {
             >
               ${isSelected
                 ? html`<ap-icon name="check" .size=${14}></ap-icon>`
-                : nothing}
+                : html`<ap-icon name=${METADATA_FIELD_TYPE_ICONS[field.type] || 'file-text'} .size=${14} style="color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82))"></ap-icon>`}
               <span>${field.label}</span>
             </div>
           `;
@@ -1061,10 +1069,9 @@ export class ApFilterMetadata extends LitElement {
         <div class="field-list">
           ${filtered.length === 0
             ? html`<div class="empty-msg">No fields found</div>`
-            : html`
-                ${renderGroup('Root fields', rootFields)}
-                ${renderGroup('Product fields', productFields)}
-              `}
+            : html`${[...groupedFields.entries()].map(
+                ([groupName, fields]) => renderGroup(groupName, fields),
+              )}`}
         </div>
       </div>
     `;
@@ -1985,6 +1992,7 @@ export class ApFilterMetadata extends LitElement {
               name="chevron-right"
               .size=${14}
             ></ap-icon>
+            <ap-icon name=${METADATA_FIELD_TYPE_ICONS[field.type] || 'file-text'} .size=${14} style="color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82))"></ap-icon>
             <span>${field.label}</span>
           </div>
           <div class="field-header-actions">
@@ -2015,10 +2023,7 @@ export class ApFilterMetadata extends LitElement {
       f.label.toLowerCase().includes(search),
     );
 
-    const rootFields = filtered.filter(
-      (f) => !f.group || f.group === 'root',
-    );
-    const productFields = filtered.filter((f) => f.group === 'product');
+    const groupedFields = this._getGroupedFields(filtered);
 
     const renderGroup = (label: string, fields: MetadataModelField[]) => {
       if (fields.length === 0) return nothing;
@@ -2035,6 +2040,7 @@ export class ApFilterMetadata extends LitElement {
               class="field-item ${hasFilter ? 'has-filter' : ''} ${isDisabled ? 'disabled' : ''}"
               @click=${() => !isDisabled && this._emitFieldSelect(field)}
             >
+              <ap-icon name=${METADATA_FIELD_TYPE_ICONS[field.type] || 'file-text'} .size=${14} style="color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82))"></ap-icon>
               <span class="field-item-label">${field.label}</span>
               <button
                 class="field-item-pin ${isPinned ? 'pinned' : ''}"
@@ -2069,10 +2075,9 @@ export class ApFilterMetadata extends LitElement {
         <div class="field-list">
           ${filtered.length === 0
             ? html`<div class="empty-msg">No fields found</div>`
-            : html`
-                ${renderGroup('Root fields', rootFields)}
-                ${renderGroup('Product fields', productFields)}
-              `}
+            : html`${[...groupedFields.entries()].map(
+                ([groupName, fields]) => renderGroup(groupName, fields),
+              )}`}
         </div>
       </div>
     `;

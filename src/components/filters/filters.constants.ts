@@ -282,6 +282,24 @@ export const BOOLEAN_OPTIONS = [
   { label: 'False', value: 'false' },
 ];
 
+// ── Metadata Field Type → Icon Mapping ──────────────────────────
+
+export const METADATA_FIELD_TYPE_ICONS: Record<MetadataFieldType, string> = {
+  [METADATA_FIELD_TYPES.DATE]: 'calendar',
+  [METADATA_FIELD_TYPES.BOOLEAN]: 'toggle-left',
+  [METADATA_FIELD_TYPES.NUMERIC]: 'file-digit',
+  [METADATA_FIELD_TYPES.DECIMAL2]: 'decimals-arrow-right',
+  [METADATA_FIELD_TYPES.ATTACHMENTS_ASSETS]: 'paperclip',
+  [METADATA_FIELD_TYPES.ATTACHMENT_URI]: 'link-2',
+  [METADATA_FIELD_TYPES.SELECT_ONE]: 'circle-dot',
+  [METADATA_FIELD_TYPES.MULTI_SELECT]: 'square-check',
+  [METADATA_FIELD_TYPES.SUPERTAGS]: 'hash',
+  [METADATA_FIELD_TYPES.TEXT]: 'text-initial',
+  [METADATA_FIELD_TYPES.TEXT_AREA]: 'text-align-justify',
+  [METADATA_FIELD_TYPES.GEO_POINT]: 'locate',
+  [METADATA_FIELD_TYPES.INTEGER_LIST]: 'list-ordered',
+};
+
 // ── Metadata Field Type → UI Component Mapping ─────────────────────
 
 export type MetadataFilterUIType =

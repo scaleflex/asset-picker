@@ -79,7 +79,7 @@ export async function getMetadataSettings(client: ApiClient): Promise<MetadataSe
 
 
   for (const group of groups) {
-    const isProduct = group.name?.toLowerCase() === 'products' || group.name?.toLowerCase() === 'product fields';
+    const groupName = group.name || 'Root fields';
     for (const field of group.fields ?? []) {
       // Parse possible_values: API returns array of objects with api_value, internal_unique_value, label
       const rawPossible = field.possible_values as Array<Record<string, unknown>> | undefined;
@@ -97,7 +97,7 @@ export async function getMetadataSettings(client: ApiClient): Promise<MetadataSe
         slug: field.slug as string | undefined,
         ckey: field.ckey as string | undefined,
         possible_values: possibleValues,
-        group: isProduct ? 'product' : 'root',
+        group: groupName,
         regionalVariantsGroupUuid: field.regional_variants_group_uuid as string | undefined,
       });
     }

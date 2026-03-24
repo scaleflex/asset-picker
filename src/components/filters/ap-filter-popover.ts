@@ -9,7 +9,7 @@ export class ApFilterPopover extends LitElement {
     }
     .popover {
       position: absolute;
-      top: calc(100% + 8px);
+      top: calc(100% + 4px);
       left: 20px;
       z-index: 50;
       width: 320px;

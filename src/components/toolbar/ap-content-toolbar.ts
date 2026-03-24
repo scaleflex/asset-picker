@@ -355,7 +355,7 @@ export class ApContentToolbar extends LitElement {
     }
     .popover-anchor.external .popover-panel {
       border-radius: 8px;
-      top: 0;
+      top: 4px;
     }
   `;
 

@@ -221,7 +221,8 @@ export interface MetadataModelField {
   slug?: string;
   ckey?: string;
   possible_values?: MetadataPossibleValue[];
-  group?: 'root' | 'product';
+  /** Metadata group name from the API (e.g. "Root fields", "Product Fields", custom group names). */
+  group?: string;
   /** UUID of the regional variant group this field belongs to (if regional). */
   regionalVariantsGroupUuid?: string;
 }

@@ -278,6 +278,67 @@ const ICONS: Record<string, IconDef> = {
     { tag: 'path', attrs: { d: 'M12 6v6l4 2' } },
   ],
 
+  // ── Metadata Field Types (exact Lucide icon paths) ─────────────────
+  'toggle-left': [
+    { tag: 'rect', attrs: { width: '20', height: '14', x: '2', y: '5', rx: '7' } },
+    { tag: 'circle', attrs: { cx: '9', cy: '12', r: '3' } },
+  ],
+  'file-digit': [
+    { tag: 'path', attrs: { d: 'M4 12V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2' } },
+    { tag: 'path', attrs: { d: 'M14 2v5a1 1 0 0 0 1 1h5' } },
+    { tag: 'path', attrs: { d: 'M10 16h2v6' } },
+    { tag: 'path', attrs: { d: 'M10 22h4' } },
+    { tag: 'rect', attrs: { width: '4', height: '6', x: '2', y: '16', rx: '2' } },
+  ],
+  'decimals-arrow-right': [
+    { tag: 'path', attrs: { d: 'M10 18h10' } },
+    { tag: 'path', attrs: { d: 'm17 21 3-3-3-3' } },
+    { tag: 'path', attrs: { d: 'M3 11h.01' } },
+    { tag: 'rect', attrs: { width: '5', height: '8', x: '15', y: '3', rx: '2.5' } },
+    { tag: 'rect', attrs: { width: '5', height: '8', x: '6', y: '3', rx: '2.5' } },
+  ],
+  'text-initial': [
+    { tag: 'path', attrs: { d: 'M15 5h6' } },
+    { tag: 'path', attrs: { d: 'M15 12h6' } },
+    { tag: 'path', attrs: { d: 'M3 19h18' } },
+    { tag: 'path', attrs: { d: 'm3 12 3.553-7.724a.5.5 0 0 1 .894 0L11 12' } },
+    { tag: 'path', attrs: { d: 'M3.92 10h6.16' } },
+  ],
+  'text-align-justify': [
+    { tag: 'path', attrs: { d: 'M3 5h18' } },
+    { tag: 'path', attrs: { d: 'M3 12h18' } },
+    { tag: 'path', attrs: { d: 'M3 19h18' } },
+  ],
+  paperclip: 'm16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551',
+  'link-2': [
+    { tag: 'path', attrs: { d: 'M9 17H7A5 5 0 0 1 7 7h2' } },
+    { tag: 'path', attrs: { d: 'M15 7h2a5 5 0 1 1 0 10h-2' } },
+    { tag: 'path', attrs: { d: 'M8 12h8' } },
+  ],
+  'circle-dot': [
+    { tag: 'circle', attrs: { cx: '12', cy: '12', r: '10' } },
+    { tag: 'circle', attrs: { cx: '12', cy: '12', r: '1' } },
+  ],
+  'square-check': [
+    { tag: 'rect', attrs: { width: '18', height: '18', x: '3', y: '3', rx: '2' } },
+    { tag: 'path', attrs: { d: 'm9 12 2 2 4-4' } },
+  ],
+  locate: [
+    { tag: 'path', attrs: { d: 'M2 12h3' } },
+    { tag: 'path', attrs: { d: 'M19 12h3' } },
+    { tag: 'path', attrs: { d: 'M12 2v3' } },
+    { tag: 'path', attrs: { d: 'M12 19v3' } },
+    { tag: 'circle', attrs: { cx: '12', cy: '12', r: '7' } },
+  ],
+  'list-ordered': [
+    { tag: 'path', attrs: { d: 'M11 5h10' } },
+    { tag: 'path', attrs: { d: 'M11 12h10' } },
+    { tag: 'path', attrs: { d: 'M11 19h10' } },
+    { tag: 'path', attrs: { d: 'M4 4h1v5' } },
+    { tag: 'path', attrs: { d: 'M4 9h2' } },
+    { tag: 'path', attrs: { d: 'M6.5 20H3.4c0-1 2.6-1.925 2.6-3.5a1.5 1.5 0 0 0-2.6-1.02' } },
+  ],
+
   // ── Misc ────────────────────────────────────────────────────────────
   component: [
     { tag: 'path', attrs: { d: 'M15.536 11.293a1 1 0 0 0 0 1.414l2.376 2.377a1 1 0 0 0 1.414 0l2.377-2.377a1 1 0 0 0 0-1.414l-2.377-2.377a1 1 0 0 0-1.414 0z' } },
