@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://www.scaleflex.com">
-    <img src="https://scaleflex.cloudimg.io/v7/plugins/js-cloudimage-360-view/logo_scaleflex_on_white_bg.jpg?vh=91b12d&w=700" alt="Scaleflex" width="350">
+    <img src="https://scaleflex.cloudimg.io/v7/plugins/scaleflex/logo.png?vh=b0a502&radius=25&w=700" alt="Scaleflex" width="350">
   </a>
 </p>
 
@@ -54,6 +54,7 @@
   - [Asset](#asset)
   - [Folder](#folder)
 - [Browser Support](#browser-support)
+- [Claude Code Integration](#claude-code-integration)
 - [License](#license)
 
 ---
@@ -688,6 +689,38 @@ interface Folder {
 | Edge (Chromium) | 79+ |
 
 Requires native support for Custom Elements v1, Shadow DOM, and ES2020+. Internet Explorer is **not** supported.
+
+---
+
+## Claude Code Integration
+
+If you use [Claude Code](https://docs.anthropic.com/en/docs/claude-code), this package ships with a ready-made skill that helps Claude add the asset picker to your project — detecting your framework, wiring auth, events, theming, and filters automatically.
+
+### Option 1: Project-level (recommended)
+
+Copy the skill into your project so every team member who uses Claude Code gets it:
+
+```bash
+mkdir -p .claude/skills/integrate-asset-picker
+cp node_modules/@scaleflex/asset-picker/.claude/skills/integrate-asset-picker/SKILL.md \
+   .claude/skills/integrate-asset-picker/SKILL.md
+```
+
+Commit the `.claude/skills/` directory to version control. The skill is now available to everyone on the team.
+
+### Option 2: Global (personal)
+
+Install it once for all your projects:
+
+```bash
+mkdir -p ~/.claude/skills/integrate-asset-picker
+cp node_modules/@scaleflex/asset-picker/.claude/skills/integrate-asset-picker/SKILL.md \
+   ~/.claude/skills/integrate-asset-picker/SKILL.md
+```
+
+### Usage
+
+Type `/integrate-asset-picker` in Claude Code and it will walk you through the full integration — install, config, events, and theming — tailored to your stack (React, Vue, vanilla JS, etc.).
 
 ---
 

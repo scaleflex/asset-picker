@@ -25,6 +25,7 @@
   },
   "files": [
     "dist",
+    ".claude",
     "README.md",
     "LICENSE",
     "CHANGELOG.md"
