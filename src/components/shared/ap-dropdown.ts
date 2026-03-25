@@ -21,8 +21,10 @@ export class ApDropdown extends LitElement {
         display: flex;
         align-items: center;
         gap: 8px;
+        width: 100%;
         height: 36px;
         padding: 0 12px;
+        box-sizing: border-box;
         border: 1px solid var(--ap-input, oklch(0.871 0.016 241.798));
         border-radius: var(--ap-radius-sm, 6px);
         background: var(--ap-background, oklch(1 0 0));
