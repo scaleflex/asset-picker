@@ -52,9 +52,11 @@ export class ApCheckbox extends LitElement {
         pointer-events: none;
       }
       .label {
-        margin-left: 8px;
+        margin-left: var(--ap-checkbox-gap, 8px);
         font-size: var(--ap-font-size-sm, 0.875rem);
         color: var(--ap-foreground, oklch(0.37 0.022 248.413));
+        display: inline-flex;
+        align-items: center;
       }
     `,
   ];
