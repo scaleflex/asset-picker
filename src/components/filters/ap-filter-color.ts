@@ -35,8 +35,8 @@ export class ApFilterColor extends LitElement {
     /* ── Palette ── */
     .palette {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 12px;
       justify-items: center;
     }
 
