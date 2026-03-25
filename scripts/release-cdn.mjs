@@ -21,4 +21,9 @@ run({
     },
   },
   updateFiles: ["README.md"],
+  // Primary repo is GitLab (private); GitHub (origin) only gets the release branch for demo
+  gitPush: [
+    "gitlab",
+    { remote: "origin", branch: "release" },
+  ],
 });
