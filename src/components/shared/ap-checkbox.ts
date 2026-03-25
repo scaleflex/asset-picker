@@ -58,6 +58,9 @@ export class ApCheckbox extends LitElement {
         display: inline-flex;
         align-items: center;
       }
+      .label[hidden] {
+        display: none;
+      }
     `,
   ];
 
