@@ -21,7 +21,7 @@ export class ApSkeleton extends LitElement {
     .grid-skeleton {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px 24px;
+      gap: 24px;
     }
     .card-skel {
       aspect-ratio: 6/4;
