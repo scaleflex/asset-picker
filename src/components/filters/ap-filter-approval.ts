@@ -32,7 +32,7 @@ export class ApFilterApproval extends LitElement {
     }
     .condition-label {
       font-weight: 500;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
     .mt-12 {
       margin-top: 12px;

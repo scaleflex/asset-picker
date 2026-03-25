@@ -62,6 +62,9 @@ export class ApFilterImage extends LitElement {
       flex-direction: column;
       gap: 12px;
     }
+    .options-vertical ap-checkbox {
+      --ap-checkbox-gap: 12px;
+    }
     .orientation-label {
       display: inline-flex;
       align-items: center;

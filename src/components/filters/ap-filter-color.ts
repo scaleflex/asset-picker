@@ -35,8 +35,8 @@ export class ApFilterColor extends LitElement {
     /* ── Palette ── */
     .palette {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 12px;
       justify-items: center;
     }
 
@@ -184,14 +184,19 @@ export class ApFilterColor extends LitElement {
       display: grid;
       grid-template-columns: 1.4fr 1fr 1fr auto;
       align-items: end;
-      gap: 6px;
+      gap: 8px;
     }
 
     .adv-field {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 6px;
       min-width: 0;
+    }
+
+    .adv-field ap-dropdown {
+      display: block;
+      width: 100%;
     }
 
     .adv-field-label {
@@ -250,20 +255,18 @@ export class ApFilterColor extends LitElement {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 6px 12px;
-      border: 1px dashed var(--ap-border, oklch(92.86% 0.009 247.92));
-      border-radius: var(--ap-radius-sm, 6px);
+      padding: 6px 0;
+      border: none;
       background: none;
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-family: inherit;
-      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
       cursor: pointer;
-      transition: border-color 150ms, color 150ms;
+      transition: opacity 150ms;
     }
 
     .add-color-btn:hover {
-      border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
-      color: var(--ap-primary, oklch(0.578 0.198 268.129));
+      opacity: 0.8;
     }
   `];
 
