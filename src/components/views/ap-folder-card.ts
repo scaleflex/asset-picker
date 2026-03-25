@@ -21,9 +21,6 @@ export class ApFolderCard extends LitElement {
       aspect-ratio: 4/3;
       cursor: pointer;
     }
-    .card:hover .hover-overlay {
-      opacity: 0.9;
-    }
     /* Folder shape SVG fills card */
     .folder-svg {
       position: absolute;
@@ -31,15 +28,18 @@ export class ApFolderCard extends LitElement {
       width: 100%;
       height: 100%;
     }
-    .hover-overlay {
+    .preview-overlay {
       position: absolute;
       inset: 0;
-      width: 100%;
-      height: 100%;
       z-index: 2;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 4px;
       opacity: 0;
-      transition: opacity 200ms;
+      transition: opacity 150ms;
       pointer-events: none;
+    }
+    .card:hover .preview-overlay {
+      opacity: 1;
     }
     .card-content {
       position: absolute;
@@ -53,6 +53,7 @@ export class ApFolderCard extends LitElement {
       padding-bottom: 12px;
     }
     .preview-container {
+      position: relative;
       flex: 1;
       min-height: 0;
       display: flex;
@@ -256,14 +257,10 @@ export class ApFolderCard extends LitElement {
           <path d="M 3,0 L 30,0 L 43.5,0 Q 45,0 46.5,3 L 51,12 L 97,12 Q 100,12 100,15 L 100,97 Q 100,100 97,100 L 3,100 Q 0,100 0,97 L 0,3 Q 0,0 3,0 Z"
                 fill="#E3E8ED" rx="3" ry="3" />
         </svg>
-        <!-- Hover overlay with same folder shape -->
-        <svg class="hover-overlay" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <path d="M 3,0 L 30,0 L 43.5,0 Q 45,0 46.5,3 L 51,12 L 97,12 Q 100,12 100,15 L 100,97 Q 100,100 97,100 L 3,100 Q 0,100 0,97 L 0,3 Q 0,0 3,0 Z"
-                fill="#F3F7FA" />
-        </svg>
         <div class="card-content">
           <!-- Preview images -->
           <div class="preview-container">
+            <div class="preview-overlay"></div>
             ${this._renderPreviews()}
           </div>
           <!-- Info section inside the card shape -->
