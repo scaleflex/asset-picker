@@ -46,10 +46,11 @@ export class ApFolderCard extends LitElement {
       top: 16%;
       left: 3.5%;
       width: 93%;
-      bottom: 3%;
+      bottom: 0;
       z-index: 1;
       display: flex;
       flex-direction: column;
+      padding-bottom: 12px;
     }
     .preview-container {
       flex: 1;
@@ -135,8 +136,8 @@ export class ApFolderCard extends LitElement {
       display: flex;
       justify-content: space-between;
       font-size: 0.75rem;
-      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
-      margin-top: 2px;
+      color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
+      margin-top: 6px;
     }
   `];
 
