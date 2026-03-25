@@ -145,10 +145,6 @@ export const filterPopoverStyles = css`
     background-size: 16px 16px;
     padding-right: 32px;
   }
-  .input-label:has(+ .filter-input[type="date"]) {
-    font-weight: 400;
-    color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
-  }
 
   textarea.filter-input {
     min-height: 60px;
@@ -158,9 +154,9 @@ export const filterPopoverStyles = css`
   /* ── Input label ── */
   .input-label {
     display: block;
-    font-size: var(--ap-font-size-sm, 0.875rem);
-    font-weight: 500;
-    color: var(--ap-foreground, oklch(0.37 0.022 248.413));
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
     margin-bottom: 4px;
   }
   .input-label[aria-disabled="true"] {
