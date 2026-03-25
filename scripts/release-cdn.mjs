@@ -21,9 +21,17 @@ run({
     },
   },
   updateFiles: ["README.md"],
-  // Primary repo is GitLab (private); GitHub (origin) only gets the release branch for demo
+  // Primary repo is GitLab (private); GitHub (origin) only gets demo + README
   gitPush: [
     "gitlab",
-    { remote: "origin", branch: "release" },
+    {
+      remote: "origin",
+      branch: "release",
+      buildCommand: "npm run build:demo",
+      publicFiles: [
+        { from: "README.md" },
+        { from: "demo-dist", to: "." },
+      ],
+    },
   ],
 });
