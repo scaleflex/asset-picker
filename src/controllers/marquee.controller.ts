@@ -32,6 +32,7 @@ export class MarqueeController implements ReactiveController {
   private handleMouseDown = (e: MouseEvent) => this.onMouseDown(e);
   private handleMouseMove = (e: MouseEvent) => this.onMouseMove(e);
   private handleMouseUp = () => this.onMouseUp();
+  private preventSelect = (e: Event) => e.preventDefault();
 
   constructor(host: ReactiveControllerHost, store: Store<AppState>) {
     this.host = host;
@@ -56,6 +57,7 @@ export class MarqueeController implements ReactiveController {
     }
     document.removeEventListener('mousemove', this.handleMouseMove);
     document.removeEventListener('mouseup', this.handleMouseUp);
+    document.removeEventListener('selectstart', this.preventSelect);
     this.stopAutoScroll();
     this._lastMouseEvent = null;
   }
@@ -96,6 +98,8 @@ export class MarqueeController implements ReactiveController {
       // Threshold exceeded — activate marquee
       this._dragging = true;
       this.isActive = true;
+      document.addEventListener('selectstart', this.preventSelect);
+      window.getSelection()?.removeAllRanges();
       this.preMarqueeSelection = new Map(this.store.getState().selectedAssets);
     }
 
@@ -169,6 +173,7 @@ export class MarqueeController implements ReactiveController {
   private onMouseUp(): void {
     document.removeEventListener('mousemove', this.handleMouseMove);
     document.removeEventListener('mouseup', this.handleMouseUp);
+    document.removeEventListener('selectstart', this.preventSelect);
     this.stopAutoScroll();
     this._lastMouseEvent = null;
     if (this._dragging) {
