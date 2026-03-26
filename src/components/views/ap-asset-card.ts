@@ -167,8 +167,8 @@ export class ApAssetCard extends LitElement {
     }
     .duration {
       position: absolute;
-      bottom: 6px;
-      left: 6px;
+      bottom: 8px;
+      right: 12px;
       z-index: 1;
       padding: 2px 6px;
       border-radius: 4px;
@@ -223,7 +223,7 @@ export class ApAssetCard extends LitElement {
     const m = Math.floor((seconds % 3600) / 60);
     const s = Math.floor(seconds % 60);
     const pad = (n: number) => String(n).padStart(2, '0');
-    return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
+    return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
   }
 
   private _handleQuickSelect(e: MouseEvent) {
@@ -286,7 +286,7 @@ export class ApAssetCard extends LitElement {
                   }
                 }}
               />`}
-          ${isVideo && a.info?.duration ? html`<span class="duration">${this._formatDuration(a.info.duration)}</span>` : nothing}
+          ${isVideo && (a.info?.video_duration || a.info?.duration) ? html`<span class="duration">${this._formatDuration(a.info!.video_duration || a.info!.duration!)}</span>` : nothing}
           <div class="overlay">
             <button class="overlay-btn" @click=${this._handlePreview} aria-label="Preview">
               <ap-icon name="preview" .size=${16}></ap-icon>

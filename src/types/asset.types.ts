@@ -3,6 +3,7 @@ export interface AssetInfo {
   img_w?: number;
   img_h?: number;
   duration?: number;
+  video_duration?: number;
   video_w?: number;
   video_h?: number;
   thumbnail?: string;

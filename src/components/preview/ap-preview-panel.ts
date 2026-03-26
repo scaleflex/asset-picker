@@ -688,7 +688,7 @@ export class ApPreviewPanel extends LitElement {
     if (a.size?.bytes) rows.push({ label: 'Size', value: formatFileSize(a.size.bytes) });
     if (a.info?.img_w) rows.push({ label: 'Dimensions', value: formatDimensions(a.info.img_w, a.info.img_h) });
     if (a.info?.video_w) rows.push({ label: 'Video resolution', value: `${a.info.video_w} x ${a.info.video_h}` });
-    if (a.info?.duration) rows.push({ label: 'Duration', value: `${Math.round(a.info.duration)}s` });
+    if (a.info?.video_duration || a.info?.duration) rows.push({ label: 'Duration', value: `${Math.round(a.info!.video_duration || a.info!.duration!)}s` });
     if (a.info?.color_space) rows.push({ label: 'Color space', value: a.info.color_space });
     if (a.created_at) rows.push({ label: 'Created', value: formatDate(a.created_at) });
     if (a.modified_at) rows.push({ label: 'Modified', value: formatDate(a.modified_at) });
@@ -966,7 +966,7 @@ export class ApPreviewPanel extends LitElement {
               />
             </div>
           ` : nothing}
-          ${isVideo ? html`<video src=${videoSrc} poster=${videoPoster || nothing} controls @loadeddata=${() => { this._previewLoading = false; }} @error=${() => { this._previewLoading = false; }}></video>` : nothing}
+          ${isVideo ? html`<video src=${videoSrc} poster=${videoPoster || nothing} controls controlsList="nofullscreen" @loadeddata=${() => { this._previewLoading = false; }} @error=${() => { this._previewLoading = false; }}></video>` : nothing}
           ${isAudio ? html`<audio src=${a.url?.cdn || ''} controls></audio>` : nothing}
           ${isPdf && !isImage ? html`
             <img
