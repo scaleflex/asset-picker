@@ -36,7 +36,7 @@ export class ApFolderRow extends LitElement {
     }
     .meta {
       font-size: 0.8125rem;
-      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+      color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
     }
   `;
 
