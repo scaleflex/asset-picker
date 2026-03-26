@@ -119,7 +119,9 @@ export class ApFolderCard extends LitElement {
       justify-content: center;
       width: 100%;
       height: 100%;
-      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
+      border-radius: 4px;
+      color: var(--ap-input, oklch(0.871 0.016 241.798));
     }
     .info {
       flex-shrink: 0;
@@ -223,7 +225,7 @@ export class ApFolderCard extends LitElement {
 
   private _renderPreviews() {
     if (this.previews.length === 0) {
-      return html`<div class="empty-preview"><ap-icon name="folder" .size=${48}></ap-icon></div>`;
+      return html`<div class="empty-preview"><ap-icon name="inbox" .size=${64}></ap-icon></div>`;
     }
 
     const images = this.previews.slice(0, 3);
