@@ -57,9 +57,18 @@ export class ApFilterTags extends LitElement {
       margin: -10px -8px 10px;
     }
 
+    .filter-header .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+      pointer-events: none;
+    }
+
     .tag-search {
       width: 100%;
-      padding: 8px 10px;
+      padding: 8px 32px 8px 32px;
       border: none;
       border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
       font-size: var(--ap-font-size-sm, 0.875rem);
@@ -198,6 +207,7 @@ export class ApFilterTags extends LitElement {
     return html`
       <div class="filter-content">
         <div class="filter-header">
+          <ap-icon class="search-icon" name="search" .size=${14}></ap-icon>
           <input
             class="tag-search"
             type="text"

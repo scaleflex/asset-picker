@@ -108,13 +108,25 @@ export class ApFilterMetadata extends LitElement {
       margin: 0;
     }
 
-    .field-search {
+    .field-search-wrapper {
       position: sticky;
       top: 0;
       z-index: 2;
+    }
+
+    .field-search-wrapper .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+      pointer-events: none;
+    }
+
+    .field-search {
       width: 100%;
       height: 34px;
-      padding: 0 20px;
+      padding: 0 20px 0 32px;
       box-sizing: border-box;
       border: none;
       border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
@@ -1058,15 +1070,18 @@ export class ApFilterMetadata extends LitElement {
             <ap-icon name="close" .size=${16}></ap-icon>
           </button>
         </div>
-        <input
-          class="field-search"
-          type="text"
-          placeholder="Search fields"
-          .value=${this._fieldSearch}
-          @input=${(e: Event) => {
-            this._fieldSearch = (e.target as HTMLInputElement).value;
-          }}
-        />
+        <div class="field-search-wrapper">
+          <ap-icon class="search-icon" name="search" .size=${14}></ap-icon>
+          <input
+            class="field-search"
+            type="text"
+            placeholder="Search fields"
+            .value=${this._fieldSearch}
+            @input=${(e: Event) => {
+              this._fieldSearch = (e.target as HTMLInputElement).value;
+            }}
+          />
+        </div>
         <div class="field-list">
           ${filtered.length === 0
             ? html`<div class="empty-msg">No fields found</div>`
@@ -1291,6 +1306,7 @@ export class ApFilterMetadata extends LitElement {
       <div class="filter-content">
         <!-- Search input -->
         <div class="search-wrapper">
+          <ap-icon class="search-icon" name="search" .size=${14}></ap-icon>
           <input
             class="search-input"
             type="text"
@@ -1433,6 +1449,7 @@ export class ApFilterMetadata extends LitElement {
       <div class="filter-content">
         <!-- Search input -->
         <div class="search-wrapper">
+          <ap-icon class="search-icon" name="search" .size=${14}></ap-icon>
           <input
             class="search-input"
             type="text"
@@ -1571,6 +1588,7 @@ export class ApFilterMetadata extends LitElement {
       <div class="filter-content">
         <!-- Search input -->
         <div class="search-wrapper">
+          <ap-icon class="search-icon" name="search" .size=${14}></ap-icon>
           <input
             class="search-input"
             type="text"
@@ -2064,15 +2082,18 @@ export class ApFilterMetadata extends LitElement {
 
     return html`
       <div class="selector-wrap">
-        <input
-          class="field-search"
-          type="text"
-          placeholder="Search fields"
-          .value=${this._fieldSearch}
-          @input=${(e: Event) => {
-            this._fieldSearch = (e.target as HTMLInputElement).value;
-          }}
-        />
+        <div class="field-search-wrapper">
+          <ap-icon class="search-icon" name="search" .size=${14}></ap-icon>
+          <input
+            class="field-search"
+            type="text"
+            placeholder="Search fields"
+            .value=${this._fieldSearch}
+            @input=${(e: Event) => {
+              this._fieldSearch = (e.target as HTMLInputElement).value;
+            }}
+          />
+        </div>
         <div class="field-list">
           ${filtered.length === 0
             ? html`<div class="empty-msg">No fields found</div>`

@@ -231,9 +231,17 @@ export const filterPopoverStyles = css`
     background: var(--ap-card, oklch(1 0 0));
     margin: -10px -8px 10px;
   }
+  .search-wrapper .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+    pointer-events: none;
+  }
   .search-input {
     width: 100%;
-    padding: 8px 32px 8px 10px;
+    padding: 8px 32px 8px 32px;
     border: none;
     border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     border-radius: 0;

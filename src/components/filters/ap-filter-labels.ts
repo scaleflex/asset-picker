@@ -170,6 +170,7 @@ export class ApFilterLabels extends LitElement {
       <div class="filter-content">
         <!-- Search input -->
         <div class="search-wrapper">
+          <ap-icon class="search-icon" name="search" .size=${14}></ap-icon>
           <input
             class="search-input"
             type="text"
