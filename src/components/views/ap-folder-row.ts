@@ -31,7 +31,7 @@ export class ApFolderRow extends LitElement {
     .name {
       grid-column: span 2;
       font-size: var(--ap-font-size-sm, 0.875rem);
-      font-weight: 500;
+      font-weight: 400;
       color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
     .meta {

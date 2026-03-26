@@ -54,7 +54,7 @@ export class ApAssetRow extends LitElement {
     }
     .name {
       font-size: var(--ap-font-size-sm, 0.875rem);
-      font-weight: 500;
+      font-weight: 400;
       color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       white-space: nowrap;
       overflow: hidden;
@@ -62,14 +62,14 @@ export class ApAssetRow extends LitElement {
     }
     .type {
       font-size: 0.8125rem;
-      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
+      color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .desc, .date {
       font-size: 0.8125rem;
-      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+      color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
