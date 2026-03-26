@@ -113,7 +113,7 @@ export class ApAssetCard extends LitElement {
     }
     .name {
       font-size: var(--ap-font-size-sm, 0.875rem);
-      font-weight: 500;
+      font-weight: 400;
       color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       white-space: nowrap;
       overflow: hidden;
