@@ -907,10 +907,10 @@ export class ApPreviewPanel extends LitElement {
         <div class="panel-header">
           <span class="panel-title" title=${a.name}>${a.name}</span>
           <div class="header-actions">
-            <button class="icon-btn" @click=${this._fullscreen} ?disabled=${!isImage && !isVideo && !isAudio && !isPdf} aria-label="Fullscreen">
+            <button class="icon-btn" @click=${this._fullscreen} ?disabled=${!isImage && !isVideo && !isAudio && !isPdf} aria-label="Fullscreen" title="Full screen">
               <ap-icon name="fullscreen" .size=${16}></ap-icon>
             </button>
-            <button class="icon-btn ${this.asset && this.selectedIds.includes(this.asset.uuid) ? 'selected' : ''}" @click=${this._select} aria-label="Select">
+            <button class="icon-btn ${this.asset && this.selectedIds.includes(this.asset.uuid) ? 'selected' : ''}" @click=${this._select} aria-label="Select" title="Select the asset">
               <ap-icon name="select" .size=${16}></ap-icon>
             </button>
             <div class="header-divider"></div>
