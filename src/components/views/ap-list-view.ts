@@ -19,7 +19,7 @@ export class ApListView extends LitElement {
       padding: 8px 12px;
       font-size: 14px;
       font-weight: 400;
-      color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     }
     .list-header:not(.has-checkbox) {
