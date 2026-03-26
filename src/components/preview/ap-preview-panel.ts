@@ -37,11 +37,14 @@ export class ApPreviewPanel extends LitElement {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px;
+      gap: 12px;
+      height: 50px;
+      min-height: 50px;
+      padding: 0 16px;
       border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     }
     .panel-title {
-      font-size: var(--ap-font-size-base, 1rem);
+      font-size: 14px;
       font-weight: 600;
       color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       white-space: nowrap;
