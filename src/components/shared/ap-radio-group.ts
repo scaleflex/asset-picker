@@ -63,6 +63,9 @@ export class ApRadioGroup extends LitElement {
         background: transparent;
         transition: background 150ms;
       }
+      .option:hover .radio {
+        border-color: var(--ap-secondary-foreground-50, oklch(53.03% 0.039 249.89 / 0.5));
+      }
       .option[aria-checked="true"] .radio {
         border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
       }

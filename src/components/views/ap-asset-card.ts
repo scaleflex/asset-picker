@@ -142,6 +142,9 @@ export class ApAssetCard extends LitElement {
       transition: all 150ms;
       background: var(--ap-background, oklch(1 0 0));
     }
+    .check:hover .check-box {
+      border-color: var(--ap-secondary-foreground-50, oklch(53.03% 0.039 249.89 / 0.5));
+    }
     :host([selected]) .check-box {
       background: var(--ap-primary, oklch(0.578 0.198 268.129));
       border-color: var(--ap-primary, oklch(0.578 0.198 268.129));

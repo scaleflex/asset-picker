@@ -50,6 +50,9 @@ export class ApHeader extends LitElement {
       background: var(--ap-background, oklch(1 0 0));
       outline: none;
     }
+    input:hover {
+      border-color: var(--ap-secondary-foreground-50, oklch(53.03% 0.039 249.89 / 0.5));
+    }
     input:focus {
       border-color: var(--ap-ring, oklch(0.578 0.198 268.129 / 0.7));
       box-shadow: 0 0 0 2px var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.1));
