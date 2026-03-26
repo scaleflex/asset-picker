@@ -41,7 +41,6 @@ export class ApPreviewPanel extends LitElement {
       height: 50px;
       min-height: 50px;
       padding: 0 16px;
-      border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     }
     .panel-title {
       font-size: 14px;
@@ -268,7 +267,6 @@ export class ApPreviewPanel extends LitElement {
     }
     /* Accordion styles */
     .accordion {
-      border-top: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     }
     .accordion-trigger {
       display: flex;
