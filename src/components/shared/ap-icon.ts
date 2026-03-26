@@ -12,6 +12,10 @@ const ICONS: Record<string, IconDef> = {
     { tag: 'path', attrs: { d: 'm21 21-4.3-4.3' } },
   ],
   check: 'M20 6 9 17l-5-5',
+  'check-check': [
+    { tag: 'path', attrs: { d: 'M18 6 7 17l-5-5' } },
+    { tag: 'path', attrs: { d: 'm22 10-7.5 7.5L13 16' } },
+  ],
   close: [
     { tag: 'path', attrs: { d: 'M18 6 6 18' } },
     { tag: 'path', attrs: { d: 'm6 6 12 12' } },
