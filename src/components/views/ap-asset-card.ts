@@ -121,7 +121,7 @@ export class ApAssetCard extends LitElement {
     }
     .meta {
       font-size: 0.75rem;
-      color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       margin-top: 6px;
     }
     .check {
