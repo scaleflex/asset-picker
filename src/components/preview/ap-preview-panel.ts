@@ -862,7 +862,7 @@ export class ApPreviewPanel extends LitElement {
     const entries = this._getTagEntries(a.tags);
     if (entries.length === 0) return nothing;
     return html`
-      <div class="meta-row" style="flex-direction:column;gap:6px">
+      <div class="meta-row">
         <span class="meta-label">Tags</span>
         <div class="tags-list">
           ${entries.map((t) => html`
