@@ -7,7 +7,7 @@ export class ApBreadcrumb extends LitElement {
   static styles = css`
     :host {
       display: block;
-      padding: 8px 20px;
+      padding: 4px 20px 12px;
     }
     .breadcrumb {
       display: flex;
@@ -24,6 +24,9 @@ export class ApBreadcrumb extends LitElement {
       border-radius: 4px;
       font-family: var(--ap-font-family, system-ui, sans-serif);
       font-size: var(--ap-font-size-sm, 0.875rem);
+    }
+    button:first-child {
+      margin-left: -6px;
     }
     button:hover {
       background: var(--ap-muted, oklch(0.974 0.006 239.819));

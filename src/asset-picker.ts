@@ -1537,13 +1537,6 @@ export class AssetPicker extends LitElement {
           </div>
         ` : nothing}
         <div class="main-content">
-          ${s.breadcrumb.length > 0
-            ? html`<ap-breadcrumb
-                .items=${s.breadcrumb}
-                @breadcrumb-navigate=${this._handleBreadcrumbNavigate}
-              ></ap-breadcrumb>`
-            : nothing}
-
           <div class="toolbar-filters-wrapper">
             <ap-content-toolbar
               .isLoading=${s.isLoading}
@@ -1591,6 +1584,13 @@ export class AssetPicker extends LitElement {
               @filters-clear-all=${this._handleFiltersClearAll}
               @filters-set=${this._handleFiltersSet}
             ></ap-filters-bar>
+
+            ${s.breadcrumb.length > 0
+              ? html`<ap-breadcrumb
+                  .items=${s.breadcrumb}
+                  @breadcrumb-navigate=${this._handleBreadcrumbNavigate}
+                ></ap-breadcrumb>`
+              : nothing}
           </div>
 
           ${s.isLoading && s.assets.length === 0 && s.folders.length === 0
