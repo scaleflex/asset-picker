@@ -59,6 +59,7 @@ export class ApHeader extends LitElement {
     }
     input::placeholder {
       color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+      font-weight: 400;
     }
     .clear-btn {
       position: absolute;
@@ -197,7 +198,7 @@ export class ApHeader extends LitElement {
           <ap-icon class="search-icon" name="search" .size=${16}></ap-icon>
           <input
             type="text"
-            placeholder="Search assets..."
+            placeholder="Search assets"
             .value=${this.searchQuery}
             @input=${this._handleInput}
           />

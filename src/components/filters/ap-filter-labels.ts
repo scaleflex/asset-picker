@@ -173,7 +173,7 @@ export class ApFilterLabels extends LitElement {
           <input
             class="search-input"
             type="text"
-            placeholder="Search labels..."
+            placeholder="Search labels"
             .value=${this._search}
             @input=${this._onSearchInput}
           />

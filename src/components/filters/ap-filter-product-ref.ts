@@ -79,6 +79,7 @@ export class ApFilterProductRef extends LitElement {
 
     .product-search::placeholder {
       color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+      font-weight: 400;
     }
 
     .search-clear {

@@ -272,7 +272,7 @@ export class ApFilterApproval extends LitElement {
         <input
           class="filter-input mt-12"
           type="text"
-          placeholder="Enter approver name..."
+          placeholder="Enter approver name"
           .value=${this.approverValue}
           @input=${this._handleApproverInput}
         />
@@ -305,7 +305,7 @@ export class ApFilterApproval extends LitElement {
         <input
           class="filter-input mt-12"
           type="text"
-          placeholder="Enter requester name..."
+          placeholder="Enter requester name"
           .value=${this.requesterValue}
           @input=${this._handleRequesterInput}
         />

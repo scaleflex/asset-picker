@@ -71,6 +71,7 @@ export class ApFilterTags extends LitElement {
 
     .tag-search::placeholder {
       color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+      font-weight: 400;
     }
 
     .search-clear {
@@ -200,7 +201,7 @@ export class ApFilterTags extends LitElement {
           <input
             class="tag-search"
             type="text"
-            placeholder="Search tags..."
+            placeholder="Search tags"
             .value=${this._search}
             @input=${this._onSearchInput}
           />

@@ -125,6 +125,7 @@ export const filterPopoverStyles = css`
   }
   .filter-input::placeholder {
     color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+    font-weight: 400;
   }
 
   /* ── Date input: Lucide calendar icon ── */
@@ -244,6 +245,7 @@ export const filterPopoverStyles = css`
   }
   .search-input::placeholder {
     color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+    font-weight: 400;
   }
   .search-clear {
     position: absolute;

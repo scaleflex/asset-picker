@@ -127,6 +127,7 @@ export class ApFilterMetadata extends LitElement {
 
     .field-search::placeholder {
       color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+      font-weight: 400;
     }
 
     .field-list {
@@ -1060,7 +1061,7 @@ export class ApFilterMetadata extends LitElement {
         <input
           class="field-search"
           type="text"
-          placeholder="Search fields..."
+          placeholder="Search fields"
           .value=${this._fieldSearch}
           @input=${(e: Event) => {
             this._fieldSearch = (e.target as HTMLInputElement).value;
@@ -1125,7 +1126,7 @@ export class ApFilterMetadata extends LitElement {
                   ? html`
                       <textarea
                         class="filter-input"
-                        placeholder="Enter value..."
+                        placeholder="Enter value"
                         .value=${textValue}
                         @change=${(e: Event) => this._onTextInput(field, e)}
                       ></textarea>
@@ -1134,7 +1135,7 @@ export class ApFilterMetadata extends LitElement {
                       <input
                         class="filter-input"
                         type="text"
-                        placeholder="Enter value..."
+                        placeholder="Enter value"
                         .value=${textValue}
                         @change=${(e: Event) => this._onTextInput(field, e)}
                         @keydown=${(e: KeyboardEvent) => {
@@ -1293,7 +1294,7 @@ export class ApFilterMetadata extends LitElement {
           <input
             class="search-input"
             type="text"
-            placeholder="Search options..."
+            placeholder="Search options"
             .value=${this._selectSearches[prefixedKey] || ''}
             @input=${(e: Event) => {
               this._selectSearches = {
@@ -1435,7 +1436,7 @@ export class ApFilterMetadata extends LitElement {
           <input
             class="search-input"
             type="text"
-            placeholder="Search options..."
+            placeholder="Search options"
             .value=${this._selectSearches[prefixedKey] || ''}
             @input=${(e: Event) => {
               this._selectSearches = {
@@ -1573,7 +1574,7 @@ export class ApFilterMetadata extends LitElement {
           <input
             class="search-input"
             type="text"
-            placeholder="Search tags..."
+            placeholder="Search tags"
             .value=${inputValue}
             @input=${(e: Event) => this._onTagInput(field, prefixedKey, e)}
             @keydown=${(e: KeyboardEvent) => this._onTagKeydown(field, e)}
@@ -1926,7 +1927,7 @@ export class ApFilterMetadata extends LitElement {
           <input
             class="filter-input"
             type="text"
-            placeholder="Search faces..."
+            placeholder="Search faces"
             .value=${values.join(', ')}
             @change=${(e: Event) => {
               const raw = (e.target as HTMLInputElement).value;
@@ -2066,7 +2067,7 @@ export class ApFilterMetadata extends LitElement {
         <input
           class="field-search"
           type="text"
-          placeholder="Search fields..."
+          placeholder="Search fields"
           .value=${this._fieldSearch}
           @input=${(e: Event) => {
             this._fieldSearch = (e.target as HTMLInputElement).value;
