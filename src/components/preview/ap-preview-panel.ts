@@ -296,10 +296,6 @@ export class ApPreviewPanel extends LitElement {
       display: flex;
       gap: 12px;
       padding: 6px 0;
-      border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
-    }
-    .meta-row:last-child {
-      border-bottom: none;
     }
     .meta-label {
       font-size: 0.8125rem;
