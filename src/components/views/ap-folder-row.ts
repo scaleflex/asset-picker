@@ -23,7 +23,7 @@ export class ApFolderRow extends LitElement {
       background: var(--ap-muted, oklch(0.974 0.006 239.819));
     }
     .icon {
-      color: var(--ap-primary, oklch(0.578 0.198 268.129));
+      color: var(--ap-input, oklch(0.871 0.016 241.798));
       display: flex;
       align-items: center;
       justify-content: center;
