@@ -12,12 +12,13 @@ export class ApBadge extends LitElement {
       .badge {
         display: inline-flex;
         align-items: center;
-        padding: 2px 8px;
+        height: 24px;
+        padding: 0 8px;
         font-size: 0.75rem;
         font-weight: 500;
         border-radius: 9999px;
         background: var(--ap-muted, oklch(0.974 0.006 239.819));
-        color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+        color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
       }
       :host([variant="primary"]) .badge {
         background: var(--ap-primary-10, oklch(0.578 0.198 268.129 / 0.1));

@@ -256,7 +256,7 @@ export class ApPreviewPanel extends LitElement {
     .tags-list {
       display: flex;
       flex-wrap: wrap;
-      gap: 4px;
+      gap: 8px;
     }
     .tag-link {
       cursor: pointer;
