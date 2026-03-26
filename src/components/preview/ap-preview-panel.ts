@@ -51,7 +51,14 @@ export class ApPreviewPanel extends LitElement {
     }
     .header-actions {
       display: flex;
+      align-items: center;
       gap: 4px;
+    }
+    .header-divider {
+      width: 1px;
+      height: 16px;
+      background: var(--ap-border, oklch(92.86% 0.009 247.92));
+      margin: 0 2px;
     }
     .icon-btn {
       display: flex;
@@ -905,6 +912,7 @@ export class ApPreviewPanel extends LitElement {
             <button class="icon-btn ${this.asset && this.selectedIds.includes(this.asset.uuid) ? 'selected' : ''}" @click=${this._select} aria-label="Select">
               <ap-icon name="select" .size=${16}></ap-icon>
             </button>
+            <div class="header-divider"></div>
             <button class="icon-btn" @click=${this._close} aria-label="Close">
               <ap-icon name="close" .size=${16}></ap-icon>
             </button>
