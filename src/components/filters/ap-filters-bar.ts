@@ -35,7 +35,7 @@ export class ApFiltersBar extends LitElement {
     .chips {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
       overflow-x: auto;
       scrollbar-width: none;
       min-width: 0;
