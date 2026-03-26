@@ -24,7 +24,7 @@ export class ApSelectionBar extends LitElement {
     }
     .count {
       font-size: var(--ap-font-size-sm, 0.875rem);
-      font-weight: 600;
+      font-weight: 400;
       color: var(--ap-primary-foreground, oklch(1 0 0));
       white-space: nowrap;
     }
