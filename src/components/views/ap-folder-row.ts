@@ -11,7 +11,7 @@ export class ApFolderRow extends LitElement {
     }
     .row {
       display: grid;
-      grid-template-columns: 48px 1fr 100px 200px 120px 60px;
+      grid-template-columns: 32px 48px 1fr 100px 200px 120px 60px;
       gap: 12px;
       padding: 8px 12px;
       align-items: center;
@@ -29,6 +29,7 @@ export class ApFolderRow extends LitElement {
       justify-content: center;
     }
     .name {
+      grid-column: span 2;
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-weight: 500;
       color: var(--ap-foreground, oklch(0.37 0.022 248.413));
