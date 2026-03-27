@@ -266,8 +266,6 @@ export class ApPreviewPanel extends LitElement {
       opacity: 0.75;
     }
     /* Accordion styles */
-    .accordion {
-    }
     .accordion-trigger {
       display: flex;
       align-items: center;
@@ -689,7 +687,7 @@ export class ApPreviewPanel extends LitElement {
     if (a.size?.bytes) rows.push({ label: 'Size', value: formatFileSize(a.size.bytes) });
     if (a.info?.img_w) rows.push({ label: 'Dimensions', value: formatDimensions(a.info.img_w, a.info.img_h) });
     if (a.info?.video_w) rows.push({ label: 'Video resolution', value: `${a.info.video_w} x ${a.info.video_h}` });
-    if (a.info?.video_duration || a.info?.duration) rows.push({ label: 'Duration', value: `${Math.round(a.info!.video_duration || a.info!.duration!)}s` });
+    if ((a.info?.video_duration ?? a.info?.duration) != null) rows.push({ label: 'Duration', value: `${Math.round((a.info!.video_duration ?? a.info!.duration)!)}s` });
     if (a.info?.color_space) rows.push({ label: 'Color space', value: a.info.color_space });
     if (a.created_at) rows.push({ label: 'Created', value: formatDate(a.created_at) });
     if (a.modified_at) rows.push({ label: 'Modified', value: formatDate(a.modified_at) });

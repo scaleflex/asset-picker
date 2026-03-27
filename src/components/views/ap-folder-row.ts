@@ -29,7 +29,6 @@ export class ApFolderRow extends LitElement {
       justify-content: center;
     }
     .name {
-      grid-column: span 2;
       font-size: var(--ap-font-size-sm, 0.875rem);
       font-weight: 400;
       color: var(--ap-foreground, oklch(0.37 0.022 248.413));
@@ -55,6 +54,7 @@ export class ApFolderRow extends LitElement {
     if (!f) return html``;
     return html`
       <div class="row" @click=${this._handleOpen}>
+        <div></div>
         <div class="icon"><ap-icon name="folder" .size=${22}></ap-icon></div>
         <div class="name">${f.name}</div>
         <div class="meta">Folder</div>

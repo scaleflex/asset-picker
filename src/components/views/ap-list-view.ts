@@ -123,7 +123,8 @@ export class ApListView extends LitElement {
               </div>
             </span>`
           : nothing}
-        <span style="grid-column:span 2">Name</span>
+        <span></span>
+        <span>Name</span>
         <span>Type</span>
         <span>Size</span>
         <span>Date</span>

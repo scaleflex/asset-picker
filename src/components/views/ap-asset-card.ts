@@ -289,7 +289,7 @@ export class ApAssetCard extends LitElement {
                   }
                 }}
               />`}
-          ${isVideo && (a.info?.video_duration || a.info?.duration) ? html`<span class="duration">${this._formatDuration(a.info!.video_duration || a.info!.duration!)}</span>` : nothing}
+          ${isVideo && (a.info?.video_duration ?? a.info?.duration) != null ? html`<span class="duration">${this._formatDuration((a.info!.video_duration ?? a.info!.duration)!)}</span>` : nothing}
           <div class="overlay">
             <button class="overlay-btn" @click=${this._handlePreview} aria-label="Preview">
               <ap-icon name="preview" .size=${16}></ap-icon>
