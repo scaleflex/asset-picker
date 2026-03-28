@@ -1,7 +1,9 @@
 import type { Asset } from './asset.types';
+import type { Folder } from './folder.types';
 
 export interface AssetPickerSelectDetail {
   assets: Asset[];
+  folders?: Folder[];
 }
 
 export interface AssetPickerCancelDetail {
@@ -15,6 +17,12 @@ export interface AssetPickerOpenDetail {
 export interface AssetPickerErrorDetail {
   error: Error;
   context: string;
+}
+
+export interface FolderSelectDetail {
+  folder: Folder;
+  index: number;
+  event: MouseEvent;
 }
 
 declare global {

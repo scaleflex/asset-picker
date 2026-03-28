@@ -1,6 +1,7 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import type { Asset } from '../../types/asset.types';
+import type { Folder } from '../../types/folder.types';
 import '../shared/ap-icon';
 
 @customElement('ap-selection-bar')
@@ -95,14 +96,29 @@ export class ApSelectionBar extends LitElement {
   `;
 
   @property({ type: Array }) selectedAssets: Asset[] = [];
+  @property({ type: Array }) selectedFolders: Folder[] = [];
   @property({ type: Number }) totalCount = 0;
   @property({ type: Boolean }) isSelectingAll = false;
   @property({ type: Boolean }) multiSelect = true;
   @property({ type: Number }) maxSelections?: number;
 
+  private get _totalSelected(): number {
+    return this.selectedAssets.length + this.selectedFolders.length;
+  }
+
+  private _formatCount(): string {
+    const ac = this.selectedAssets.length;
+    const fc = this.selectedFolders.length;
+    if (fc === 0) return `${ac} selected`;
+    if (ac === 0) return `${fc} folder${fc !== 1 ? 's' : ''} selected`;
+    const folderPart = `${fc} folder${fc !== 1 ? 's' : ''}`;
+    const assetPart = `${ac} asset${ac !== 1 ? 's' : ''}`;
+    return `${folderPart} and ${assetPart} selected`;
+  }
+
   private _confirm() {
     this.dispatchEvent(new CustomEvent('selection-confirm', {
-      detail: { assets: this.selectedAssets },
+      detail: { assets: this.selectedAssets, folders: this.selectedFolders },
       bubbles: true,
       composed: true,
     }));
@@ -117,15 +133,15 @@ export class ApSelectionBar extends LitElement {
   }
 
   render() {
-    if (this.selectedAssets.length === 0) return nothing;
+    if (this._totalSelected === 0) return nothing;
 
     return html`
       <div class="bar">
-        <span class="count">${this.selectedAssets.length} selected</span>
+        <span class="count">${this._formatCount()}</span>
         <span class="divider"></span>
         <span class="select-label">Select:</span>
-        ${this.multiSelect && this.selectedAssets.length < this.totalCount
-            && (!this.maxSelections || this.selectedAssets.length < this.maxSelections)
+        ${this.multiSelect && this._totalSelected < this.totalCount
+            && (!this.maxSelections || this._totalSelected < this.maxSelections)
           ? html`<button
               class="bar-btn"
               ?disabled=${this.isSelectingAll}
@@ -138,7 +154,7 @@ export class ApSelectionBar extends LitElement {
             }</button>`
           : nothing}
         <button class="bar-btn" @click=${this._clear}><ap-icon name="close" .size=${14}></ap-icon>Deselect all</button>
-        ${this.maxSelections && this.selectedAssets.length >= this.maxSelections
+        ${this.maxSelections && this._totalSelected >= this.maxSelections
           ? html`<span class="limit-notice">Max ${this.maxSelections} allowed</span>`
           : nothing}
         <div class="spacer"></div>

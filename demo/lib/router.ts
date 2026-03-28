@@ -32,8 +32,10 @@ const routes: RouteEntry[] = [
   { pattern: '/examples/react-wrapper', load: () => import('../pages/examples/react-wrapper').then((m) => m.default) },
   { pattern: '/examples/inline', load: () => import('../pages/examples/inline').then((m) => m.default) },
   { pattern: '/examples/sticky-filters', load: () => import('../pages/examples/sticky-filters').then((m) => m.default) },
+  { pattern: '/examples/grid-size', load: () => import('../pages/examples/grid-size').then((m) => m.default) },
   { pattern: '/examples/preferences', load: () => import('../pages/examples/preferences').then((m) => m.default) },
   { pattern: '/examples/uploader', load: () => import('../pages/examples/uploader').then((m) => m.default) },
+  { pattern: '/examples/folder-selection', load: () => import('../pages/examples/folder-selection').then((m) => m.default) },
 ];
 
 let currentPage: Page | null = null;

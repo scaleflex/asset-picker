@@ -46,6 +46,8 @@ export function createStore(): Store<AppState> {
     regionalFilters: {},
 
     selectedAssets: new Map(),
+    selectedFolders: new Map(),
+    isResolvingFolders: false,
   });
 }
 

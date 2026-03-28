@@ -9,6 +9,7 @@ import {
 import { createElement } from 'react';
 import type { AssetPickerConfig } from './types/config.types';
 import type { Asset } from './types/asset.types';
+import type { Folder } from './types/folder.types';
 import type { AssetPicker as AssetPickerElement } from './asset-picker';
 
 // Conditionally import define for SSR safety
@@ -24,21 +25,24 @@ export interface AssetPickerRef {
 export interface AssetPickerProps {
   config: AssetPickerConfig;
   open?: boolean;
-  onSelect?: (assets: Asset[]) => void;
+  onSelect?: (assets: Asset[], folders?: Folder[]) => void;
+  onSelectWithFolders?: (result: { assets: Asset[]; folders: Folder[] }) => void;
   onCancel?: () => void;
   className?: string;
   style?: CSSProperties;
 }
 
 export const AssetPicker = forwardRef<AssetPickerRef, AssetPickerProps>(
-  function AssetPicker({ config, open, onSelect, onCancel, className, style }, ref) {
+  function AssetPicker({ config, open, onSelect, onSelectWithFolders, onCancel, className, style }, ref) {
     const elRef = useRef<AssetPickerElement>(null);
     const onSelectRef = useRef(onSelect);
+    const onSelectWithFoldersRef = useRef(onSelectWithFolders);
     const onCancelRef = useRef(onCancel);
 
     // Keep callback refs current
     useLayoutEffect(() => {
       onSelectRef.current = onSelect;
+      onSelectWithFoldersRef.current = onSelectWithFolders;
       onCancelRef.current = onCancel;
     });
 
@@ -76,7 +80,10 @@ export const AssetPicker = forwardRef<AssetPickerRef, AssetPickerProps>(
 
       const handleSelect = (e: Event) => {
         const detail = (e as CustomEvent).detail;
-        onSelectRef.current?.(detail.assets);
+        onSelectRef.current?.(detail.assets, detail.folders);
+        if (detail.folders?.length > 0) {
+          onSelectWithFoldersRef.current?.({ assets: detail.assets, folders: detail.folders });
+        }
       };
 
       const handleCancel = () => {

@@ -2,6 +2,7 @@ import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import type { Asset } from '../../types/asset.types';
 import type { Folder } from '../../types/folder.types';
+import type { GridSize } from '../../types/config.types';
 
 const LOAD_MORE_SKELETON_COUNT = 6;
 
@@ -14,7 +15,7 @@ export class ApGridView extends LitElement {
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(var(--ap-grid-min-col, 220px), 1fr));
       gap: 24px;
     }
     .ghost-card {
@@ -42,8 +43,11 @@ export class ApGridView extends LitElement {
   @property({ type: Array }) folders: Folder[] = [];
   @property({ type: Object }) folderPreviews: Record<string, { file_uri_cdn: string; file_type: string }[]> = {};
   @property({ type: Array }) selectedIds: string[] = [];
+  @property({ type: Array }) selectedFolderIds: string[] = [];
   @property({ type: Boolean }) isLoading = false;
   @property({ type: Boolean }) multiSelect = true;
+  @property({ type: Boolean }) folderSelectable = false;
+  @property({ type: String }) gridSize: GridSize = 'normal';
 
   /** Track how many items existed before the latest batch for stagger offset */
   private _prevCount = 0;
@@ -62,14 +66,20 @@ export class ApGridView extends LitElement {
   }
 
   render() {
+    const minCol = this.gridSize === 'large' ? '280px' : '220px';
     return html`
-      <div class="grid" role="list" aria-label="Assets">
+      <div class="grid" role="list" aria-label="Assets" style="--ap-grid-min-col: ${minCol}">
         ${this.folders.map(
-          (folder) => html`
+          (folder, i) => html`
             <ap-folder-card
               .folder=${folder}
               .previews=${this.folderPreviews[folder.uuid] || []}
+              .selectable=${this.folderSelectable}
+              ?selected=${this.selectedFolderIds.includes(folder.uuid)}
+              .index=${i}
+              data-folder-uuid=${folder.uuid}
               @folder-open=${(e: CustomEvent) => { e.stopPropagation(); this.dispatchEvent(new CustomEvent('folder-open', { detail: e.detail, bubbles: true, composed: true })); }}
+              @folder-select=${(e: CustomEvent) => { e.stopPropagation(); this.dispatchEvent(new CustomEvent('folder-select', { detail: e.detail, bubbles: true, composed: true })); }}
             ></ap-folder-card>
           `
         )}
@@ -82,7 +92,7 @@ export class ApGridView extends LitElement {
             return html`
               <ap-asset-card
                 .asset=${asset}
-                .index=${i}
+                .index=${this.folderSelectable ? this.folders.length + i : i}
                 ?selected=${this.selectedIds.includes(asset.uuid)}
                 .multiSelect=${this.multiSelect}
                 style="--ap-stagger-index: ${staggerIndex}"

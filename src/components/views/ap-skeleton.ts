@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import type { GridSize } from '../../types/config.types';
 
 @customElement('ap-skeleton')
 export class ApSkeleton extends LitElement {
@@ -20,7 +21,7 @@ export class ApSkeleton extends LitElement {
     }
     .grid-skeleton {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(var(--ap-grid-min-col, 220px), 1fr));
       gap: 24px;
     }
     .card-skel {
@@ -38,11 +39,13 @@ export class ApSkeleton extends LitElement {
   `;
 
   @property() variant: 'grid' | 'list' = 'grid';
+  @property({ type: String }) gridSize: GridSize = 'normal';
 
   render() {
     if (this.variant === 'grid') {
+      const minCol = this.gridSize === 'large' ? '280px' : '220px';
       return html`
-        <div class="grid-skeleton">
+        <div class="grid-skeleton" style="--ap-grid-min-col: ${minCol}">
           ${Array.from({ length: 18 }, () => html`<div class="skeleton card-skel"></div>`)}
         </div>
       `;

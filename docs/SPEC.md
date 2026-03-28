@@ -99,6 +99,7 @@ function App() {
 | `rememberLastFolder` | `boolean` | `false` | Persist last browsed folder |
 | `rememberLastView` | `boolean` | `false` | Persist last view mode |
 | `rememberLastTab` | `boolean` | `false` | Persist last active tab |
+| `gridSize` | `'normal' \| 'large'` | `'normal'` | Grid card density: normal (4 cols at ~1200px) or large (3 cols at ~1200px) |
 | `onSelect` | `(assets: Asset[]) => void` | - | Callback on confirm |
 | `onCancel` | `() => void` | - | Callback on cancel |
 

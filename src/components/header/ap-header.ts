@@ -26,6 +26,7 @@ export class ApHeader extends LitElement {
     }
     .search-wrapper {
       flex: 1;
+      min-width: 0;
       max-width: 548px;
       position: relative;
     }
@@ -201,7 +202,7 @@ export class ApHeader extends LitElement {
           <ap-icon class="search-icon" name="search" .size=${16}></ap-icon>
           <input
             type="text"
-            placeholder="Search assets"
+            placeholder=${this.activeTab === 'folders' ? 'Search folders and assets' : 'Search assets'}
             .value=${this.searchQuery}
             @input=${this._handleInput}
           />

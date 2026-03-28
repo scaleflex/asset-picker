@@ -69,6 +69,7 @@ import './components/views/ap-skeleton';
 import './components/preview/ap-preview-panel';
 import './components/selection/ap-selection-bar';
 import './components/selection/ap-marquee-overlay';
+import './components/selection/ap-folder-resolve-dialog';
 import './components/shared/ap-icon';
 import './components/shared/ap-spinner';
 import './components/shared/ap-checkbox';
@@ -84,6 +85,14 @@ export class AssetPicker extends LitElement {
       :host {
         display: contents;
         font-family: var(--ap-font-family, system-ui, -apple-system, sans-serif);
+      }
+      :host([inline]) {
+        display: block;
+        overflow: hidden;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        height: var(--ap-inline-height, 600px);
       }
       .content-area {
         position: relative;
@@ -139,7 +148,7 @@ export class AssetPicker extends LitElement {
       .ap-inline {
         position: relative;
         width: 100%;
-        height: var(--ap-inline-height, 600px);
+        height: 100%;
         overflow: hidden;
         display: flex;
         flex-direction: column;
@@ -271,6 +280,7 @@ export class AssetPicker extends LitElement {
   private _dragCounter = 0;
   @state() private _isDragOver = false;
   @state() private _isUploaderOpen = false;
+  @state() private _folderResolveOpen = false;
 
   @property({ type: Object }) config?: AssetPickerConfig;
 
@@ -331,6 +341,8 @@ export class AssetPicker extends LitElement {
     this._initPromise = this._doInit(config).catch(() => {
       this._initFailed = true;
     });
+    // Reflect inline mode as host attribute for styling
+    this.toggleAttribute('inline', config.displayMode === 'inline');
     // In inline mode, auto-open so the picker is visible immediately
     if (config.displayMode === 'inline' && !this.store.getState().isOpen) {
       this.open();
@@ -616,6 +628,8 @@ export class AssetPicker extends LitElement {
       currentFolderPath: (resolvedTab === 'folders' && this.config?.rememberLastFolder && loadLastFolder()) || this.config?.rootFolderPath || '/',
       breadcrumb: [],
       selectedAssets: new Map(),
+      selectedFolders: new Map(),
+      isResolvingFolders: false,
       folderPreviews: {},
       isPreviewOpen: false,
       previewAsset: null,
@@ -649,6 +663,7 @@ export class AssetPicker extends LitElement {
     this._dragCounter = 0;
     this._isDragOver = false;
     this._isUploaderOpen = false;
+    this._folderResolveOpen = false;
   }
 
   private _scrollToTop() {
@@ -914,6 +929,10 @@ export class AssetPicker extends LitElement {
     this.selectionCtrl.handleSelect(e.detail.asset, e.detail.index, e.detail.event);
   }
 
+  private _handleFolderSelect(e: CustomEvent) {
+    this.selectionCtrl.handleFolderSelect(e.detail.folder, e.detail.index, e.detail.event);
+  }
+
   private _handleAssetPreview(e: CustomEvent) {
     this.store.setState({
       previewAsset: e.detail.asset,
@@ -981,6 +1000,26 @@ export class AssetPicker extends LitElement {
 
   private _handleSelectionConfirm(e: CustomEvent) {
     const assets: Asset[] = e.detail.assets;
+    const folders: Folder[] = e.detail.folders || [];
+
+    if (folders.length > 0 && this.config?.folderSelection) {
+      if (this.config.folderSelectionMode === 'assets') {
+        // Mode B: show resolution dialog
+        this._folderResolveOpen = true;
+        return;
+      }
+      // Mode A: return folders alongside assets
+      this.config?.onSelect?.(assets, folders);
+      this.dispatchEvent(new CustomEvent('ap-select', {
+        detail: { assets, folders },
+        bubbles: true,
+        composed: true,
+      }));
+      if (!this._isInline) this.close();
+      return;
+    }
+
+    // Default: assets only
     this.config?.onSelect?.(assets);
     this.dispatchEvent(new CustomEvent('ap-select', {
       detail: { assets },
@@ -992,6 +1031,66 @@ export class AssetPicker extends LitElement {
     }
   }
 
+  private async _handleFolderResolveConfirm(e: CustomEvent) {
+    const mode: 'direct' | 'recursive' = e.detail.mode;
+    const selectedFolders = this.selectionCtrl.getSelectedFolders();
+    const selectedAssets = this.selectionCtrl.getSelectedAssets();
+
+    this.store.setState({ isResolvingFolders: true });
+
+    try {
+      const responses = await Promise.all(
+        selectedFolders.map((folder) =>
+          getFiles(this.apiClient!, {
+            folder: folder.path,
+            recursive: mode === 'recursive' ? 1 : 0,
+            limit: 10000,
+          }),
+        ),
+      );
+      const folderAssets: Asset[] = [];
+      for (const response of responses) {
+        folderAssets.push(...response.files);
+      }
+
+      // Deduplicate: assets already selected individually should not be duplicated
+      const allAssets = [...selectedAssets];
+      const existingUuids = new Set(allAssets.map((a) => a.uuid));
+      for (const fa of folderAssets) {
+        if (!existingUuids.has(fa.uuid)) {
+          allAssets.push(fa);
+          existingUuids.add(fa.uuid);
+        }
+      }
+
+      // Enforce maxSelections
+      const max = this.config?.maxSelections;
+      const result = max ? allAssets.slice(0, max) : allAssets;
+
+      this.config?.onSelect?.(result);
+      this.dispatchEvent(new CustomEvent('ap-select', {
+        detail: { assets: result },
+        bubbles: true,
+        composed: true,
+      }));
+
+      this._folderResolveOpen = false;
+      this.store.setState({ isResolvingFolders: false });
+      if (!this._isInline) this.close();
+    } catch (err) {
+      this.store.setState({ isResolvingFolders: false });
+      this.dispatchEvent(new CustomEvent('ap-error', {
+        detail: { error: err as Error, context: 'folderResolve' },
+        bubbles: true,
+        composed: true,
+      }));
+    }
+  }
+
+  private _handleFolderResolveCancel() {
+    this._folderResolveOpen = false;
+  }
+
   private async _handleSelectAll() {
     const state = this.store.getState();
     if (state.isSelectingAll || !this.apiClient) return;
@@ -1001,6 +1100,10 @@ export class AssetPicker extends LitElement {
 
     // If all assets already loaded, select them directly
     if (state.assets.length >= state.totalCount) {
+      // Select folders first so maxSelections budget accounts for them
+      if (this.config?.folderSelection && state.folders.length > 0) {
+        this.selectionCtrl.selectAllFolders(state.folders);
+      }
       this.selectionCtrl.selectAll(state.assets);
       return;
     }
@@ -1062,6 +1165,10 @@ export class AssetPicker extends LitElement {
         hasMore: false,
         isSelectingAll: false,
       });
+      // Select folders first so maxSelections budget accounts for them
+      if (this.config?.folderSelection && state.folders.length > 0) {
+        this.selectionCtrl.selectAllFolders(state.folders);
+      }
       this.selectionCtrl.selectAll(allAssets);
     } catch (err) {
       this.store.setState({ isSelectingAll: false });
@@ -1504,7 +1611,10 @@ export class AssetPicker extends LitElement {
   render() {
     const s = this.storeCtrl.state;
     const selectedIds = Array.from(s.selectedAssets.keys());
+    const selectedFolderIds = Array.from(s.selectedFolders.keys());
     const selectedAssets = this.selectionCtrl.getSelectedAssets();
+    const selectedFolders = this.selectionCtrl.getSelectedFolders();
+    const folderSelectable = this.config?.folderSelection === true;
 
     const headerTemplate = html`
       <ap-header
@@ -1598,10 +1708,18 @@ export class AssetPicker extends LitElement {
           </div>
 
           ${s.isLoading && s.assets.length === 0 && s.folders.length === 0
-            ? html`<ap-skeleton .variant=${s.viewMode}></ap-skeleton>`
-            : this._renderContent(s, selectedIds)}
+            ? html`<ap-skeleton .variant=${s.viewMode} .gridSize=${this.config?.gridSize ?? 'normal'}></ap-skeleton>`
+            : this._renderContent(s, selectedIds, selectedFolderIds, folderSelectable)}
 
           <ap-marquee-overlay .active=${this.marqueeCtrl.isActive} .rect=${this.marqueeCtrl.rect}></ap-marquee-overlay>
+          ${this._folderResolveOpen ? html`
+            <ap-folder-resolve-dialog
+              .folders=${selectedFolders}
+              .loading=${s.isResolvingFolders}
+              @folder-resolve-confirm=${this._handleFolderResolveConfirm}
+              @folder-resolve-cancel=${this._handleFolderResolveCancel}
+            ></ap-folder-resolve-dialog>
+          ` : nothing}
         </div>
 
         ${s.isPreviewOpen && s.previewAsset
@@ -1628,6 +1746,7 @@ export class AssetPicker extends LitElement {
     const footerTemplate = html`
       <ap-selection-bar
         .selectedAssets=${selectedAssets}
+        .selectedFolders=${selectedFolders}
         .totalCount=${s.totalCount}
         .isSelectingAll=${s.isSelectingAll}
         .multiSelect=${this.config?.multiSelect ?? true}
@@ -1677,7 +1796,7 @@ export class AssetPicker extends LitElement {
     `;
   }
 
-  private _renderContent(s: AppState, selectedIds: string[]) {
+  private _renderContent(s: AppState, selectedIds: string[], selectedFolderIds: string[] = [], folderSelectable = false) {
     if (s.activeTab === 'assets') {
       if (!s.isLoading && s.assets.length === 0) {
         return html`
@@ -1695,11 +1814,15 @@ export class AssetPicker extends LitElement {
             .assets=${s.assets}
             .folders=${[]}
             .selectedIds=${selectedIds}
+            .selectedFolderIds=${selectedFolderIds}
             .isLoading=${s.isLoading}
             .multiSelect=${this.config?.multiSelect ?? true}
+            .folderSelectable=${folderSelectable}
+            .gridSize=${this.config?.gridSize ?? 'normal'}
             @asset-select=${this._handleAssetSelect}
             @asset-preview=${this._handleAssetPreview}
             @asset-quick-select=${this._handleQuickSelect}
+            @folder-select=${this._handleFolderSelect}
           ></ap-grid-view>
           <div id="sentinel"></div>
         `;
@@ -1710,13 +1833,16 @@ export class AssetPicker extends LitElement {
           .assets=${s.assets}
           .folders=${[]}
           .selectedIds=${selectedIds}
+          .selectedFolderIds=${selectedFolderIds}
           .isLoading=${s.isLoading}
           .multiSelect=${this.config?.multiSelect ?? true}
+          .folderSelectable=${folderSelectable}
           .totalCount=${s.totalCount}
           .isSelectingAll=${s.isSelectingAll}
           @asset-select=${this._handleAssetSelect}
           @asset-preview=${this._handleAssetPreview}
           @asset-quick-select=${this._handleQuickSelect}
+          @folder-select=${this._handleFolderSelect}
           @select-all=${this._handleSelectAll}
           @selection-clear=${this._handleSelectionClear}
         ></ap-list-view>
@@ -1742,11 +1868,15 @@ export class AssetPicker extends LitElement {
             .folders=${s.folders}
             .folderPreviews=${s.folderPreviews}
             .selectedIds=${selectedIds}
+            .selectedFolderIds=${selectedFolderIds}
             .isLoading=${s.isLoading}
+            .folderSelectable=${folderSelectable}
+            .gridSize=${this.config?.gridSize ?? 'normal'}
             @asset-select=${this._handleAssetSelect}
             @asset-preview=${this._handleAssetPreview}
             @asset-quick-select=${this._handleQuickSelect}
             @folder-open=${this._handleFolderOpen}
+            @folder-select=${this._handleFolderSelect}
           ></ap-grid-view>
           <div id="sentinel"></div>
         `;
@@ -1757,14 +1887,17 @@ export class AssetPicker extends LitElement {
           .assets=${s.assets}
           .folders=${s.folders}
           .selectedIds=${selectedIds}
+          .selectedFolderIds=${selectedFolderIds}
           .isLoading=${s.isLoading}
           .multiSelect=${this.config?.multiSelect ?? true}
+          .folderSelectable=${folderSelectable}
           .totalCount=${s.totalCount}
           .isSelectingAll=${s.isSelectingAll}
           @asset-select=${this._handleAssetSelect}
           @asset-preview=${this._handleAssetPreview}
           @asset-quick-select=${this._handleQuickSelect}
           @folder-open=${this._handleFolderOpen}
+          @folder-select=${this._handleFolderSelect}
           @select-all=${this._handleSelectAll}
           @selection-clear=${this._handleSelectionClear}
         ></ap-list-view>

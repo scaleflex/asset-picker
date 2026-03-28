@@ -50,4 +50,6 @@ export interface AppState {
   regionalFilters: RegionalFilters;
 
   selectedAssets: Map<string, Asset>;
+  selectedFolders: Map<string, Folder>;
+  isResolvingFolders: boolean;
 }

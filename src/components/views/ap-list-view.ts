@@ -87,20 +87,29 @@ export class ApListView extends LitElement {
   @property({ type: Array }) assets: Asset[] = [];
   @property({ type: Array }) folders: Folder[] = [];
   @property({ type: Array }) selectedIds: string[] = [];
+  @property({ type: Array }) selectedFolderIds: string[] = [];
   @property({ type: Boolean }) isLoading = false;
   @property({ type: Boolean }) multiSelect = true;
+  @property({ type: Boolean }) folderSelectable = false;
   @property({ type: Number }) totalCount = 0;
   @property({ type: Boolean }) isSelectingAll = false;
 
   private get _allVisibleSelected(): boolean {
-    if (this.assets.length === 0 || this.selectedIds.length === 0) return false;
-    const idSet = new Set(this.selectedIds);
-    return this.assets.every((a) => idSet.has(a.uuid));
+    if (this.assets.length === 0 && this.folders.length === 0) return false;
+    if (this.selectedIds.length === 0 && this.selectedFolderIds.length === 0) return false;
+    const assetIdSet = new Set(this.selectedIds);
+    const assetsOk = this.assets.length === 0 || this.assets.every((a) => assetIdSet.has(a.uuid));
+    if (!this.folderSelectable) return assetsOk && this.assets.length > 0;
+    const folderIdSet = new Set(this.selectedFolderIds);
+    const foldersOk = this.folders.length === 0 || this.folders.every((f) => folderIdSet.has(f.uuid));
+    return assetsOk && foldersOk;
   }
 
   private _handleHeaderCheckboxClick() {
     if (this.isSelectingAll) return;
-    if (this._allVisibleSelected && this.selectedIds.length >= this.totalCount) {
+    const totalSelectable = this.folderSelectable ? this.totalCount + this.folders.length : this.totalCount;
+    const totalSelected = this.folderSelectable ? this.selectedIds.length + this.selectedFolderIds.length : this.selectedIds.length;
+    if (this._allVisibleSelected && totalSelected >= totalSelectable) {
       this.dispatchEvent(new CustomEvent('selection-clear', { bubbles: true, composed: true }));
     } else {
       this.dispatchEvent(new CustomEvent('select-all', { bubbles: true, composed: true }));
@@ -108,12 +117,14 @@ export class ApListView extends LitElement {
   }
 
   render() {
-    const allSelected = this._allVisibleSelected && this.selectedIds.length >= this.totalCount;
+    const totalSelectable = this.folderSelectable ? this.totalCount + this.folders.length : this.totalCount;
+    const totalSelected = this.folderSelectable ? this.selectedIds.length + this.selectedFolderIds.length : this.selectedIds.length;
+    const allSelected = this._allVisibleSelected && totalSelected >= totalSelectable;
     return html`
       <div class="list-header ${this.multiSelect ? 'has-checkbox' : ''}" role="row" aria-label="Column headers">
         ${this.multiSelect
           ? html`<span class="header-checkbox" @click=${this._handleHeaderCheckboxClick}>
-              <div class="header-check-box ${allSelected ? 'checked' : this.selectedIds.length > 0 ? 'indeterminate' : ''}">
+              <div class="header-check-box ${allSelected ? 'checked' : totalSelected > 0 ? 'indeterminate' : ''}">
                 <svg class="header-check-icon check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M20 6 9 17l-5-5"></path>
                 </svg>
@@ -132,10 +143,15 @@ export class ApListView extends LitElement {
       </div>
       <div class="list-body" role="list" aria-label="Assets">
         ${this.folders.map(
-          (folder) => html`
+          (folder, i) => html`
             <ap-folder-row
               .folder=${folder}
+              .selectable=${this.folderSelectable}
+              ?selected=${this.selectedFolderIds.includes(folder.uuid)}
+              .index=${i}
+              data-folder-uuid=${folder.uuid}
               @folder-open=${(e: CustomEvent) => { e.stopPropagation(); this.dispatchEvent(new CustomEvent('folder-open', { detail: e.detail, bubbles: true, composed: true })); }}
+              @folder-select=${(e: CustomEvent) => { e.stopPropagation(); this.dispatchEvent(new CustomEvent('folder-select', { detail: e.detail, bubbles: true, composed: true })); }}
             ></ap-folder-row>
           `
         )}
@@ -143,7 +159,7 @@ export class ApListView extends LitElement {
           (asset, i) => html`
             <ap-asset-row
               .asset=${asset}
-              .index=${i}
+              .index=${this.folderSelectable ? this.folders.length + i : i}
               ?selected=${this.selectedIds.includes(asset.uuid)}
               .multiSelect=${this.multiSelect}
               data-asset-uuid=${asset.uuid}

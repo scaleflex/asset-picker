@@ -18,6 +18,7 @@ export type AuthConfig = SecurityTemplateAuth | SassKeyAuth;
 
 export type DisplayMode = 'modal' | 'inline';
 export type ViewMode = 'grid' | 'list';
+export type GridSize = 'normal' | 'large';
 
 export type SortBy = 'name' | 'created_at' | 'modified_at' | 'size' | 'type' | 'relevance' | 'title' | 'color' | 'uploaded' | 'updated_at' | 'files_count_recursive' | 'files_size_recursive';
 export type SortDirection = 'asc' | 'desc';
@@ -56,9 +57,20 @@ export interface AssetPickerConfig {
   rememberLastView?: boolean;
   /** Remember the last active tab and restore it on next open. Defaults to false. */
   rememberLastTab?: boolean;
+  /** Grid card density: 'normal' (4 columns at ~1200px) or 'large' (3 columns at ~1200px). Defaults to 'normal'. */
+  gridSize?: GridSize;
   /** Make the toolbar and filters bar sticky so they remain visible while scrolling content. Defaults to false. */
   stickyFilters?: boolean;
-  onSelect?: (assets: import('./asset.types').Asset[]) => void;
+  /** Allow selecting folders via checkboxes. Default: false. */
+  folderSelection?: boolean;
+  /**
+   * What to return when folders are selected and user clicks Confirm:
+   * - 'folder': Return Folder objects alongside Asset objects in ap-select event.
+   * - 'assets': Show a dialog asking direct vs recursive, fetch folder contents, return only Assets.
+   * Default: 'folder'.
+   */
+  folderSelectionMode?: 'folder' | 'assets';
+  onSelect?: (assets: import('./asset.types').Asset[], folders?: import('./folder.types').Folder[]) => void;
   onCancel?: () => void;
   /**
    * Enable the integrated uploader. When provided, an "Upload" button appears in the toolbar

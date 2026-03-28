@@ -32,6 +32,7 @@ export const METADATA_PINNED_PREFIX = 'metadata:pinned:';
 export const DEFAULT_PINNED_FILTERS: AnyFilterKey[] = [
   FILTER_KEYS.DATE,
   FILTER_KEYS.TYPE,
+  FILTER_KEYS.SIZE,
 ];
 
 export const DEFAULT_FILTER_OPERATOR = FILTER_OPERATORS.IS;

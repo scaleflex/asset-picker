@@ -2,6 +2,7 @@ import type { ReactiveController, ReactiveControllerHost } from 'lit';
 import type { Store } from '../store/store';
 import type { AppState } from '../store/store.types';
 import type { Asset } from '../types/asset.types';
+import type { Folder } from '../types/folder.types';
 
 export interface MarqueeRect {
   x: number;
@@ -23,6 +24,7 @@ export class MarqueeController implements ReactiveController {
   private startClientX = 0;
   private startClientY = 0;
   private preMarqueeSelection = new Map<string, Asset>();
+  private preMarqueeFolderSelection = new Map<string, Folder>();
   private _dragging = false;
   private _scrollRAF: number | null = null;
   private _lastMouseEvent: MouseEvent | null = null;
@@ -101,6 +103,7 @@ export class MarqueeController implements ReactiveController {
       document.addEventListener('selectstart', this.preventSelect);
       window.getSelection()?.removeAllRanges();
       this.preMarqueeSelection = new Map(this.store.getState().selectedAssets);
+      this.preMarqueeFolderSelection = new Map(this.store.getState().selectedFolders);
     }
 
     this._lastMouseEvent = e;
@@ -184,53 +187,91 @@ export class MarqueeController implements ReactiveController {
     }
   }
 
-  private queryCards(): NodeListOf<Element> | Element[] {
+  private querySelectableElements(): { assetCards: Element[]; folderCards: Element[] } {
+    const assetCards: Element[] = [];
+    const folderCards: Element[] = [];
     // Cards are inside grid-view/list-view shadow DOMs, so we need to pierce shadow boundaries
     for (const child of Array.from(this.container!.children)) {
       if (child.shadowRoot) {
-        const cards = child.shadowRoot.querySelectorAll('[data-asset-uuid]');
-        if (cards.length > 0) return cards;
+        const assets = child.shadowRoot.querySelectorAll('[data-asset-uuid]');
+        if (assets.length > 0) assetCards.push(...Array.from(assets));
+        const folders = child.shadowRoot.querySelectorAll('[data-folder-uuid]');
+        if (folders.length > 0) folderCards.push(...Array.from(folders));
       }
     }
     // Fallback: try direct query (won't pierce shadow DOM but covers edge cases)
-    return this.container!.querySelectorAll('[data-asset-uuid]');
+    if (assetCards.length === 0) {
+      assetCards.push(...Array.from(this.container!.querySelectorAll('[data-asset-uuid]')));
+    }
+    if (folderCards.length === 0) {
+      folderCards.push(...Array.from(this.container!.querySelectorAll('[data-folder-uuid]')));
+    }
+    return { assetCards, folderCards };
+  }
+
+  private getCardRelativeRect(card: Element): { x: number; y: number; width: number; height: number } {
+    const cardRect = card.getBoundingClientRect();
+    const containerRect = this.container!.getBoundingClientRect();
+    return {
+      x: cardRect.left - containerRect.left + this.container!.scrollLeft,
+      y: cardRect.top - containerRect.top + this.container!.scrollTop,
+      width: cardRect.width,
+      height: cardRect.height,
+    };
+  }
+
+  private intersectsMarquee(cardRelative: { x: number; y: number; width: number; height: number }): boolean {
+    return (
+      this.rect.x < cardRelative.x + cardRelative.width &&
+      this.rect.x + this.rect.width > cardRelative.x &&
+      this.rect.y < cardRelative.y + cardRelative.height &&
+      this.rect.y + this.rect.height > cardRelative.y
+    );
   }
 
   private selectIntersecting(): void {
     if (!this.container) return;
-    const cards = this.queryCards();
-    const selected = new Map(this.preMarqueeSelection);
+    const state = this.store.getState();
+    const folderSelectionEnabled = state.config?.folderSelection === true;
+    const { assetCards, folderCards } = this.querySelectableElements();
 
-    cards.forEach((card) => {
-      const cardRect = card.getBoundingClientRect();
-      const containerRect = this.container!.getBoundingClientRect();
-      const cardRelative = {
-        x: cardRect.left - containerRect.left + this.container!.scrollLeft,
-        y: cardRect.top - containerRect.top + this.container!.scrollTop,
-        width: cardRect.width,
-        height: cardRect.height,
-      };
+    const selectedAssets = new Map(this.preMarqueeSelection);
+    const selectedFolders = folderSelectionEnabled ? new Map(this.preMarqueeFolderSelection) : state.selectedFolders;
 
-      const intersects =
-        this.rect.x < cardRelative.x + cardRelative.width &&
-        this.rect.x + this.rect.width > cardRelative.x &&
-        this.rect.y < cardRelative.y + cardRelative.height &&
-        this.rect.y + this.rect.height > cardRelative.y;
-
+    assetCards.forEach((card) => {
+      const cardRelative = this.getCardRelativeRect(card);
       const uuid = (card as HTMLElement).dataset.assetUuid!;
-      if (intersects) {
-        const assetData = this.store.getState().assets.find((a) => a.uuid === uuid);
-        if (assetData) selected.set(uuid, assetData);
+      if (this.intersectsMarquee(cardRelative)) {
+        const assetData = state.assets.find((a) => a.uuid === uuid);
+        if (assetData) selectedAssets.set(uuid, assetData);
       }
     });
 
-    const max = this.store.getState().config?.maxSelections;
-    if (max && selected.size > max) {
-      // Trim to max by keeping only the first `max` entries
-      const entries = Array.from(selected.entries()).slice(0, max);
-      this.store.setState({ selectedAssets: new Map(entries) });
+    if (folderSelectionEnabled) {
+      folderCards.forEach((card) => {
+        const cardRelative = this.getCardRelativeRect(card);
+        const uuid = (card as HTMLElement).dataset.folderUuid!;
+        if (this.intersectsMarquee(cardRelative)) {
+          const folderData = state.folders.find((f) => f.uuid === uuid);
+          if (folderData) selectedFolders.set(uuid, folderData);
+        }
+      });
+    }
+
+    const max = state.config?.maxSelections;
+    const totalSize = selectedAssets.size + (folderSelectionEnabled ? selectedFolders.size : 0);
+    if (max && totalSize > max) {
+      // Trim assets first (keep all folders, trim assets)
+      const assetEntries = Array.from(selectedAssets.entries()).slice(0, Math.max(0, max - selectedFolders.size));
+      this.store.setState({
+        selectedAssets: new Map(assetEntries),
+        ...(folderSelectionEnabled ? { selectedFolders } : {}),
+      });
     } else {
-      this.store.setState({ selectedAssets: selected });
+      this.store.setState({
+        selectedAssets: selectedAssets,
+        ...(folderSelectionEnabled ? { selectedFolders } : {}),
+      });
     }
   }
 }

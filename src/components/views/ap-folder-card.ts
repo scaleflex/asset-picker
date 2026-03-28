@@ -18,8 +18,15 @@ export class ApFolderCard extends LitElement {
     }
     .card {
       position: relative;
-      aspect-ratio: 4/3;
       cursor: pointer;
+      transition: filter 150ms;
+    }
+    :host([selected]) .card {
+      filter:
+        drop-shadow(2px 0 0 var(--ap-primary, oklch(0.578 0.198 268.129)))
+        drop-shadow(-2px 0 0 var(--ap-primary, oklch(0.578 0.198 268.129)))
+        drop-shadow(0 2px 0 var(--ap-primary, oklch(0.578 0.198 268.129)))
+        drop-shadow(0 -2px 0 var(--ap-primary, oklch(0.578 0.198 268.129)));
     }
     /* Folder shape SVG fills card */
     .folder-svg {
@@ -38,24 +45,30 @@ export class ApFolderCard extends LitElement {
       transition: opacity 150ms;
       pointer-events: none;
     }
+    .card:hover {
+      filter: drop-shadow(0 4px 12px rgb(0 0 0 / 0.08));
+    }
+    :host([selected]) .card:hover {
+      filter:
+        drop-shadow(2px 0 0 var(--ap-primary, oklch(0.578 0.198 268.129)))
+        drop-shadow(-2px 0 0 var(--ap-primary, oklch(0.578 0.198 268.129)))
+        drop-shadow(0 2px 0 var(--ap-primary, oklch(0.578 0.198 268.129)))
+        drop-shadow(0 -2px 0 var(--ap-primary, oklch(0.578 0.198 268.129)))
+        drop-shadow(0 4px 12px rgb(0 0 0 / 0.08));
+    }
     .card:hover .preview-overlay {
       opacity: 1;
     }
     .card-content {
-      position: absolute;
-      top: 16%;
-      left: 3.5%;
-      width: 93%;
-      bottom: 0;
+      position: relative;
       z-index: 1;
+      padding: 12% 3.5% 12px;
       display: flex;
       flex-direction: column;
-      padding-bottom: 12px;
     }
     .preview-container {
       position: relative;
-      flex: 1;
-      min-height: 0;
+      aspect-ratio: 16/9;
       display: flex;
       overflow: hidden;
       border-radius: 4px;
@@ -142,10 +155,69 @@ export class ApFolderCard extends LitElement {
       color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
       margin-top: 6px;
     }
+    .check {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      z-index: 3;
+      cursor: pointer;
+    }
+    .check-box {
+      width: 22px;
+      height: 22px;
+      border: 1px solid var(--ap-input, oklch(0.871 0.016 241.798));
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 150ms;
+      background: var(--ap-background, oklch(1 0 0));
+    }
+    .check:hover .check-box {
+      border-color: var(--ap-secondary-foreground-50, oklch(53.03% 0.039 249.89 / 0.5));
+    }
+    :host([selected]) .check-box {
+      background: var(--ap-primary, oklch(0.578 0.198 268.129));
+      border-color: var(--ap-primary, oklch(0.578 0.198 268.129));
+    }
+    .check-icon {
+      display: none;
+      color: var(--ap-primary-foreground, oklch(1 0 0));
+    }
+    :host([selected]) .check-icon {
+      display: block;
+    }
   `];
 
   @property({ type: Object }) folder!: Folder;
   @property({ type: Array }) previews: FolderPreviewImage[] = [];
+  @property({ type: Boolean, reflect: true }) selected = false;
+  @property({ type: Boolean }) selectable = false;
+  @property({ type: Number }) index = 0;
+
+  private _handleClick(e: MouseEvent) {
+    if (!this.selectable) {
+      this._handleOpen();
+      return;
+    }
+
+    const path = e.composedPath();
+    const isCheckbox = path.some(
+      (el) => el instanceof HTMLElement && (el.classList.contains('check') || el.classList.contains('check-box'))
+    );
+
+    if (isCheckbox) {
+      e.stopPropagation();
+      this.dispatchEvent(new CustomEvent('folder-select', {
+        detail: { folder: this.folder, index: this.index, event: new MouseEvent('click', { ctrlKey: true, metaKey: true, shiftKey: e.shiftKey }) },
+        bubbles: true,
+        composed: true,
+      }));
+      return;
+    }
+
+    this._handleOpen();
+  }
 
   private _handleOpen() {
     this.dispatchEvent(new CustomEvent('folder-open', {
@@ -253,19 +325,26 @@ export class ApFolderCard extends LitElement {
     const subAssets = recursiveCount - directCount;
 
     return html`
-      <div class="card" @click=${this._handleOpen}>
+      <div class="card" @click=${this._handleClick}>
         <!-- Folder shape background -->
         <svg class="folder-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
           <path d="M 3,0 L 30,0 L 43.5,0 Q 45,0 46.5,3 L 51,12 L 97,12 Q 100,12 100,15 L 100,97 Q 100,100 97,100 L 3,100 Q 0,100 0,97 L 0,3 Q 0,0 3,0 Z"
                 fill="#E3E8ED" rx="3" ry="3" />
         </svg>
+        ${this.selectable ? html`
+          <div class="check">
+            <div class="check-box">
+              <svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6 9 17l-5-5"></path>
+              </svg>
+            </div>
+          </div>
+        ` : nothing}
         <div class="card-content">
-          <!-- Preview images -->
           <div class="preview-container">
             <div class="preview-overlay"></div>
             ${this._renderPreviews()}
           </div>
-          <!-- Info section inside the card shape -->
           <div class="info">
             <div class="name" title=${f.name}>${f.name}</div>
             <div class="counts">

@@ -72,6 +72,8 @@ export class ApContentToolbar extends LitElement {
       display: flex;
       align-items: center;
       gap: 0;
+      min-width: 0;
+      overflow: hidden;
     }
 
     /* Filter dropdown trigger */
