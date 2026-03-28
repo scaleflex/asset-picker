@@ -56,6 +56,8 @@ export interface AssetPickerConfig {
   rememberLastView?: boolean;
   /** Remember the last active tab and restore it on next open. Defaults to false. */
   rememberLastTab?: boolean;
+  /** Make the toolbar and filters bar sticky so they remain visible while scrolling content. Defaults to false. */
+  stickyFilters?: boolean;
   onSelect?: (assets: import('./asset.types').Asset[]) => void;
   onCancel?: () => void;
   /**

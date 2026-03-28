@@ -102,6 +102,12 @@ export class AssetPicker extends LitElement {
         position: relative;
         z-index: 10;
       }
+      .toolbar-filters-wrapper.sticky {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: var(--ap-background, oklch(1 0 0));
+      }
       .empty-state {
         display: flex;
         flex-direction: column;
@@ -1537,7 +1543,7 @@ export class AssetPicker extends LitElement {
           </div>
         ` : nothing}
         <div class="main-content">
-          <div class="toolbar-filters-wrapper">
+          <div class="toolbar-filters-wrapper${this.config?.stickyFilters ? ' sticky' : ''}">
             <ap-content-toolbar
               .isLoading=${s.isLoading}
               .totalCount=${s.totalCount}
