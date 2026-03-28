@@ -117,18 +117,33 @@ export class MarqueeController implements ReactiveController {
     const currentX = e.clientX - containerRect.left + this.container.scrollLeft;
     const currentY = e.clientY - containerRect.top + this.container.scrollTop;
 
-    this.rect = {
-      x: Math.min(this.startX, currentX),
-      y: Math.min(this.startY, currentY),
-      width: Math.abs(currentX - this.startX),
-      height: Math.abs(currentY - this.startY),
-    };
+    let x = Math.min(this.startX, currentX);
+    let y = Math.min(this.startY, currentY);
+    let width = Math.abs(currentX - this.startX);
+    let height = Math.abs(currentY - this.startY);
+
+    // Clamp to container's content bounds so the marquee can't expand scroll area
+    const maxW = this.container.scrollWidth;
+    const maxH = this.container.scrollHeight;
+    if (x + width > maxW) width = maxW - x;
+    if (y + height > maxH) height = maxH - y;
+    if (x < 0) { width += x; x = 0; }
+    if (y < 0) { height += y; y = 0; }
+
+    this.rect = { x, y, width, height };
     this.host.requestUpdate();
     this.selectIntersecting();
   }
 
   private startAutoScroll(e: MouseEvent): void {
     if (!this.container) return;
+
+    // Don't auto-scroll if content doesn't overflow
+    if (this.container.scrollHeight <= this.container.clientHeight) {
+      this.stopAutoScroll();
+      return;
+    }
+
     const containerRect = this.container.getBoundingClientRect();
 
     const distTop = e.clientY - containerRect.top;
@@ -146,6 +161,7 @@ export class MarqueeController implements ReactiveController {
   private autoScrollTick(): void {
     this._scrollRAF = null;
     if (!this.container || !this._dragging || !this._lastMouseEvent) return;
+    if (this.container.scrollHeight <= this.container.clientHeight) return;
 
     const containerRect = this.container.getBoundingClientRect();
     const e = this._lastMouseEvent;
