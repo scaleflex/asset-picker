@@ -1,7 +1,7 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { createStore, Store } from './store';
-import type { AppState } from './store/store.types';
+import type { AppState, BreadcrumbItem } from './store/store.types';
 import { StoreController } from './controllers/store.controller';
 import { SelectionController } from './controllers/selection.controller';
 import { InfiniteScrollController } from './controllers/infinite-scroll.controller';
@@ -337,14 +337,16 @@ export class AssetPicker extends LitElement {
   }
 
   private _initConfig(config: AssetPickerConfig) {
+    // Apply defaults (local copy to avoid re-triggering Lit's updated() cycle)
+    const resolved: AssetPickerConfig = { folderSelection: true, ...config };
     this._initFailed = false;
-    this._initPromise = this._doInit(config).catch(() => {
+    this._initPromise = this._doInit(resolved).catch(() => {
       this._initFailed = true;
     });
     // Reflect inline mode as host attribute for styling
-    this.toggleAttribute('inline', config.displayMode === 'inline');
+    this.toggleAttribute('inline', resolved.displayMode === 'inline');
     // In inline mode, auto-open so the picker is visible immediately
-    if (config.displayMode === 'inline' && !this.store.getState().isOpen) {
+    if (resolved.displayMode === 'inline' && !this.store.getState().isOpen) {
       this.open();
     }
   }
@@ -626,7 +628,10 @@ export class AssetPicker extends LitElement {
       folders: [],
       currentFolder: null,
       currentFolderPath: (resolvedTab === 'folders' && this.config?.rememberLastFolder && loadLastFolder()) || this.config?.rootFolderPath || '/',
-      breadcrumb: [],
+      breadcrumb: this._buildBreadcrumbFromPath(
+        (resolvedTab === 'folders' && this.config?.rememberLastFolder && loadLastFolder()) || this.config?.rootFolderPath || '/',
+        this.config?.rootFolderPath || '/',
+      ),
       selectedAssets: new Map(),
       selectedFolders: new Map(),
       isResolvingFolders: false,
@@ -990,6 +995,24 @@ export class AssetPicker extends LitElement {
     this._loadData();
   }
 
+  /**
+   * Build breadcrumb items from a folder path relative to the root folder path.
+   * Used to restore breadcrumbs when opening the picker into a remembered/configured folder.
+   */
+  private _buildBreadcrumbFromPath(folderPath: string, rootPath: string): BreadcrumbItem[] {
+    if (!folderPath || folderPath === rootPath || folderPath === '/') return [];
+    // Strip the root prefix so we only get segments below the root
+    const relative = folderPath.startsWith(rootPath) ? folderPath.slice(rootPath.length) : folderPath.replace(/^\//, '');
+    const segments = relative.split('/').filter(Boolean);
+    const crumbs: BreadcrumbItem[] = [];
+    let accumulated = rootPath.endsWith('/') ? rootPath : rootPath + '/';
+    for (const seg of segments) {
+      accumulated += seg + '/';
+      crumbs.push({ uuid: accumulated, name: seg, path: accumulated });
+    }
+    return crumbs;
+  }
+
   private _handlePreviewClose() {
     this.store.setState({ isPreviewOpen: false, previewAsset: null });
   }
@@ -1002,8 +1025,8 @@ export class AssetPicker extends LitElement {
     const assets: Asset[] = e.detail.assets;
     const folders: Folder[] = e.detail.folders || [];
 
-    if (folders.length > 0 && this.config?.folderSelection) {
-      if (this.config.folderSelectionMode === 'assets') {
+    if (folders.length > 0 && this.config?.folderSelection !== false) {
+      if (this.config?.folderSelectionMode === 'assets') {
         // Mode B: show resolution dialog
         this._folderResolveOpen = true;
         return;
@@ -1101,7 +1124,7 @@ export class AssetPicker extends LitElement {
     // If all assets already loaded, select them directly
     if (state.assets.length >= state.totalCount) {
       // Select folders first so maxSelections budget accounts for them
-      if (this.config?.folderSelection && state.folders.length > 0) {
+      if (this.config?.folderSelection !== false && state.folders.length > 0) {
         this.selectionCtrl.selectAllFolders(state.folders);
       }
       this.selectionCtrl.selectAll(state.assets);
@@ -1166,7 +1189,7 @@ export class AssetPicker extends LitElement {
         isSelectingAll: false,
       });
       // Select folders first so maxSelections budget accounts for them
-      if (this.config?.folderSelection && state.folders.length > 0) {
+      if (this.config?.folderSelection !== false && state.folders.length > 0) {
         this.selectionCtrl.selectAllFolders(state.folders);
       }
       this.selectionCtrl.selectAll(allAssets);
@@ -1614,7 +1637,7 @@ export class AssetPicker extends LitElement {
     const selectedFolderIds = Array.from(s.selectedFolders.keys());
     const selectedAssets = this.selectionCtrl.getSelectedAssets();
     const selectedFolders = this.selectionCtrl.getSelectedFolders();
-    const folderSelectable = this.config?.folderSelection === true;
+    const folderSelectable = this.config?.folderSelection !== false;
 
     const headerTemplate = html`
       <ap-header
@@ -1708,7 +1731,7 @@ export class AssetPicker extends LitElement {
           </div>
 
           ${s.isLoading && s.assets.length === 0 && s.folders.length === 0
-            ? html`<ap-skeleton .variant=${s.viewMode} .gridSize=${this.config?.gridSize ?? 'normal'}></ap-skeleton>`
+            ? html`<ap-skeleton .variant=${s.viewMode} .gridSize=${this.config?.gridSize ?? 'normal'} .multiSelect=${this.config?.multiSelect !== false} .folderCount=${2}></ap-skeleton>`
             : this._renderContent(s, selectedIds, selectedFolderIds, folderSelectable)}
 
           <ap-marquee-overlay .active=${this.marqueeCtrl.isActive} .rect=${this.marqueeCtrl.rect}></ap-marquee-overlay>
@@ -1886,6 +1909,7 @@ export class AssetPicker extends LitElement {
         <ap-list-view
           .assets=${s.assets}
           .folders=${s.folders}
+          .folderPreviews=${s.folderPreviews}
           .selectedIds=${selectedIds}
           .selectedFolderIds=${selectedFolderIds}
           .isLoading=${s.isLoading}

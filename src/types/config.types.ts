@@ -61,7 +61,7 @@ export interface AssetPickerConfig {
   gridSize?: GridSize;
   /** Make the toolbar and filters bar sticky so they remain visible while scrolling content. Defaults to false. */
   stickyFilters?: boolean;
-  /** Allow selecting folders via checkboxes. Default: false. */
+  /** Allow selecting folders via checkboxes. Default: true. */
   folderSelection?: boolean;
   /**
    * What to return when folders are selected and user clicks Confirm:

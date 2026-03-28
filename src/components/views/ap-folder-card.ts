@@ -1,14 +1,9 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { resetStyles } from '../../styles/shared-styles';
-import type { Folder } from '../../types/folder.types';
-import { getExtensionFromType, getFileTypeIconUrl, getDefaultFileTypeIconUrl, getFileTypeFromMime } from '../../utils/file-type';
-import { getFormattedPreviewUrl, addCdnParams } from '../../utils/thumbnail';
-
-export interface FolderPreviewImage {
-  file_uri_cdn: string;
-  file_type: string;
-}
+import type { Folder, FolderPreviewImage } from '../../types/folder.types';
+import { getExtensionFromType, getFileTypeIconUrl, getDefaultFileTypeIconUrl, isAlternativeDisplay } from '../../utils/file-type';
+import { getFolderPreviewUrl } from '../../utils/thumbnail';
 
 @customElement('ap-folder-card')
 export class ApFolderCard extends LitElement {
@@ -34,6 +29,9 @@ export class ApFolderCard extends LitElement {
       inset: 0;
       width: 100%;
       height: 100%;
+    }
+    .folder-svg path {
+      fill: var(--ap-folder-bg, #E3E8ED);
     }
     .preview-overlay {
       position: absolute;
@@ -227,38 +225,12 @@ export class ApFolderCard extends LitElement {
     }));
   }
 
-  private _isAlternativeDisplay(fileType: string): boolean {
-    const ext = getExtensionFromType(fileType).toLowerCase();
-    return ['svg', 'svg+xml', 'png', 'pdf'].includes(ext);
-  }
-
-  /**
-   * Get the best preview URL for a folder preview image.
-   * Uses assets CDN URL to bypass private permissions and support CDN params.
-   */
   private _getPreviewUrl(preview: FolderPreviewImage): string {
-    const rawUrl = preview.file_uri_cdn;
-    if (!rawUrl) return '';
-
-    // Convert to assets CDN URL (bypasses private file permissions)
-    let url = getFormattedPreviewUrl(rawUrl);
-    const type = getFileTypeFromMime(preview.file_type);
-    const dpr = String(window.devicePixelRatio || 1);
-
-    if (type === 'video') {
-      return addCdnParams(url, { w: '200', dpr, force_format: 'webp,jpeg' });
-    }
-
-    if (preview.file_type === 'application/pdf' || getExtensionFromType(preview.file_type).toLowerCase() === 'pdf') {
-      url = url.replace(/([?&])func=proxy&?/, '$1').replace(/[?&]$/, '');
-      return addCdnParams(url, { w: '200', dpr, force_format: 'webp,jpeg', doc_page: '1', bypass_process_proxy: '1' });
-    }
-
-    return addCdnParams(url, { w: '200', dpr });
+    return getFolderPreviewUrl(preview, '200');
   }
 
   private _renderPreviewImg(preview: FolderPreviewImage) {
-    const isAlt = this._isAlternativeDisplay(preview.file_type);
+    const isAlt = isAlternativeDisplay(preview.file_type);
     const previewUrl = this._getPreviewUrl(preview);
     const fallbackIconUrl = getFileTypeIconUrl(getExtensionFromType(preview.file_type));
     const defaultIcon = getDefaultFileTypeIconUrl();
@@ -329,7 +301,7 @@ export class ApFolderCard extends LitElement {
         <!-- Folder shape background -->
         <svg class="folder-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
           <path d="M 3,0 L 30,0 L 43.5,0 Q 45,0 46.5,3 L 51,12 L 97,12 Q 100,12 100,15 L 100,97 Q 100,100 97,100 L 3,100 Q 0,100 0,97 L 0,3 Q 0,0 3,0 Z"
-                fill="#E3E8ED" rx="3" ry="3" />
+                rx="3" ry="3" />
         </svg>
         ${this.selectable ? html`
           <div class="check">

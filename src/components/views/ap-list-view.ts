@@ -1,7 +1,7 @@
 import { LitElement, html, css, nothing } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import type { Asset } from '../../types/asset.types';
-import type { Folder } from '../../types/folder.types';
+import type { Folder, FolderPreviewImage } from '../../types/folder.types';
 
 const LOAD_MORE_ROW_COUNT = 5;
 
@@ -14,7 +14,6 @@ export class ApListView extends LitElement {
     }
     .list-header {
       display: grid;
-      grid-template-columns: 32px 48px 1fr 100px 200px 120px 60px;
       gap: 12px;
       padding: 8px 12px;
       font-size: 14px;
@@ -22,8 +21,10 @@ export class ApListView extends LitElement {
       color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
     }
-    .list-header:not(.has-checkbox) {
-      grid-template-columns: 48px 1fr 100px 200px 120px 60px;
+    .list-header span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .header-checkbox {
       display: flex;
@@ -63,9 +64,13 @@ export class ApListView extends LitElement {
       flex-direction: column;
     }
     .ghost-row {
-      height: 56px;
-      margin-bottom: 1px;
-      border-radius: 4px;
+      display: grid;
+      gap: 12px;
+      padding: 8px 12px;
+      align-items: center;
+      border-bottom: 1px solid var(--ap-border, oklch(92.86% 0.009 247.92));
+    }
+    .ghost-el {
       background: linear-gradient(
         90deg,
         var(--ap-muted, oklch(0.974 0.006 239.819)) 25%,
@@ -74,13 +79,20 @@ export class ApListView extends LitElement {
       );
       background-size: 200% 100%;
       animation: shimmer 1.5s infinite;
+      border-radius: 4px;
     }
+    .ghost-check { width: 22px; height: 22px; }
+    .ghost-thumb { width: 40px; height: 40px; }
+    .ghost-name { height: 14px; border-radius: 4px; }
+    .ghost-type { height: 12px; width: 40px; }
+    .ghost-size { height: 12px; width: 48px; }
+    .ghost-date { height: 12px; width: 72px; }
     @keyframes shimmer {
       0% { background-position: 200% 0; }
       100% { background-position: -200% 0; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .ghost-row { animation: none; }
+      .ghost-el { animation: none; }
     }
   `;
 
@@ -93,6 +105,37 @@ export class ApListView extends LitElement {
   @property({ type: Boolean }) folderSelectable = false;
   @property({ type: Number }) totalCount = 0;
   @property({ type: Boolean }) isSelectingAll = false;
+  @property({ type: Object }) folderPreviews: Record<string, FolderPreviewImage[]> = {};
+
+  @state() private _compactLevel = 0;
+  private _resizeObserver?: ResizeObserver;
+
+  override connectedCallback() {
+    super.connectedCallback();
+    this._resizeObserver = new ResizeObserver((entries) => {
+      const width = entries[0]?.contentRect.width ?? 0;
+      const level = width < 550 ? 2 : width < 680 ? 1 : 0;
+      if (level !== this._compactLevel) this._compactLevel = level;
+    });
+    this._resizeObserver.observe(this);
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    this._resizeObserver?.disconnect();
+  }
+
+  private _getGridColumns(hasCheckbox: boolean): string {
+    const cols: string[] = [];
+    if (hasCheckbox) cols.push('32px');
+    cols.push('48px');
+    cols.push('minmax(120px, 1fr)');
+    cols.push('72px');
+    if (this._compactLevel < 2) cols.push('100px');
+    if (this._compactLevel < 1) cols.push('120px');
+    cols.push('36px');
+    return cols.join(' ');
+  }
 
   private get _allVisibleSelected(): boolean {
     if (this.assets.length === 0 && this.folders.length === 0) return false;
@@ -121,7 +164,7 @@ export class ApListView extends LitElement {
     const totalSelected = this.folderSelectable ? this.selectedIds.length + this.selectedFolderIds.length : this.selectedIds.length;
     const allSelected = this._allVisibleSelected && totalSelected >= totalSelectable;
     return html`
-      <div class="list-header ${this.multiSelect ? 'has-checkbox' : ''}" role="row" aria-label="Column headers">
+      <div class="list-header" style="grid-template-columns: ${this._getGridColumns(this.multiSelect)}" role="row" aria-label="Column headers">
         ${this.multiSelect
           ? html`<span class="header-checkbox" @click=${this._handleHeaderCheckboxClick}>
               <div class="header-check-box ${allSelected ? 'checked' : totalSelected > 0 ? 'indeterminate' : ''}">
@@ -137,8 +180,8 @@ export class ApListView extends LitElement {
         <span></span>
         <span>Name</span>
         <span>Type</span>
-        <span>Size</span>
-        <span>Date</span>
+        ${this._compactLevel < 2 ? html`<span>Size</span>` : nothing}
+        ${this._compactLevel < 1 ? html`<span>Date</span>` : nothing}
         <span></span>
       </div>
       <div class="list-body" role="list" aria-label="Assets">
@@ -146,7 +189,9 @@ export class ApListView extends LitElement {
           (folder, i) => html`
             <ap-folder-row
               .folder=${folder}
+              .previews=${this.folderPreviews[folder.uuid] || []}
               .selectable=${this.folderSelectable}
+              .compactLevel=${this._compactLevel}
               ?selected=${this.selectedFolderIds.includes(folder.uuid)}
               .index=${i}
               data-folder-uuid=${folder.uuid}
@@ -162,6 +207,7 @@ export class ApListView extends LitElement {
               .index=${this.folderSelectable ? this.folders.length + i : i}
               ?selected=${this.selectedIds.includes(asset.uuid)}
               .multiSelect=${this.multiSelect}
+              .compactLevel=${this._compactLevel}
               data-asset-uuid=${asset.uuid}
               @asset-select=${(e: CustomEvent) =>
                 this.dispatchEvent(new CustomEvent('asset-select', { detail: e.detail, bubbles: true, composed: true }))}
@@ -171,8 +217,20 @@ export class ApListView extends LitElement {
           `
         )}
         ${this.isLoading
-          ? Array.from({ length: LOAD_MORE_ROW_COUNT }, () =>
-              html`<div class="ghost-row"></div>`)
+          ? Array.from({ length: LOAD_MORE_ROW_COUNT }, (_, i) => {
+              const widths = ['70%', '55%', '80%', '45%', '65%'];
+              return html`
+                <div class="ghost-row" style="grid-template-columns: ${this._getGridColumns(this.multiSelect)}">
+                  ${this.multiSelect ? html`<div class="ghost-el ghost-check"></div>` : nothing}
+                  <div class="ghost-el ghost-thumb"></div>
+                  <div class="ghost-el ghost-name" style="width: ${widths[i]}"></div>
+                  <div class="ghost-el ghost-type"></div>
+                  ${this._compactLevel < 2 ? html`<div class="ghost-el ghost-size"></div>` : nothing}
+                  ${this._compactLevel < 1 ? html`<div class="ghost-el ghost-date"></div>` : nothing}
+                  <div></div>
+                </div>
+              `;
+            })
           : nothing}
       </div>
     `;

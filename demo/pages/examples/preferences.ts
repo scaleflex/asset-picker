@@ -6,10 +6,12 @@ import { renderCodeBlock } from '../../lib/code-block';
 const STORAGE_KEYS = {
   lastTab: 'ap-last-tab',
   lastFolder: 'ap-last-folder',
+  lastView: 'ap-last-view',
 };
 
 let rememberLastTab = true;
 let rememberLastFolder = true;
+let rememberLastView = true;
 
 function clearStoredValue(key: string): void {
   try {
@@ -22,7 +24,7 @@ const page: Page = {
     return `
       <div class="page-header">
         <h1>Preferences</h1>
-        <p>Persist the user's last active tab and last folder across sessions using <code>rememberLastTab</code> and <code>rememberLastFolder</code>. Values are stored in localStorage and restored automatically on next open.</p>
+        <p>Persist the user's last active tab, last folder, and last view mode across sessions using <code>rememberLastTab</code>, <code>rememberLastFolder</code>, and <code>rememberLastView</code>. Values are stored in localStorage and restored automatically on next open.</p>
       </div>
 
       <section class="page-section">
@@ -45,6 +47,15 @@ const page: Page = {
               Remember last folder
             </label>
           </div>
+          <div class="form-group toggle-group">
+            <label class="toggle-label" for="toggle-view">
+              <span class="toggle-switch">
+                <input type="checkbox" id="toggle-view" checked />
+                <span class="toggle-track"></span>
+              </span>
+              Remember last view mode
+            </label>
+          </div>
         </div>
         <button class="btn-primary open-btn-spacing" id="open-btn">Open picker</button>
       </section>
@@ -59,9 +70,11 @@ const page: Page = {
   init(picker: AssetPicker) {
     rememberLastTab = true;
     rememberLastFolder = true;
+    rememberLastView = true;
 
     const toggleTab = document.getElementById('toggle-tab') as HTMLInputElement;
     const toggleFolder = document.getElementById('toggle-folder') as HTMLInputElement;
+    const toggleView = document.getElementById('toggle-view') as HTMLInputElement;
 
     toggleTab.addEventListener('change', () => {
       rememberLastTab = toggleTab.checked;
@@ -77,10 +90,18 @@ const page: Page = {
       }
     });
 
+    toggleView.addEventListener('change', () => {
+      rememberLastView = toggleView.checked;
+      if (!rememberLastView) {
+        clearStoredValue(STORAGE_KEYS.lastView);
+      }
+    });
+
     document.getElementById('open-btn')!.addEventListener('click', () => {
       picker.config = buildConfig({
         rememberLastTab,
         rememberLastFolder,
+        rememberLastView,
         onSelect: (assets) => alert(`Selected ${assets.length} asset(s)`),
       });
       picker.open();
@@ -105,6 +126,7 @@ const page: Page = {
     },
     rememberLastTab: true,
     rememberLastFolder: true,
+    rememberLastView: true,
     onSelect: (assets) => console.log('Selected:', assets),
   };
   picker.open();
@@ -133,6 +155,7 @@ export function App() {
           },
           rememberLastTab: true,
           rememberLastFolder: true,
+          rememberLastView: true,
           onSelect: (assets) => console.log('Selected:', assets),
         }}
       />

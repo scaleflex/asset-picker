@@ -1,3 +1,8 @@
+export interface FolderPreviewImage {
+  file_uri_cdn: string;
+  file_type: string;
+}
+
 export interface Folder {
   uuid: string;
   name: string;

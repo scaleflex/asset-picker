@@ -128,3 +128,10 @@ export function hasTransparencySupport(extension: string): boolean {
   const ext = extension?.toLowerCase().replace('.', '') || '';
   return TRANSPARENT_EXTENSIONS.has(ext);
 }
+
+const ALTERNATIVE_DISPLAY_EXTENSIONS = new Set(['svg', 'svg+xml', 'png', 'pdf']);
+
+/** Whether a file type should use icon-mode display (contain instead of cover). */
+export function isAlternativeDisplay(fileType: string): boolean {
+  return ALTERNATIVE_DISPLAY_EXTENSIONS.has(getExtensionFromType(fileType).toLowerCase());
+}

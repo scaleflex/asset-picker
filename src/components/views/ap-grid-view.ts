@@ -19,8 +19,11 @@ export class ApGridView extends LitElement {
       gap: 24px;
     }
     .ghost-card {
-      aspect-ratio: 6/4;
       border-radius: var(--ap-radius, 8px);
+      overflow: hidden;
+    }
+    .ghost-thumb {
+      aspect-ratio: 6/4;
       background: linear-gradient(
         90deg,
         var(--ap-muted, oklch(0.974 0.006 239.819)) 25%,
@@ -30,12 +33,35 @@ export class ApGridView extends LitElement {
       background-size: 200% 100%;
       animation: shimmer 1.5s infinite;
     }
+    .ghost-info {
+      padding: 10px 12px;
+    }
+    .ghost-line {
+      border-radius: 4px;
+      background: linear-gradient(
+        90deg,
+        var(--ap-muted, oklch(0.974 0.006 239.819)) 25%,
+        #e8e8ea 50%,
+        var(--ap-muted, oklch(0.974 0.006 239.819)) 75%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    .ghost-name {
+      height: 14px;
+      width: 70%;
+    }
+    .ghost-meta {
+      height: 12px;
+      width: 50%;
+      margin-top: 6px;
+    }
     @keyframes shimmer {
       0% { background-position: 200% 0; }
       100% { background-position: -200% 0; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .ghost-card { animation: none; }
+      .ghost-thumb, .ghost-line { animation: none; }
     }
   `;
 
@@ -109,7 +135,13 @@ export class ApGridView extends LitElement {
         )}
         ${this.isLoading
           ? Array.from({ length: LOAD_MORE_SKELETON_COUNT }, () =>
-              html`<div class="ghost-card"></div>`)
+              html`<div class="ghost-card">
+                <div class="ghost-thumb"></div>
+                <div class="ghost-info">
+                  <div class="ghost-line ghost-name"></div>
+                  <div class="ghost-line ghost-meta"></div>
+                </div>
+              </div>`)
           : nothing}
       </div>
     `;

@@ -13,7 +13,6 @@ export class ApAssetRow extends LitElement {
     }
     .row {
       display: grid;
-      grid-template-columns: 32px 48px 1fr 100px 200px 120px 60px;
       gap: 12px;
       padding: 8px 12px;
       align-items: center;
@@ -141,6 +140,19 @@ export class ApAssetRow extends LitElement {
   @property({ type: Number }) index = 0;
   @property({ type: Boolean, reflect: true }) selected = false;
   @property({ type: Boolean }) multiSelect = true;
+  @property({ type: Number }) compactLevel = 0;
+
+  private _getGridColumns(): string {
+    const cols: string[] = [];
+    if (this.multiSelect) cols.push('32px');
+    cols.push('48px');
+    cols.push('minmax(120px, 1fr)');
+    cols.push('72px');
+    if (this.compactLevel < 2) cols.push('100px');
+    if (this.compactLevel < 1) cols.push('120px');
+    cols.push('36px');
+    return cols.join(' ');
+  }
 
   private _handleSelect(e: MouseEvent) {
     // Check if click was on the checkbox area
@@ -191,7 +203,7 @@ export class ApAssetRow extends LitElement {
     const isTransparent = hasTransparencySupport(a.extension || '');
 
     return html`
-      <div class="row" @click=${this._handleSelect}>
+      <div class="row" style="grid-template-columns: ${this._getGridColumns()}" @click=${this._handleSelect}>
         ${this.multiSelect ? html`
           <div class="check">
             <div class="check-box">
@@ -234,8 +246,8 @@ export class ApAssetRow extends LitElement {
         </div>
         <div class="name" title=${a.name}>${a.name}</div>
         <div class="type">${a.extension?.toUpperCase()}</div>
-        <div class="desc">${formatFileSize(a.size?.bytes || 0)}</div>
-        <div class="date">${formatDate(a.created_at || '')}</div>
+        ${this.compactLevel < 2 ? html`<div class="desc">${formatFileSize(a.size?.bytes || 0)}</div>` : nothing}
+        ${this.compactLevel < 1 ? html`<div class="date">${formatDate(a.created_at || '')}</div>` : nothing}
         <div class="actions">
           <button class="icon-btn" @click=${this._handlePreview} aria-label="Preview">
             <ap-icon name="preview" .size=${16}></ap-icon>

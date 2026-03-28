@@ -73,7 +73,6 @@ export class ApContentToolbar extends LitElement {
       align-items: center;
       gap: 0;
       min-width: 0;
-      overflow: hidden;
     }
 
     /* Filter dropdown trigger */
@@ -356,6 +355,7 @@ export class ApContentToolbar extends LitElement {
       z-index: 50;
       width: 360px;
       max-height: 400px;
+      overflow-x: hidden;
       overflow-y: auto;
       overscroll-behavior: contain;
       background: var(--ap-card, oklch(1 0 0));

@@ -1,4 +1,6 @@
 import type { Asset } from '../types/asset.types';
+import type { FolderPreviewImage } from '../types/folder.types';
+import { getExtensionFromType, getFileTypeFromMime } from './file-type';
 
 /**
  * Get the best thumbnail URL for an asset.
@@ -99,4 +101,28 @@ export function getFormattedPreviewUrl(cdnUrl: string, containerToken?: string):
  */
 export function getPreviewUrl(cdnUrl: string): string {
   return cdnUrl;
+}
+
+/**
+ * Get the best preview URL for a folder preview image.
+ * Uses assets CDN URL to bypass private permissions and support CDN params.
+ */
+export function getFolderPreviewUrl(preview: FolderPreviewImage, width: string): string {
+  const rawUrl = preview.file_uri_cdn;
+  if (!rawUrl) return '';
+
+  let url = getFormattedPreviewUrl(rawUrl);
+  const type = getFileTypeFromMime(preview.file_type);
+  const dpr = String(window.devicePixelRatio || 1);
+
+  if (type === 'video') {
+    return addCdnParams(url, { w: width, dpr, force_format: 'webp,jpeg' });
+  }
+
+  if (preview.file_type === 'application/pdf' || getExtensionFromType(preview.file_type).toLowerCase() === 'pdf') {
+    url = url.replace(/([?&])func=proxy&?/, '$1').replace(/[?&]$/, '');
+    return addCdnParams(url, { w: width, dpr, force_format: 'webp,jpeg', doc_page: '1', bypass_process_proxy: '1' });
+  }
+
+  return addCdnParams(url, { w: width, dpr });
 }
