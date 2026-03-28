@@ -349,8 +349,6 @@ export class AssetPicker extends LitElement {
       viewMode: (config.rememberLastView && loadLastView()) || config.defaultViewMode || 'grid',
       sortBy,
       sortDirection,
-      currentFolder: null,
-      currentFolderPath: config.rootFolderPath ?? '/',
     });
 
     this.apiClient = new ApiClient(config.auth, config.apiBase);
@@ -615,7 +613,7 @@ export class AssetPicker extends LitElement {
       assets: [],
       folders: [],
       currentFolder: null,
-      currentFolderPath: (this.config?.rememberLastFolder && loadLastFolder()) || this.config?.rootFolderPath || '/',
+      currentFolderPath: (resolvedTab === 'folders' && this.config?.rememberLastFolder && loadLastFolder()) || this.config?.rootFolderPath || '/',
       breadcrumb: [],
       selectedAssets: new Map(),
       folderPreviews: {},

@@ -1221,6 +1221,67 @@ body:not(.has-sidebar) #content {
 .checkbox-label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--sf-text-primary); cursor: pointer; }
 .checkbox-label input[type="checkbox"] { width: auto; padding: 0; border: none; box-shadow: none; }
 
+/* ── Toggle switch ─────────────────────────────── */
+.toggle-group { min-width: 200px !important; }
+
+.toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  margin-bottom: 0;
+  color: var(--sf-text-primary);
+  user-select: none;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: #3a3f4b;
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle-switch input:checked + .toggle-track {
+  background: var(--sf-accent, #6366f1);
+}
+
+.toggle-switch input:checked + .toggle-track::after {
+  transform: translateX(16px);
+}
+
 /* ── Also by Scaleflex slider ──────────────────── */
 .demo-also {
   background: var(--sf-dark-surface);
