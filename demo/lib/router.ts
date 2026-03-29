@@ -25,7 +25,7 @@ const routes: RouteEntry[] = [
   { pattern: '/examples/custom-theming', load: () => import('../pages/examples/custom-theming').then((m) => m.default) },
   { pattern: '/examples/default-filters', load: () => import('../pages/examples/default-filters').then((m) => m.default) },
   { pattern: '/examples/forced-filters', load: () => import('../pages/examples/forced-filters').then((m) => m.default) },
-
+  { pattern: '/examples/allowed-extensions', load: () => import('../pages/examples/allowed-extensions').then((m) => m.default) },
   { pattern: '/examples/hidden-tabs', load: () => import('../pages/examples/hidden-tabs').then((m) => m.default) },
   { pattern: '/examples/root-folder', load: () => import('../pages/examples/root-folder').then((m) => m.default) },
   { pattern: '/examples/events', load: () => import('../pages/examples/events').then((m) => m.default) },

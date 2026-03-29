@@ -60,6 +60,7 @@ const page: Page = {
             <tr><td><code>rememberLastTab</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Persist the last active tab (assets/folders) and restore on next open</td></tr>
             <tr><td><code>defaultFilters</code></td><td><code>FiltersInput</code></td><td><code>undefined</code></td><td>Filters pre-applied on open. User can modify/remove</td></tr>
             <tr><td><code>forcedFilters</code></td><td><code>FiltersInput</code></td><td><code>undefined</code></td><td>Filters always active. Locked chips the user cannot remove</td></tr>
+            <tr><td><code>allowedExtensions</code></td><td><code>string[]</code></td><td><code>undefined</code></td><td>Restrict results to specific file extensions (e.g. <code>['svg', 'png']</code>). Applied to every API request</td></tr>
             <tr><td><code>uploader</code></td><td><code>UploaderIntegrationConfig</code></td><td><code>undefined</code></td><td>Enable the integrated uploader. Shows an Upload button &amp; drop zone. Requires <code>@scaleflex/uploader</code> (optional peer dep, loaded dynamically)</td></tr>
             <tr><td><code>onSelect</code></td><td><code>(assets: Asset[]) =&gt; void</code></td><td><code>undefined</code></td><td>Callback when assets are selected</td></tr>
             <tr><td><code>onCancel</code></td><td><code>() =&gt; void</code></td><td><code>undefined</code></td><td>Callback when the picker is cancelled</td></tr>
@@ -105,6 +106,18 @@ const page: Page = {
           <li><strong><code>forcedFilters</code></strong> are merged into every API request but are <strong>not</strong> stored in the mutable applied state. They render as locked chips (with a lock icon instead of an X button). The user cannot remove them, and "Clear filters" does not affect them. Forced filter keys are also hidden from the "Add filter" dropdown.</li>
           <li>If the same key appears in both <code>defaultFilters</code> and <code>forcedFilters</code>, the forced filter takes precedence.</li>
         </ul>
+
+        <h2>Allowed extensions</h2>
+        <p>Use <code>allowedExtensions</code> to restrict the picker to specific file formats. Extensions are mapped to API subtype values (e.g. <code>'svg'</code> &rarr; <code>type:"image_svg"</code>).</p>
+        ${code(
+          'typescript',
+          `picker.config = {
+  auth: { /* ... */ },
+  // Only show SVG files
+  allowedExtensions: ['svg'],
+};`,
+        )}
+        <p>When set, <code>allowedExtensions</code> overrides the type filter entirely. The Format filter UI still works, but the API request always uses the <code>allowedExtensions</code> restriction.</p>
 
         ${docNav(
           { href: '#/docs/getting-started', label: 'Getting started' },

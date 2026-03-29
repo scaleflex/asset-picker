@@ -26,6 +26,7 @@ import { validateFilter } from './filter-validate';
 import {
   IMAGE_FILTER_KEY_INDEX,
   DEFAULT_FILTER_OPERATOR,
+  TYPE_EXTENSIONS,
 } from '../components/filters/filters.constants';
 
 // ── Public API ──────────────────────────────────────────────────────
@@ -117,7 +118,7 @@ function serializeSingleFilter(key: string, filter: AnyFilter): string[] {
       return serializeColor(operator, values, logic);
 
     case FILTER_KEYS.TYPE:
-      return serializeTypeMime(key, values, operator, logic);
+      return serializeTypeWithSubtypes(values, operator);
 
     case FILTER_KEYS.MIME_TYPE:
       return serializeTypeMime(key, values, operator, logic);
@@ -222,6 +223,30 @@ function serializeColor(operator: string, values: string[], logic?: string): str
   result.push(...colorValues);
   result.push('color_operator:"AND"');
   return result;
+}
+
+/**
+ * Serialize type filter using API subtypes (e.g. "image_png", "image_jpeg").
+ * Types with a TYPE_EXTENSIONS mapping are expanded to subtypes;
+ * unmapped types (e.g. "other", "template_fdt") use the broad category.
+ */
+function serializeTypeWithSubtypes(typeValues: string[], operator: string): string[] {
+  if (typeValues.length === 0) return [];
+
+  const allValues: string[] = [];
+  for (const type of typeValues) {
+    const exts = TYPE_EXTENSIONS[type];
+    if (exts) {
+      for (const ext of exts) {
+        allValues.push(`${type}_${ext}`);
+      }
+    } else {
+      allValues.push(type);
+    }
+  }
+
+  const joined = allValues.map((v) => `"${v}"`).join(',');
+  return [`type${operator}${joined}`];
 }
 
 function serializeTypeMime(
@@ -367,8 +392,4 @@ function stripMetadataPrefix(key: string): string {
 
 function stripHashes(values: string[]): string[] {
   return values.map((v) => v.replace(/#/g, ''));
-}
-
-function filters_get_type_values(values: string[]): string[] {
-  return values;
 }

@@ -28,7 +28,7 @@ import {
 } from './types/filter.types';
 import type { GetFilesParams } from './types/api.types';
 import { getMetadataSettings } from './services/filters.service';
-import { FILTER_LABELS } from './components/filters/filters.constants';
+import { FILTER_LABELS, EXTENSION_CATEGORY } from './components/filters/filters.constants';
 import { serializeFilters } from './utils/filter-serialize';
 import { normalizeFilters } from './utils/filter-normalize';
 import { loadPinnedFilters, savePinnedFilters, savePinnedMetadata } from './utils/filter-pin-storage';
@@ -1633,7 +1633,20 @@ export class AssetPicker extends LitElement {
   private _buildSearchNotation(): string {
     const state = this.store.getState();
     const merged = { ...normalizeFilters(this.config?.forcedFilters), ...state.filters.applied };
-    const parts = serializeFilters(merged, state.filters.metadata.applied);
+    let parts = serializeFilters(merged, state.filters.metadata.applied);
+
+    // allowedExtensions overrides any type filter — maps extensions to API subtypes
+    const exts = this.config?.allowedExtensions;
+    if (exts?.length) {
+      parts = parts.filter((p) => !p.startsWith('type:') && !p.startsWith('type='));
+      const subtypes = exts.map((e) => {
+        const ext = e.toLowerCase();
+        const cat = EXTENSION_CATEGORY[ext];
+        return `"${cat ? `${cat}_${ext}` : ext}"`;
+      });
+      parts.push(`type:${subtypes.join(',')}`);
+    }
+
     return parts.join(' ');
   }
 

@@ -51,6 +51,12 @@ export interface AssetPickerConfig {
   defaultFilters?: FiltersInput;
   /** Filters always active. Shown as locked chips the user cannot remove. */
   forcedFilters?: FiltersInput;
+  /**
+   * Restrict results to specific file extensions (e.g. `['svg', 'png']`).
+   * Extensions are mapped to API subtype values (e.g. `'svg'` → `type:"image_svg"`).
+   * Applied to every API request. Overrides the type filter when set.
+   */
+  allowedExtensions?: string[];
   /** Remember the last browsed folder and restore it on next open. Defaults to false. */
   rememberLastFolder?: boolean;
   /** Remember the last used view mode (grid/list) and restore it on next open. Defaults to false. */

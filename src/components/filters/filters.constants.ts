@@ -121,6 +121,30 @@ export const ASSET_TYPE_OPTIONS = [
   { value: MIME_TYPES.OTHER, label: 'Other', icon: 'layout-grid' },
 ];
 
+// ── Type → Extension Mapping ───────────────────────────────────────
+// Standard extensions per type category, used to build API subtype values
+// (e.g. "image" + "png" → "image_png"). Types without a mapping
+// (e.g. 'other', 'template_fdt') fall back to the broad category.
+
+export const TYPE_EXTENSIONS: Partial<Record<string, string[]>> = {
+  [MIME_TYPES.IMAGE]: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico', 'tiff', 'tif', 'avif', 'heic', 'heif', 'psd', 'eps'],
+  [MIME_TYPES.VIDEO]: ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv', 'flv', 'wmv', 'm4v'],
+  [MIME_TYPES.AUDIO]: ['mp3', 'wav', 'ogg', 'flac', 'aac', 'wma', 'm4a', 'opus'],
+  [MIME_TYPES.DOCUMENT]: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv', 'rtf', 'odt', 'ods', 'odp', 'html'],
+  [MIME_TYPES.ARCHIVE]: ['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz'],
+  [MIME_TYPES.FONTS]: ['ttf', 'otf', 'woff', 'woff2', 'eot'],
+};
+
+// Reverse mapping: extension → category (for allowedExtensions config)
+export const EXTENSION_CATEGORY: Record<string, string> = {};
+for (const [category, exts] of Object.entries(TYPE_EXTENSIONS)) {
+  if (!exts) continue;
+  for (const ext of exts) {
+    // First category wins (e.g. 'ogg' → 'video', not 'audio')
+    if (!EXTENSION_CATEGORY[ext]) EXTENSION_CATEGORY[ext] = category;
+  }
+}
+
 // ── Image Filter Options ────────────────────────────────────────────
 
 export const IMAGE_FILTER_KEY_INDEX = {
