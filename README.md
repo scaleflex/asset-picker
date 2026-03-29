@@ -693,6 +693,18 @@ Requires native support for Custom Elements v1, Shadow DOM, and ES2020+. Interne
 
 ---
 
+## Release
+
+```bash
+npm run release            # patch bump (0.2.8 → 0.2.9)
+npm run release -- minor   # minor bump (0.2.8 → 0.3.0)
+npm run release -- major   # major bump (0.2.8 → 1.0.0)
+```
+
+This single command handles the full pipeline: version bump, CDN build + upload, library build, npm publish, git commit + tag + push.
+
+---
+
 ## Claude Code Integration
 
 If you use [Claude Code](https://docs.anthropic.com/en/docs/claude-code), this package ships with a ready-made skill that helps Claude add the asset picker to your project — detecting your framework, wiring auth, events, theming, and filters automatically.
