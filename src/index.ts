@@ -5,3 +5,18 @@ export type { Folder } from './types/folder.types';
 export type { Label } from './types/label.types';
 export type { FilterKey, FilterOperator, FilterLogic, AnyFilterKey, AnyFilter, StringFilter, DateFilter, FiltersState, MetadataFieldType, MetadataModelField, FiltersConfig } from './types/filter.types';
 export type { AssetPickerSelectDetail, AssetPickerCancelDetail, FolderSelectDetail } from './types/events.types';
+
+// Asset helpers
+export {
+  getAltText,
+  getCdnUrl,
+  getAssetWidth,
+  getAssetHeight,
+  getAssetDimensions,
+  isTranscoded,
+  getTranscodedUrl,
+  getBestVideoUrl,
+  isVideo,
+  isImage,
+  isAudio,
+} from './utils/asset-helpers';

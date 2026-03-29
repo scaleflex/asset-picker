@@ -21,7 +21,12 @@ export interface AssetInfo {
 }
 
 export interface AssetMeta {
-  title?: string;
+  /**
+   * Asset title. May be a plain string or a localized record keyed by
+   * language code (e.g. `{ en: "Sunset", fr: "Coucher de soleil" }`).
+   * Use `getAltText()` from the package to handle both cases.
+   */
+  title?: string | Record<string, string>;
   description?: string;
   alt?: string;
   [key: string]: unknown;

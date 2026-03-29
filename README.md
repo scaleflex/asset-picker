@@ -44,6 +44,8 @@
 - [Public Methods](#public-methods)
 - [Events](#events)
 - [React API](#react-api)
+  - [Provider + Hook](#provider--hook-recommended)
+- [Asset Utilities](#asset-utilities)
 - [Theming](#theming)
   - [Brand Color](#brand-color)
   - [CSS Custom Properties](#css-custom-properties)
@@ -112,8 +114,8 @@ pnpm add @scaleflex/asset-picker
 
 | Export path | Description |
 |---|---|
-| `@scaleflex/asset-picker` | `AssetPicker` class + all TypeScript types |
-| `@scaleflex/asset-picker/react` | React wrapper component |
+| `@scaleflex/asset-picker` | `AssetPicker` class + all TypeScript types + asset utility functions |
+| `@scaleflex/asset-picker/react` | React wrapper component + `AssetPickerProvider` + `useAssetPicker` hook |
 | `@scaleflex/asset-picker/define` | Side-effect import — registers `<sfx-asset-picker>` custom element |
 
 Both ESM (`import`) and CJS (`require`) builds are provided.
@@ -248,7 +250,13 @@ Use when your application already has a SASS key — e.g. inside the Scaleflex H
 | `rememberLastTab` | `boolean` | `false` | Persist the last active tab (assets/folders) and restore on next open |
 | `defaultFilters` | `FiltersInput` | `undefined` | Filters pre-applied on open. User can modify/remove |
 | `forcedFilters` | `FiltersInput` | `undefined` | Filters always active. Shown as locked chips the user cannot remove |
-| `onSelect` | `(assets: Asset[]) => void` | `undefined` | Callback when assets are selected |
+| `displayMode` | `'modal' \| 'inline'` | `'modal'` | `'modal'` renders as a dialog overlay, `'inline'` renders in page flow |
+| `gridSize` | `'normal' \| 'large'` | `'normal'` | Grid card density: `'normal'` (4 cols at ~1200px) or `'large'` (3 cols) |
+| `stickyFilters` | `boolean` | `false` | Make the toolbar and filters bar sticky while scrolling content |
+| `folderSelection` | `boolean` | `true` | Allow selecting folders via checkboxes |
+| `folderSelectionMode` | `'folder' \| 'assets'` | `'folder'` | `'folder'` returns Folder objects; `'assets'` fetches folder contents and returns only Assets |
+| `uploader` | `UploaderIntegrationConfig` | `undefined` | Enable integrated uploader. Adds an "Upload" button and drop zone. Requires `@scaleflex/uploader` |
+| `onSelect` | `(assets: Asset[], folders?: Folder[]) => void` | `undefined` | Callback when assets are selected |
 | `onCancel` | `() => void` | `undefined` | Callback when the picker is cancelled |
 
 #### Sort fields
@@ -327,7 +335,7 @@ All events bubble and cross shadow DOM boundaries (`composed: true`).
 | Event | Detail | Description |
 |---|---|---|
 | `ap-select` | `{ assets: Asset[] }` | Fired when the user confirms their selection |
-| `ap-cancel` | `{ reason: 'backdrop' \| 'escape' \| 'button' \| 'close-button' }` | Fired when the picker is closed without selecting |
+| `ap-cancel` | `{ reason: 'backdrop' \| 'escape' \| 'button' }` | Fired when the picker is closed without selecting |
 | `ap-open` | `{ timestamp: number }` | Fired when the picker opens successfully |
 | `ap-error` | `{ error: Error, context: string }` | Fired on initialisation or runtime errors |
 
@@ -362,7 +370,8 @@ import { AssetPicker, type AssetPickerRef, type AssetPickerProps } from '@scalef
 |---|---|---|
 | `config` | `AssetPickerConfig` | Configuration object (see [Config Options](#config-options)) |
 | `open` | `boolean` | Controlled open state |
-| `onSelect` | `(assets: Asset[]) => void` | Selection callback |
+| `onSelect` | `(assets: Asset[], folders?: Folder[]) => void` | Selection callback (assets + optional folders) |
+| `onSelectWithFolders` | `(result: { assets: Asset[]; folders: Folder[] }) => void` | Alternative callback that always includes folders |
 | `onCancel` | `() => void` | Cancel callback |
 | `className` | `string` | CSS class for the wrapper |
 | `style` | `CSSProperties` | Inline styles for the wrapper |
@@ -398,6 +407,163 @@ const ref = useRef<AssetPickerRef>(null);
 <button onClick={() => ref.current?.open()}>Open</button>
 <AssetPicker ref={ref} config={config} onSelect={handleSelect} />
 ```
+
+### Provider + Hook (recommended)
+
+For apps that open the picker from many places, use `AssetPickerProvider` + `useAssetPicker()` to avoid managing open/close state yourself. One picker instance is mounted at the root and shared across the tree.
+
+#### Setup
+
+```tsx
+import { AssetPickerProvider } from '@scaleflex/asset-picker/react';
+
+function App() {
+  return (
+    <AssetPickerProvider
+      config={{
+        auth: {
+          mode: 'sassKey',
+          sassKey: 'YOUR_SASS_KEY',
+          projectToken: 'YOUR_TOKEN',
+        },
+      }}
+    >
+      <Dashboard />
+    </AssetPickerProvider>
+  );
+}
+```
+
+#### Promise mode
+
+```tsx
+import { useAssetPicker } from '@scaleflex/asset-picker/react';
+
+function ImageSelector() {
+  const picker = useAssetPicker();
+
+  const handleClick = async () => {
+    try {
+      const assets = await picker.open({ multiSelect: true });
+      console.log('Selected:', assets);
+    } catch {
+      console.log('User cancelled');
+    }
+  };
+
+  return <button onClick={handleClick}>Choose images</button>;
+}
+```
+
+The promise resolves with the selected `Asset[]` on confirm, and rejects with `'cancelled'` when the user closes without selecting. Note: promise mode returns only assets — use callback mode with `onSelect(assets, folders)` if you need folder data.
+
+#### Callback mode
+
+```tsx
+function VideoSelector() {
+  const picker = useAssetPicker();
+
+  return (
+    <button
+      onClick={() =>
+        picker.open({
+          forcedFilters: { type: { values: ['video'] } },
+          onSelect: (assets) => console.log(assets),
+          onCancel: () => console.log('Cancelled'),
+        })
+      }
+    >
+      Choose video
+    </button>
+  );
+}
+```
+
+#### Config overrides
+
+Any `AssetPickerConfig` property passed to `open()` is merged with (and overrides) the base config from the provider:
+
+```tsx
+// Base config has multiSelect: false
+// This call overrides it to true and adds a forced filter
+const assets = await picker.open({
+  multiSelect: true,
+  forcedFilters: { type: { values: ['image'] } },
+});
+```
+
+#### Hook return type
+
+```ts
+interface UseAssetPickerReturn {
+  open(overrides?: OpenOptions): Promise<Asset[]>;
+  close(): void;
+  isOpen: boolean;
+}
+```
+
+---
+
+## Asset Utilities
+
+Pure helper functions for working with `Asset` objects. Exported from the main entry point — no React required.
+
+```ts
+import {
+  getAltText,
+  getCdnUrl,
+  getAssetWidth,
+  getAssetHeight,
+  getAssetDimensions,
+  isTranscoded,
+  getTranscodedUrl,
+  getBestVideoUrl,
+  isVideo,
+  isImage,
+  isAudio,
+} from '@scaleflex/asset-picker';
+```
+
+### Type checks
+
+| Function | Returns | Description |
+|---|---|---|
+| `isImage(asset)` | `boolean` | `true` if `asset.type` starts with `"image"` |
+| `isVideo(asset)` | `boolean` | `true` if `asset.type` starts with `"video"` |
+| `isAudio(asset)` | `boolean` | `true` if `asset.type` starts with `"audio"` |
+
+### URLs
+
+| Function | Returns | Description |
+|---|---|---|
+| `getCdnUrl(asset)` | `string` | CDN URL, falling back to public URL, then `""` |
+| `getBestVideoUrl(asset)` | `string` | Transcoded HLS URL > CDN URL > public URL |
+| `getTranscodedUrl(asset)` | `string \| null` | HLS manifest URL, or `null` if not transcoded |
+
+### Alt text
+
+```ts
+const alt = getAltText(asset);        // uses first available language
+const alt = getAltText(asset, 'fr');  // prefers French title
+```
+
+Resolution priority: `meta.alt` > `meta.title` (string or localized `Record<string, string>`) > filename without extension.
+
+### Dimensions
+
+| Function | Returns | Description |
+|---|---|---|
+| `getAssetWidth(asset)` | `number` | Width in px (`0` if unknown). Works for images and videos. |
+| `getAssetHeight(asset)` | `number` | Height in px (`0` if unknown). Works for images and videos. |
+| `getAssetDimensions(asset)` | `{ width, height }` | Both dimensions as an object. |
+
+### Video transcoding
+
+| Function | Returns | Description |
+|---|---|---|
+| `isTranscoded(asset)` | `boolean` | Whether the asset has a transcoded HLS version |
+| `getTranscodedUrl(asset)` | `string \| null` | The HLS manifest URL, or `null` |
+| `getBestVideoUrl(asset)` | `string` | Best playback URL (transcoded > CDN > public) |
 
 ---
 
@@ -635,24 +801,36 @@ interface Asset {
   };
   created_at: string;           // ISO timestamp
   modified_at: string;          // ISO timestamp
-  tags: Record<string, any>;
+  tags: Record<string, Array<{ label: string; sid: string }>>
+      | Record<string, { label: string; sid: string }>
+      | string[];
   labels: string[];
   meta: {
-    title?: string;
+    title?: string | Record<string, string>;  // plain or localized by language code
     description?: string;
     alt?: string;
     [key: string]: unknown;
   };
   info: {
+    img_type?: string;           // Image format (e.g. "jpeg", "png")
     img_w?: number;              // Image width (px)
     img_h?: number;              // Image height (px)
-    duration?: number;           // Video/audio duration (seconds)
+    duration?: number;           // Audio duration (seconds)
+    video_duration?: number;     // Video duration (seconds)
     video_w?: number;            // Video width (px)
     video_h?: number;            // Video height (px)
     thumbnail?: string;          // Thumbnail URL
-    main_colors_hex?: string[];  // Dominant colours
-    dominant_color_hex?: string; // Most dominant colour
-    [key: string]: unknown;
+    preview?: string;            // Preview URL
+    video_thumbnail?: string;    // Video poster image URL
+    video_gif?: string;          // Animated GIF preview URL
+    image_thumbnail?: string;    // Image thumbnail URL
+    main_colors?: string[];      // Dominant colours (names)
+    main_colors_hex?: string[];  // Dominant colours (hex)
+    dominant_color?: string;     // Most dominant colour (name)
+    dominant_color_hex?: string; // Most dominant colour (hex)
+    color_space?: string;        // Colour space (e.g. "sRGB")
+    metadata?: Record<string, unknown>; // Embedded metadata (EXIF, IPTC, etc.)
+    playlists?: Array<{ playlists: string[]; resolution?: string }>; // HLS transcoded playlists
   };
   folder?: {
     uuid: string;
@@ -673,14 +851,20 @@ interface Folder {
   uuid: string;
   name: string;
   path: string;
+  owner?: string;
   created_at: string;
   modified_at?: string;
+  updated_at?: string;
   count?: {
     files_recursive?: number;
     files_direct?: number;
   };
   size?: {
     total_recursive_bytes?: number;
+  };
+  visibility?: {
+    in_cdn?: { actual: string; set: string };
+    in_dam?: { actual: string; set: string };
   };
 }
 ```
