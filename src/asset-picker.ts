@@ -27,8 +27,8 @@ import {
   type FiltersState,
 } from './types/filter.types';
 import type { GetFilesParams } from './types/api.types';
-import { getMetadataSettings } from './services/filters.service';
-import { FILTER_LABELS, EXTENSION_CATEGORY } from './components/filters/filters.constants';
+import { getMetadataSettings, getFileTypes } from './services/filters.service';
+import { FILTER_LABELS } from './components/filters/filters.constants';
 import { serializeFilters } from './utils/filter-serialize';
 import { normalizeFilters } from './utils/filter-normalize';
 import { loadPinnedFilters, savePinnedFilters, savePinnedMetadata } from './utils/filter-pin-storage';
@@ -376,10 +376,11 @@ export class AssetPicker extends LitElement {
       }
 
       // Fetch settings (includes brand color + metadata model + regional variants), labels, and tags
-      const [metadataResult, labelsResult, tagsResult] = await Promise.allSettled([
+      const [metadataResult, labelsResult, tagsResult, fileTypesResult] = await Promise.allSettled([
         getMetadataSettings(this.apiClient),
         getLabels(this.apiClient),
         getTags(this.apiClient),
+        getFileTypes(this.apiClient),
       ]);
 
       if (metadataResult.status === 'fulfilled') {
@@ -398,6 +399,10 @@ export class AssetPicker extends LitElement {
 
       if (tagsResult.status === 'fulfilled') {
         this.store.setState({ tags: tagsResult.value });
+      }
+
+      if (fileTypesResult.status === 'fulfilled') {
+        this.store.setState({ fileTypes: fileTypesResult.value });
       }
 
       // Load pinned filters from localStorage
@@ -1633,20 +1638,7 @@ export class AssetPicker extends LitElement {
   private _buildSearchNotation(): string {
     const state = this.store.getState();
     const merged = { ...normalizeFilters(this.config?.forcedFilters), ...state.filters.applied };
-    let parts = serializeFilters(merged, state.filters.metadata.applied);
-
-    // allowedExtensions overrides any type filter — maps extensions to API subtypes
-    const exts = this.config?.allowedExtensions;
-    if (exts?.length) {
-      parts = parts.filter((p) => !p.startsWith('type:') && !p.startsWith('type='));
-      const subtypes = exts.map((e) => {
-        const ext = e.toLowerCase();
-        const cat = EXTENSION_CATEGORY[ext];
-        return `"${cat ? `${cat}_${ext}` : ext}"`;
-      });
-      parts.push(`type:${subtypes.join(',')}`);
-    }
-
+    const parts = serializeFilters(merged, state.filters.metadata.applied);
     return parts.join(' ');
   }
 
@@ -1705,6 +1697,7 @@ export class AssetPicker extends LitElement {
               .filters=${s.filters}
               .labels=${s.labels}
               .tags=${s.tags}
+              .fileTypes=${s.fileTypes}
               .metadataFields=${s.metadataFields}
               .pinnedFilters=${s.filters.pinned}
               .apiClient=${this.apiClient}

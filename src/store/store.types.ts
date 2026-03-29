@@ -3,7 +3,7 @@ import type { Folder } from '../types/folder.types';
 import type { Label } from '../types/label.types';
 import type { TagWithLabel } from '../types/tag.types';
 import type { AssetPickerConfig, ViewMode, SortBy, SortDirection, TabKey } from '../types/config.types';
-import type { FiltersState, MetadataModelField, RegionalVariantGroup, RegionalFilters } from '../types/filter.types';
+import type { FiltersState, MetadataModelField, FilterFileType, RegionalVariantGroup, RegionalFilters } from '../types/filter.types';
 
 export interface BreadcrumbItem {
   uuid: string;
@@ -45,6 +45,7 @@ export interface AppState {
   hasMore: boolean;
 
   filters: FiltersState;
+  fileTypes: FilterFileType[];
   metadataFields: MetadataModelField[];
   regionalVariantGroups: RegionalVariantGroup[];
   regionalFilters: RegionalFilters;

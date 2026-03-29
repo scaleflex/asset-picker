@@ -248,7 +248,6 @@ Use when your application already has a SASS key — e.g. inside the Scaleflex H
 | `rememberLastTab` | `boolean` | `false` | Persist the last active tab (assets/folders) and restore on next open |
 | `defaultFilters` | `FiltersInput` | `undefined` | Filters pre-applied on open. User can modify/remove |
 | `forcedFilters` | `FiltersInput` | `undefined` | Filters always active. Shown as locked chips the user cannot remove |
-| `allowedExtensions` | `string[]` | `undefined` | Restrict results to specific file extensions (e.g. `['svg', 'png']`). Applied to every API request. Overrides type-based extension narrowing |
 | `onSelect` | `(assets: Asset[]) => void` | `undefined` | Callback when assets are selected |
 | `onCancel` | `() => void` | `undefined` | Callback when the picker is cancelled |
 
@@ -289,30 +288,18 @@ picker.config = {
 };
 ```
 
+```ts
+// Lock to specific extensions using subtype values (category_extension)
+forcedFilters: {
+  type: { values: ['image_svg', 'image_png'] },
+},
+```
+
 **Behaviour:**
 
 - **`defaultFilters`** are seeded into the applied filters state when `open()` is called. The user sees them as normal filter chips and can modify or remove them freely.
 - **`forcedFilters`** are merged into every API request but are **not** stored in the mutable applied state. They render as locked chips (with a lock icon instead of an X button). The user cannot remove them, and "Clear filters" does not affect them. Forced filter keys are also hidden from the "Add filter" dropdown.
 - If the same key appears in both `defaultFilters` and `forcedFilters`, the forced filter takes precedence — the default filter for that key is skipped.
-
-### Allowed Extensions
-
-Use `allowedExtensions` to restrict the picker to specific file formats. Extensions are mapped to API subtype values (e.g. `'svg'` → `type:"image_svg"`), so only matching files are returned regardless of user-applied filters.
-
-```ts
-picker.config = {
-  auth: { /* ... */ },
-  // Only show SVG files
-  allowedExtensions: ['svg'],
-};
-```
-
-```ts
-// Show only common raster image formats
-allowedExtensions: ['png', 'jpg', 'jpeg', 'webp']
-```
-
-When `allowedExtensions` is set, it overrides the type filter entirely. The Format filter UI still works, but the API request always uses the `allowedExtensions` restriction.
 
 ---
 

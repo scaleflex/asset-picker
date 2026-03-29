@@ -1,5 +1,5 @@
 import type { ApiClient } from './api-client';
-import type { GetFiltersResponse, GetFilterConfigResponse } from '../types/api.types';
+import type { GetFiltersResponse } from '../types/api.types';
 import type { MetadataModelField, MetadataPossibleValue, FilterFileType, RegionalVariantGroup, RegionalFilters } from '../types/filter.types';
 import { METADATA_MODEL_INDEX } from '../components/filters/filters.constants';
 
@@ -13,15 +13,40 @@ export async function getFilterValues(client: ApiClient, filterBy: string): Prom
   return filter?.values ?? [];
 }
 
-export async function getFilterConfig(client: ApiClient): Promise<FilterFileType[]> {
-  const response = await client.request<GetFilterConfigResponse>('/filters/config');
-  return (response.file_types || []).map(ft => ({
+interface FileTypesApiResponse {
+  status: string;
+  filters: {
+    file_types?: Array<{
+      name: string;
+      value: string;
+      count: number;
+      category?: string;
+      label?: string;
+    }>;
+  };
+}
+
+export async function getFileTypes(client: ApiClient): Promise<FilterFileType[]> {
+  const response = await client.request<FileTypesApiResponse>('/filters', {
+    filter_by: 'filetype',
+    format: 'list',
+    limit: 200,
+  });
+  const raw = response.filters?.file_types ?? [];
+  return raw.map(ft => ({
     name: ft.name,
     value: ft.value,
     count: ft.count,
-    category: ft.category,
-    label: ft.label,
+    category: ft.category ?? ft.value.split('_')[0],
+    label: extractExtensionLabel(ft.name),
   }));
+}
+
+/** Extract clean extension label from API name (e.g. "image › jpeg" → "JPEG") */
+function extractExtensionLabel(name: string): string {
+  const sep = name.indexOf('›');
+  const raw = sep !== -1 ? name.slice(sep + 1).trim() : name;
+  return raw.toUpperCase();
 }
 
 export interface MetadataSettingsResult {

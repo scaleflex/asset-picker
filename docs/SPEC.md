@@ -100,7 +100,6 @@ function App() {
 | `rememberLastView` | `boolean` | `false` | Persist last view mode |
 | `rememberLastTab` | `boolean` | `false` | Persist last active tab |
 | `gridSize` | `'normal' \| 'large'` | `'normal'` | Grid card density: normal (4 cols at ~1200px) or large (3 cols at ~1200px) |
-| `allowedExtensions` | `string[]` | `undefined` | Restrict results to specific file extensions (e.g. `['svg', 'png']`) |
 | `onSelect` | `(assets: Asset[]) => void` | - | Callback on confirm |
 | `onCancel` | `() => void` | - | Callback on cancel |
 

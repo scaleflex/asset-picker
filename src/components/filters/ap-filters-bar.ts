@@ -182,7 +182,13 @@ export class ApFiltersBar extends LitElement {
   @property() pendingMetadataField: string | null = null;
 
   private _mapTypeLabel(value: string): string {
-    return ASSET_TYPE_OPTIONS.find((o) => o.value === value)?.label || value;
+    // Broad category (e.g. 'image' → 'Image')
+    const groupLabel = ASSET_TYPE_OPTIONS.find((o) => o.value === value)?.label;
+    if (groupLabel) return groupLabel;
+    // Individual subtype (e.g. 'image_png' → 'PNG')
+    const underscoreIdx = value.indexOf('_');
+    if (underscoreIdx !== -1) return value.slice(underscoreIdx + 1).toUpperCase();
+    return value;
   }
 
   private _getSizeSummary(sf: StringFilter): string {

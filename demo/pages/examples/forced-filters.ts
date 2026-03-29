@@ -3,12 +3,13 @@ import type { AssetPicker } from '../../../src/asset-picker';
 import { buildConfig } from '../../lib/auth';
 import { renderCodeBlock } from '../../lib/code-block';
 
-let filterType = 'image';
+let filterType: string[] = ['image'];
 
 function updateCode() {
   const container = document.getElementById('code-container');
   if (!container) return;
   container.innerHTML = '';
+  const valuesStr = filterType.map((v) => `'${v}'`).join(', ');
   renderCodeBlock('#code-container', [
     {
       label: 'JavaScript',
@@ -17,7 +18,7 @@ function updateCode() {
 picker.config = {
   auth: { /* ... */ },
   forcedFilters: {
-    type: { values: ['${filterType}'] },
+    type: { values: [${valuesStr}] },
   },
 };`,
     },
@@ -29,7 +30,7 @@ picker.config = {
   config={{
     auth: { /* ... */ },
     forcedFilters: {
-      type: { values: ['${filterType}'] },
+      type: { values: [${valuesStr}] },
     },
   }}
 />`,
@@ -42,7 +43,7 @@ const page: Page = {
     return `
       <div class="page-header">
         <h1>Forced filters</h1>
-        <p>Use <code>forcedFilters</code> to lock filters that users cannot remove. The filter chips appear with a lock icon.</p>
+        <p>Use <code>forcedFilters</code> to lock filters that users cannot remove. You can lock to entire categories (e.g. all images) or specific extensions (e.g. SVG only, PNG + JPEG). The filter chips appear with a lock icon.</p>
       </div>
 
       <section class="page-section">
@@ -50,10 +51,17 @@ const page: Page = {
           <div class="form-group">
             <label for="filter-select">Forced type filter</label>
             <select id="filter-select">
-              <option value="image" selected>Images</option>
-              <option value="video">Videos</option>
-              <option value="audio">Audio</option>
-              <option value="document">Documents</option>
+              <optgroup label="Categories">
+                <option value="image" selected>Images</option>
+                <option value="video">Videos</option>
+                <option value="audio">Audio</option>
+                <option value="document">Documents</option>
+              </optgroup>
+              <optgroup label="Extensions">
+                <option value="image_svg">SVG only</option>
+                <option value="image_png,image_jpeg">PNG + JPEG</option>
+                <option value="document_pdf">PDF only</option>
+              </optgroup>
             </select>
           </div>
         </div>
@@ -68,19 +76,19 @@ const page: Page = {
   },
 
   init(picker: AssetPicker) {
-    filterType = 'image';
+    filterType = ['image'];
     updateCode();
 
     const select = document.getElementById('filter-select') as HTMLSelectElement;
     select.addEventListener('change', () => {
-      filterType = select.value;
+      filterType = select.value.split(',');
       updateCode();
     });
 
     document.getElementById('open-btn')!.addEventListener('click', () => {
       picker.config = buildConfig({
         forcedFilters: {
-          type: { values: [filterType] },
+          type: { values: filterType },
         },
         onSelect: (assets) => alert(`Selected ${assets.length} asset(s)`),
       });

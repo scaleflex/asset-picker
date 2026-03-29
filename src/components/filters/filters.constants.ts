@@ -135,16 +135,6 @@ export const TYPE_EXTENSIONS: Partial<Record<string, string[]>> = {
   [MIME_TYPES.FONTS]: ['ttf', 'otf', 'woff', 'woff2', 'eot'],
 };
 
-// Reverse mapping: extension → category (for allowedExtensions config)
-export const EXTENSION_CATEGORY: Record<string, string> = {};
-for (const [category, exts] of Object.entries(TYPE_EXTENSIONS)) {
-  if (!exts) continue;
-  for (const ext of exts) {
-    // First category wins (e.g. 'ogg' → 'video', not 'audio')
-    if (!EXTENSION_CATEGORY[ext]) EXTENSION_CATEGORY[ext] = category;
-  }
-}
-
 // ── Image Filter Options ────────────────────────────────────────────
 
 export const IMAGE_FILTER_KEY_INDEX = {

@@ -41,6 +41,7 @@ export function createStore(): Store<AppState> {
       visible: [],
       applied: {},
     },
+    fileTypes: [],
     metadataFields: [],
     regionalVariantGroups: [],
     regionalFilters: {},

@@ -389,6 +389,7 @@ export class ApContentToolbar extends LitElement {
   };
   @property({ type: Array }) labels: Label[] = [];
   @property({ type: Array }) tags: TagWithLabel[] = [];
+  @property({ type: Array }) fileTypes: import('../../types/filter.types').FilterFileType[] = [];
   @property({ type: Array }) metadataFields: MetadataModelField[] = [];
   @property({ type: Array }) pinnedFilters: AnyFilterKey[] = [];
   @property({ type: Array }) forcedFilterKeys: string[] = [];
@@ -678,6 +679,7 @@ export class ApContentToolbar extends LitElement {
         const f = applied.type as StringFilter | undefined;
         return html`<ap-filter-type
           .selected=${f?.values || []}
+          .fileTypes=${this.fileTypes}
           @filter-change=${this._handleFilterChange}
         ></ap-filter-type>`;
       }

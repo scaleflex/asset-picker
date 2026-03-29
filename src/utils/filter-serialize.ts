@@ -233,15 +233,17 @@ function serializeColor(operator: string, values: string[], logic?: string): str
 function serializeTypeWithSubtypes(typeValues: string[], operator: string): string[] {
   if (typeValues.length === 0) return [];
 
+  const seen = new Set<string>();
   const allValues: string[] = [];
   for (const type of typeValues) {
     const exts = TYPE_EXTENSIONS[type];
     if (exts) {
       for (const ext of exts) {
-        allValues.push(`${type}_${ext}`);
+        const val = `${type}_${ext}`;
+        if (!seen.has(val)) { seen.add(val); allValues.push(val); }
       }
-    } else {
-      allValues.push(type);
+    } else if (!seen.has(type)) {
+      seen.add(type); allValues.push(type);
     }
   }
 
