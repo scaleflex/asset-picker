@@ -132,18 +132,19 @@ export class ApFolderRow extends LitElement {
   @property({ type: Array }) previews: FolderPreviewImage[] = [];
   @property({ type: Boolean, reflect: true }) selected = false;
   @property({ type: Boolean }) selectable = false;
+  @property({ type: Boolean }) multiSelect = true;
   @property({ type: Number }) index = 0;
   @property({ type: Number }) compactLevel = 0;
 
   private _getGridColumns(): string {
     const cols: string[] = [];
-    cols.push('32px');
+    if (this.multiSelect) cols.push('32px');
     cols.push('48px');
     cols.push('minmax(120px, 1fr)');
     cols.push('72px');
     if (this.compactLevel < 2) cols.push('100px');
     if (this.compactLevel < 1) cols.push('120px');
-    cols.push('36px');
+    cols.push('64px');
     return cols.join(' ');
   }
 
@@ -233,15 +234,18 @@ export class ApFolderRow extends LitElement {
     if (!f) return html``;
     return html`
       <div class="row" style="grid-template-columns: ${this._getGridColumns()}" @click=${this._handleClick}>
-        ${this.selectable ? html`
-          <div class="check">
-            <div class="check-box">
-              <svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 6 9 17l-5-5"></path>
-              </svg>
-            </div>
-          </div>
-        ` : html`<div></div>`}
+        ${this.multiSelect
+          ? this.selectable
+            ? html`
+              <div class="check">
+                <div class="check-box">
+                  <svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                </div>
+              </div>`
+            : html`<div></div>`
+          : nothing}
         <div class="thumb">${this._renderThumb()}</div>
         <div class="name">${f.name}</div>
         <div class="meta">Folder</div>

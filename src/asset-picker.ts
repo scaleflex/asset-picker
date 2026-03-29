@@ -1114,19 +1114,27 @@ export class AssetPicker extends LitElement {
     this._folderResolveOpen = false;
   }
 
-  private async _handleSelectAll() {
+  private async _handleSelectAll(e?: CustomEvent) {
     const state = this.store.getState();
     if (state.isSelectingAll || !this.apiClient) return;
 
     const multiSelect = state.config?.multiSelect ?? true;
     if (!multiSelect) return;
 
+    const scope: 'assets' | 'folders' | 'all' = e?.detail?.scope ?? 'all';
+    const includeFolders = scope !== 'assets' && this.config?.folderSelection !== false && state.folders.length > 0;
+    const includeAssets = scope !== 'folders';
+
+    // Folders-only scope: no fetching needed, folders are always fully loaded
+    if (!includeAssets) {
+      if (includeFolders) this.selectionCtrl.selectAllFolders(state.folders);
+      return;
+    }
+
     // If all assets already loaded, select them directly
     if (state.assets.length >= state.totalCount) {
       // Select folders first so maxSelections budget accounts for them
-      if (this.config?.folderSelection !== false && state.folders.length > 0) {
-        this.selectionCtrl.selectAllFolders(state.folders);
-      }
+      if (includeFolders) this.selectionCtrl.selectAllFolders(state.folders);
       this.selectionCtrl.selectAll(state.assets);
       return;
     }
@@ -1189,9 +1197,7 @@ export class AssetPicker extends LitElement {
         isSelectingAll: false,
       });
       // Select folders first so maxSelections budget accounts for them
-      if (this.config?.folderSelection !== false && state.folders.length > 0) {
-        this.selectionCtrl.selectAllFolders(state.folders);
-      }
+      if (includeFolders) this.selectionCtrl.selectAllFolders(state.folders);
       this.selectionCtrl.selectAll(allAssets);
     } catch (err) {
       this.store.setState({ isSelectingAll: false });
@@ -1771,6 +1777,7 @@ export class AssetPicker extends LitElement {
         .selectedAssets=${selectedAssets}
         .selectedFolders=${selectedFolders}
         .totalCount=${s.totalCount}
+        .totalFolderCount=${s.totalFolderCount}
         .isSelectingAll=${s.isSelectingAll}
         .multiSelect=${this.config?.multiSelect ?? true}
         .maxSelections=${this.config?.maxSelections}
@@ -1893,6 +1900,7 @@ export class AssetPicker extends LitElement {
             .selectedIds=${selectedIds}
             .selectedFolderIds=${selectedFolderIds}
             .isLoading=${s.isLoading}
+            .multiSelect=${this.config?.multiSelect ?? true}
             .folderSelectable=${folderSelectable}
             .gridSize=${this.config?.gridSize ?? 'normal'}
             @asset-select=${this._handleAssetSelect}

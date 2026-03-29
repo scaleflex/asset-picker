@@ -98,6 +98,9 @@ export class ApAssetRow extends LitElement {
       background: var(--ap-background, oklch(1 0 0));
       color: var(--ap-foreground, oklch(0.37 0.022 248.413));
     }
+    .icon-btn.select-btn {
+      color: var(--ap-primary, oklch(0.578 0.198 268.129));
+    }
     .thumb.chess {
       background-image: conic-gradient(var(--ap-chess-a, #f0f0f0) 25%, var(--ap-chess-b, #fff) 25% 50%, var(--ap-chess-a, #f0f0f0) 50% 75%, var(--ap-chess-b, #fff) 75%);
       background-size: 12px 12px;
@@ -150,7 +153,7 @@ export class ApAssetRow extends LitElement {
     cols.push('72px');
     if (this.compactLevel < 2) cols.push('100px');
     if (this.compactLevel < 1) cols.push('120px');
-    cols.push('36px');
+    cols.push('64px');
     return cols.join(' ');
   }
 
@@ -177,6 +180,14 @@ export class ApAssetRow extends LitElement {
   private _handlePreview(e: MouseEvent) {
     e.stopPropagation();
     this.dispatchEvent(new CustomEvent('asset-preview', {
+      detail: { asset: this.asset },
+      bubbles: true,
+    }));
+  }
+
+  private _handleQuickSelect(e: MouseEvent) {
+    e.stopPropagation();
+    this.dispatchEvent(new CustomEvent('asset-quick-select', {
       detail: { asset: this.asset },
       bubbles: true,
     }));
@@ -249,7 +260,10 @@ export class ApAssetRow extends LitElement {
         ${this.compactLevel < 2 ? html`<div class="desc">${formatFileSize(a.size?.bytes || 0)}</div>` : nothing}
         ${this.compactLevel < 1 ? html`<div class="date">${formatDate(a.created_at || '')}</div>` : nothing}
         <div class="actions">
-          <button class="icon-btn" @click=${this._handlePreview} aria-label="Preview">
+          <button class="icon-btn select-btn" @click=${this._handleQuickSelect} aria-label="Select" title="Select">
+            <ap-icon name="select" .size=${16}></ap-icon>
+          </button>
+          <button class="icon-btn" @click=${this._handlePreview} aria-label="Preview" title="Preview">
             <ap-icon name="preview" .size=${16}></ap-icon>
           </button>
         </div>

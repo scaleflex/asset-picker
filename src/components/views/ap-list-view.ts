@@ -133,7 +133,7 @@ export class ApListView extends LitElement {
     cols.push('72px');
     if (this._compactLevel < 2) cols.push('100px');
     if (this._compactLevel < 1) cols.push('120px');
-    cols.push('36px');
+    cols.push('64px');
     return cols.join(' ');
   }
 
@@ -155,7 +155,7 @@ export class ApListView extends LitElement {
     if (this._allVisibleSelected && totalSelected >= totalSelectable) {
       this.dispatchEvent(new CustomEvent('selection-clear', { bubbles: true, composed: true }));
     } else {
-      this.dispatchEvent(new CustomEvent('select-all', { bubbles: true, composed: true }));
+      this.dispatchEvent(new CustomEvent('select-all', { detail: { scope: 'all' }, bubbles: true, composed: true }));
     }
   }
 
@@ -191,6 +191,7 @@ export class ApListView extends LitElement {
               .folder=${folder}
               .previews=${this.folderPreviews[folder.uuid] || []}
               .selectable=${this.folderSelectable}
+              .multiSelect=${this.multiSelect}
               .compactLevel=${this._compactLevel}
               ?selected=${this.selectedFolderIds.includes(folder.uuid)}
               .index=${i}
@@ -213,6 +214,8 @@ export class ApListView extends LitElement {
                 this.dispatchEvent(new CustomEvent('asset-select', { detail: e.detail, bubbles: true, composed: true }))}
               @asset-preview=${(e: CustomEvent) =>
                 this.dispatchEvent(new CustomEvent('asset-preview', { detail: e.detail, bubbles: true, composed: true }))}
+              @asset-quick-select=${(e: CustomEvent) =>
+                this.dispatchEvent(new CustomEvent('asset-quick-select', { detail: e.detail, bubbles: true, composed: true }))}
             ></ap-asset-row>
           `
         )}

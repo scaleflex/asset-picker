@@ -98,6 +98,7 @@ export class ApSelectionBar extends LitElement {
   @property({ type: Array }) selectedAssets: Asset[] = [];
   @property({ type: Array }) selectedFolders: Folder[] = [];
   @property({ type: Number }) totalCount = 0;
+  @property({ type: Number }) totalFolderCount = 0;
   @property({ type: Boolean }) isSelectingAll = false;
   @property({ type: Boolean }) multiSelect = true;
   @property({ type: Number }) maxSelections?: number;
@@ -128,8 +129,35 @@ export class ApSelectionBar extends LitElement {
     this.dispatchEvent(new CustomEvent('selection-clear', { bubbles: true, composed: true }));
   }
 
+  private _canSelectMore(): boolean {
+    if (this.maxSelections && this._totalSelected >= this.maxSelections) return false;
+    const scope = this._selectScope;
+    if (scope === 'assets') return this.selectedAssets.length < this.totalCount;
+    if (scope === 'folders') return this.selectedFolders.length < this.totalFolderCount;
+    return this._totalSelected < this.totalCount + this.totalFolderCount;
+  }
+
+  private get _scopeTotal(): number {
+    const scope = this._selectScope;
+    if (scope === 'assets') return this.totalCount;
+    if (scope === 'folders') return this.totalFolderCount;
+    return this.totalCount + this.totalFolderCount;
+  }
+
+  private get _selectScope(): 'assets' | 'folders' | 'all' {
+    const hasAssets = this.selectedAssets.length > 0;
+    const hasFolders = this.selectedFolders.length > 0;
+    if (hasAssets && !hasFolders) return 'assets';
+    if (hasFolders && !hasAssets) return 'folders';
+    return 'all';
+  }
+
   private _selectAll() {
-    this.dispatchEvent(new CustomEvent('select-all', { bubbles: true, composed: true }));
+    this.dispatchEvent(new CustomEvent('select-all', {
+      detail: { scope: this._selectScope },
+      bubbles: true,
+      composed: true,
+    }));
   }
 
   render() {
@@ -138,25 +166,30 @@ export class ApSelectionBar extends LitElement {
     return html`
       <div class="bar">
         <span class="count">${this._formatCount()}</span>
-        <span class="divider"></span>
-        <span class="select-label">Select:</span>
-        ${this.multiSelect && this._totalSelected < this.totalCount
-            && (!this.maxSelections || this._totalSelected < this.maxSelections)
-          ? html`<button
-              class="bar-btn"
-              ?disabled=${this.isSelectingAll}
-              @click=${this._selectAll}
-            ><ap-icon name="check-check" .size=${14}></ap-icon>${this.isSelectingAll
-              ? 'Selecting...'
-              : this.maxSelections && this.maxSelections < this.totalCount
-                ? `First ${this.maxSelections}`
-                : 'Select all'
-            }</button>`
-          : nothing}
-        <button class="bar-btn" @click=${this._clear}><ap-icon name="close" .size=${14}></ap-icon>Deselect all</button>
-        ${this.maxSelections && this._totalSelected >= this.maxSelections
-          ? html`<span class="limit-notice">Max ${this.maxSelections} allowed</span>`
-          : nothing}
+        ${this.multiSelect ? html`
+          <span class="divider"></span>
+          <span class="select-label">Select:</span>
+          ${this._canSelectMore()
+            ? html`<button
+                class="bar-btn"
+                ?disabled=${this.isSelectingAll}
+                @click=${this._selectAll}
+              ><ap-icon name="check-check" .size=${14}></ap-icon>${this.isSelectingAll
+                ? 'Selecting...'
+                : this.maxSelections && this.maxSelections < this._scopeTotal
+                  ? `First ${this.maxSelections}`
+                  : this._selectScope === 'assets'
+                    ? 'Select all assets'
+                    : this._selectScope === 'folders'
+                      ? 'Select all folders'
+                      : 'Select all'
+              }</button>`
+            : nothing}
+          <button class="bar-btn" @click=${this._clear}><ap-icon name="close" .size=${14}></ap-icon>Deselect all</button>
+          ${this.maxSelections && this._totalSelected >= this.maxSelections
+            ? html`<span class="limit-notice">Max ${this.maxSelections} allowed</span>`
+            : nothing}
+        ` : nothing}
         <div class="spacer"></div>
         <button class="btn-confirm" @click=${this._confirm}>Confirm</button>
       </div>

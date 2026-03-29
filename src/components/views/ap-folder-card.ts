@@ -191,6 +191,7 @@ export class ApFolderCard extends LitElement {
   @property({ type: Array }) previews: FolderPreviewImage[] = [];
   @property({ type: Boolean, reflect: true }) selected = false;
   @property({ type: Boolean }) selectable = false;
+  @property({ type: Boolean }) multiSelect = true;
   @property({ type: Number }) index = 0;
 
   private _handleClick(e: MouseEvent) {
@@ -303,7 +304,7 @@ export class ApFolderCard extends LitElement {
           <path d="M 3,0 L 30,0 L 43.5,0 Q 45,0 46.5,3 L 51,12 L 97,12 Q 100,12 100,15 L 100,97 Q 100,100 97,100 L 3,100 Q 0,100 0,97 L 0,3 Q 0,0 3,0 Z"
                 rx="3" ry="3" />
         </svg>
-        ${this.selectable ? html`
+        ${this.selectable && this.multiSelect ? html`
           <div class="check">
             <div class="check-box">
               <svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">

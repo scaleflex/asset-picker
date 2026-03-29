@@ -101,6 +101,7 @@ export class ApGridView extends LitElement {
               .folder=${folder}
               .previews=${this.folderPreviews[folder.uuid] || []}
               .selectable=${this.folderSelectable}
+              .multiSelect=${this.multiSelect}
               ?selected=${this.selectedFolderIds.includes(folder.uuid)}
               .index=${i}
               data-folder-uuid=${folder.uuid}

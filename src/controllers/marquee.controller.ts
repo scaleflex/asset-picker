@@ -78,6 +78,8 @@ export class MarqueeController implements ReactiveController {
 
   private onMouseDown(e: MouseEvent): void {
     if (e.button !== 0 || this.isInteractiveTarget(e)) return;
+    const multiSelect = this.store.getState().config?.multiSelect ?? true;
+    if (!multiSelect) return;
     const rect = this.container!.getBoundingClientRect();
     this.startX = e.clientX - rect.left + this.container!.scrollLeft;
     this.startY = e.clientY - rect.top + this.container!.scrollTop;
