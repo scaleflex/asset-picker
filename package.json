@@ -1,6 +1,6 @@
 {
   "name": "@scaleflex/asset-picker",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "description": "Framework-agnostic Asset Picker for Scaleflex VXP DAM",
   "type": "module",
   "main": "dist/index.cjs",
