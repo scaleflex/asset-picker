@@ -92,20 +92,17 @@ const page: Page = {
         <h3>React</h3>
         ${code(
           'tsx',
-          `import { useRef } from 'react';
-import { AssetPicker, type AssetPickerRef } from '@scaleflex/asset-picker/react';
+          `import { AssetPicker } from '@scaleflex/asset-picker/react';
+import { useState } from 'react';
 
 function App() {
-  const pickerRef = useRef<AssetPickerRef>(null);
+  const [open, setOpen] = useState(false);
 
   return (
     <>
-      <button onClick={() => pickerRef.current?.open()}>
-        Pick assets
-      </button>
-
+      <button onClick={() => setOpen(true)}>Pick assets</button>
       <AssetPicker
-        ref={pickerRef}
+        open={open}
         config={{
           auth: {
             mode: 'securityTemplate',
@@ -114,7 +111,7 @@ function App() {
           },
         }}
         onSelect={(assets) => console.log(assets)}
-        onCancel={() => console.log('Cancelled')}
+        onCancel={() => setOpen(false)}
       />
     </>
   );
