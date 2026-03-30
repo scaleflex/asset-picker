@@ -208,7 +208,7 @@ export class AssetPicker extends LitElement {
         flex-direction: column;
         flex: 1;
         min-height: 0;
-        background: var(--ap-background, #fff);
+        background: var(--ap-background, oklch(1 0 0));
         animation: uploader-slide-in 250ms ease-out;
       }
       .uploader-close-btn {
@@ -224,13 +224,13 @@ export class AssetPicker extends LitElement {
         border: none;
         border-radius: var(--ap-radius-sm, 6px);
         background: none;
-        color: var(--ap-muted-foreground, #71717a);
+        color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
         cursor: pointer;
         transition: all 150ms;
       }
       .uploader-close-btn:hover {
-        background: var(--ap-muted, #f4f4f5);
-        color: var(--ap-foreground, #09090b);
+        background: var(--ap-muted, oklch(0.974 0.006 239.819));
+        color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       }
       .uploader-close-btn:focus-visible {
         outline: 2px solid var(--ap-ring, oklch(0.65 0.19 258));
@@ -252,8 +252,6 @@ export class AssetPicker extends LitElement {
         display: block;
         width: 100%;
         height: 100%;
-        --sfx-up-border: transparent;
-        --sfx-up-radius: 0;
       }
     `,
   ];
@@ -270,9 +268,11 @@ export class AssetPicker extends LitElement {
   private _initFailed = false;
   private _loadId = 0;
   private _loadMoreId = 0;
+  private _selectAllId = 0;
   private _loadDataTimer: ReturnType<typeof setTimeout> | null = null;
   private _pendingFilter: string | null = null;
   private _pendingMetadataField: string | null = null;
+  private _normalizedForcedFilters: Record<string, any> = {};
 
   // ── Uploader integration ──────────────────────────────────────────
   private _uploaderEl: HTMLElement | null = null;
@@ -295,10 +295,6 @@ export class AssetPicker extends LitElement {
 
   private get _isInline(): boolean {
     return this.config?.displayMode === 'inline';
-  }
-
-  connectedCallback() {
-    super.connectedCallback();
   }
 
   disconnectedCallback() {
@@ -340,6 +336,7 @@ export class AssetPicker extends LitElement {
     // Apply defaults (local copy to avoid re-triggering Lit's updated() cycle)
     const resolved: AssetPickerConfig = { folderSelection: true, ...config };
     this._initFailed = false;
+    this._normalizedForcedFilters = normalizeFilters(resolved.forcedFilters);
     this._initPromise = this._doInit(resolved).catch(() => {
       this._initFailed = true;
     });
@@ -360,7 +357,7 @@ export class AssetPicker extends LitElement {
     this.store.setState({
       config,
       projectToken: config.auth.projectToken,
-      viewMode: (config.rememberLastView && loadLastView()) || config.defaultViewMode || 'grid',
+      viewMode: (config.rememberLastView && loadLastView(config.auth.projectToken)) || config.defaultViewMode || 'grid',
       sortBy,
       sortDirection,
     });
@@ -383,48 +380,49 @@ export class AssetPicker extends LitElement {
         getFileTypes(this.apiClient),
       ]);
 
+      // Collect all results into a single setState batch
+      const batch: Partial<AppState> = {};
+
       if (metadataResult.status === 'fulfilled') {
         const { fields, regionalVariantGroups, regionalFilters, brandColor } = metadataResult.value;
-        this.store.setState({
-          metadataFields: fields,
-          regionalVariantGroups,
-          regionalFilters,
-          ...(brandColor ? { brandColor } : {}),
-        });
+        batch.metadataFields = fields;
+        batch.regionalVariantGroups = regionalVariantGroups;
+        batch.regionalFilters = regionalFilters;
+        if (brandColor) batch.brandColor = brandColor;
       }
 
       if (labelsResult.status === 'fulfilled') {
-        this.store.setState({ labels: labelsResult.value.labels || [] });
+        batch.labels = labelsResult.value.labels || [];
       }
 
       if (tagsResult.status === 'fulfilled') {
-        this.store.setState({ tags: tagsResult.value });
+        batch.tags = tagsResult.value;
       }
 
       if (fileTypesResult.status === 'fulfilled') {
-        this.store.setState({ fileTypes: fileTypesResult.value });
+        batch.fileTypes = fileTypesResult.value;
       }
 
       // Load pinned filters from localStorage
       const { pinnedFilters, pinnedMetadata } = loadPinnedFilters(config.auth.projectToken ?? null);
       const currentFilters = this.store.getState().filters;
-      this.store.setState({
-        filters: {
-          ...currentFilters,
-          pinned: pinnedFilters,
-          visible: [...pinnedFilters],
-          metadata: {
-            ...currentFilters.metadata,
-            pinned: pinnedMetadata,
-            visible: [...pinnedMetadata],
-          },
+      batch.filters = {
+        ...currentFilters,
+        pinned: pinnedFilters,
+        visible: [...pinnedFilters],
+        metadata: {
+          ...currentFilters.metadata,
+          pinned: pinnedMetadata,
+          visible: [...pinnedMetadata],
         },
-      });
+      };
+
+      this.store.setState(batch);
 
       // Apply brand color: config takes priority over API-fetched value
-      const resolvedBrandColor = config.brandColor || this.store.getState().brandColor;
+      const resolvedBrandColor = config.brandColor || batch.brandColor || this.store.getState().brandColor;
       if (resolvedBrandColor) {
-        this.store.setState({ brandColor: resolvedBrandColor });
+        if (!batch.brandColor) this.store.setState({ brandColor: resolvedBrandColor });
         applyBrandColor(this, resolvedBrandColor);
       }
     } catch (err) {
@@ -545,7 +543,10 @@ export class AssetPicker extends LitElement {
   /** Close the uploader panel and return to the asset picker. */
   private _closeUploader() {
     this._isUploaderOpen = false;
-    this._uploaderEl = null;
+    if (this._uploaderEl) {
+      this._uploaderEl.remove();
+      this._uploaderEl = null;
+    }
   }
 
   private _handleUploadClick() {
@@ -598,8 +599,7 @@ export class AssetPicker extends LitElement {
 
   async open() {
     const state = this.store.getState();
-    const normalizedForced = normalizeFilters(this.config?.forcedFilters);
-    const forcedKeys = new Set(Object.keys(normalizedForced));
+    const forcedKeys = new Set(Object.keys(this._normalizedForcedFilters));
     // Seed from defaultFilters, but skip any key that is also in forcedFilters
     const defaultApplied: Record<string, any> = {};
     const normalizedDefaults = normalizeFilters(this.config?.defaultFilters);
@@ -608,7 +608,7 @@ export class AssetPicker extends LitElement {
     }
     const defaultAppliedKeys = Object.keys(defaultApplied) as AnyFilterKey[];
     const tabs = this.config?.tabs ?? ['assets', 'folders'];
-    const savedTab = (this.config?.rememberLastTab) ? loadLastTab() : null;
+    const savedTab = (this.config?.rememberLastTab) ? loadLastTab(this.config.auth.projectToken) : null;
     const resolvedTab =
       (savedTab && tabs.includes(savedTab) ? savedTab : null) ??
       (this.config?.defaultTab && tabs.includes(this.config.defaultTab) ? this.config.defaultTab : null) ??
@@ -632,9 +632,9 @@ export class AssetPicker extends LitElement {
       assets: [],
       folders: [],
       currentFolder: null,
-      currentFolderPath: (resolvedTab === 'folders' && this.config?.rememberLastFolder && loadLastFolder()) || this.config?.rootFolderPath || '/',
+      currentFolderPath: this._resolveInitialFolderPath(resolvedTab),
       breadcrumb: this._buildBreadcrumbFromPath(
-        (resolvedTab === 'folders' && this.config?.rememberLastFolder && loadLastFolder()) || this.config?.rootFolderPath || '/',
+        this._resolveInitialFolderPath(resolvedTab),
         this.config?.rootFolderPath || '/',
       ),
       selectedAssets: new Map(),
@@ -674,6 +674,7 @@ export class AssetPicker extends LitElement {
     this._isDragOver = false;
     this._isUploaderOpen = false;
     this._folderResolveOpen = false;
+    this._selectAllId++;
   }
 
   private _scrollToTop() {
@@ -871,15 +872,15 @@ export class AssetPicker extends LitElement {
   }
 
   private _handleSearchChange(e: CustomEvent) {
-    this.store.setState({ searchQuery: e.detail.value, offset: 0, assets: [], folders: [] });
+    this.store.setState({ searchQuery: e.detail.value, offset: 0, assets: [], folders: [], isLoading: true });
     this.selectionCtrl.resetRange();
-    this._loadData();
+    this._debouncedLoadData();
   }
 
   private _handleViewChange(e: CustomEvent) {
     const mode = e.detail.mode as ViewMode;
     this.store.setState({ viewMode: mode });
-    if (this.config?.rememberLastView) saveLastView(mode);
+    if (this.config?.rememberLastView) saveLastView(mode, this.config.auth.projectToken);
     this._scrollToTop();
   }
 
@@ -921,7 +922,8 @@ export class AssetPicker extends LitElement {
 
   private _handleTabChange(e: CustomEvent) {
     const tab = e.detail.tab as TabKey;
-    if (this.config?.rememberLastTab) saveLastTab(tab);
+    if (this.config?.rememberLastTab) saveLastTab(tab, this.config.auth.projectToken);
+    this._selectAllId++;
     this.store.setState({
       activeTab: tab,
       currentFolder: null,
@@ -967,7 +969,8 @@ export class AssetPicker extends LitElement {
     const folder: Folder = e.detail.folder;
     const state = this.store.getState();
     const folderPath = folder.path || `${state.currentFolderPath}${folder.name}/`;
-    if (this.config?.rememberLastFolder) saveLastFolder(folderPath);
+    if (this.config?.rememberLastFolder) saveLastFolder(folderPath, this.config.auth.projectToken);
+    this._selectAllId++;
     this.store.setState({
       currentFolder: folder.uuid,
       currentFolderPath: folderPath,
@@ -987,7 +990,8 @@ export class AssetPicker extends LitElement {
     const idx = uuid ? state.breadcrumb.findIndex((b) => b.uuid === uuid) : -1;
     const crumbs = uuid ? state.breadcrumb.slice(0, idx + 1) : [];
     const folderPath = crumbs.length > 0 ? crumbs[crumbs.length - 1].path : (this.config?.rootFolderPath || '/');
-    if (this.config?.rememberLastFolder) saveLastFolder(folderPath);
+    if (this.config?.rememberLastFolder) saveLastFolder(folderPath, this.config.auth.projectToken);
+    this._selectAllId++;
     this.store.setState({
       currentFolder: uuid || null,
       currentFolderPath: folderPath,
@@ -998,6 +1002,10 @@ export class AssetPicker extends LitElement {
     });
     this.selectionCtrl.resetRange();
     this._loadData();
+  }
+
+  private _resolveInitialFolderPath(resolvedTab: TabKey): string {
+    return (resolvedTab === 'folders' && this.config?.rememberLastFolder && loadLastFolder(this.config.auth.projectToken)) || this.config?.rootFolderPath || '/';
   }
 
   /**
@@ -1145,6 +1153,7 @@ export class AssetPicker extends LitElement {
     }
 
     // Need to fetch remaining pages
+    const selectAllId = ++this._selectAllId;
     this.store.setState({ isSelectingAll: true });
 
     try {
@@ -1165,6 +1174,7 @@ export class AssetPicker extends LitElement {
       const batchSize = 4;
       const allNewAssets: Asset[] = [];
       for (let i = 0; i < remainingPages.length; i += batchSize) {
+        if (selectAllId !== this._selectAllId) return;
         const batch = remainingPages.slice(i, i + batchSize);
         const results = await Promise.all(
           batch.map((offset) =>
@@ -1180,10 +1190,13 @@ export class AssetPicker extends LitElement {
             }),
           ),
         );
+        if (selectAllId !== this._selectAllId) return;
         for (const result of results) {
           if (result.files) allNewAssets.push(...result.files);
         }
       }
+
+      if (selectAllId !== this._selectAllId) return;
 
       // Deduplicate by uuid in case pagination shifted during fetch
       const seen = new Set(alreadyLoaded.map((a) => a.uuid));
@@ -1205,6 +1218,7 @@ export class AssetPicker extends LitElement {
       if (includeFolders) this.selectionCtrl.selectAllFolders(state.folders);
       this.selectionCtrl.selectAll(allAssets);
     } catch (err) {
+      if (selectAllId !== this._selectAllId) return;
       this.store.setState({ isSelectingAll: false });
       this.dispatchEvent(new CustomEvent('ap-error', {
         detail: { error: err as Error, context: 'selectAll' },
@@ -1637,7 +1651,7 @@ export class AssetPicker extends LitElement {
 
   private _buildSearchNotation(): string {
     const state = this.store.getState();
-    const merged = { ...normalizeFilters(this.config?.forcedFilters), ...state.filters.applied };
+    const merged = { ...this._normalizedForcedFilters, ...state.filters.applied };
     const parts = serializeFilters(merged, state.filters.metadata.applied);
     return parts.join(' ');
   }
@@ -1701,7 +1715,7 @@ export class AssetPicker extends LitElement {
               .metadataFields=${s.metadataFields}
               .pinnedFilters=${s.filters.pinned}
               .apiClient=${this.apiClient}
-              .forcedFilterKeys=${Object.keys(normalizeFilters(this.config?.forcedFilters))}
+              .forcedFilterKeys=${Object.keys(this._normalizedForcedFilters)}
               @sort-change=${this._handleSortChange}
               @sort-direction-change=${this._handleSortDirectionChange}
               @filter-update=${this._handleFilterUpdate}

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Publishes only build artifacts (dist + demo) to the public GitHub repo.
+# Publishes the demo site to the public GitHub repo (release branch).
+# GitHub Pages deploys from the release branch root.
 # Source code stays private on GitLab.
 #
 # Usage:
@@ -9,9 +10,9 @@ set -euo pipefail
 #
 # Prerequisites:
 #   - GitHub remote "origin" pointing to the public repo
-#   - npm run build / npm run build:demo must work
+#   - npm run build:demo must work
 
-GITHUB_REMOTE="github"
+GITHUB_REMOTE="origin"
 GITHUB_BRANCH="release"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -21,11 +22,12 @@ COMMIT_MSG="${1:-"Update release artifacts"}"
 cleanup() { rm -rf "$STAGE_DIR"; }
 trap cleanup EXIT
 
-echo "==> Building library..."
-cd "$ROOT_DIR"
+echo "==> Building uploader dependency..."
+cd "$ROOT_DIR/../uploader"
 npm run build
 
 echo "==> Building demo..."
+cd "$ROOT_DIR"
 npm run build:demo
 
 echo "==> Preparing release branch..."
@@ -51,16 +53,10 @@ if [ -d "$ROOT_DIR/demo-dist" ]; then
   cp -r "$ROOT_DIR/demo-dist/." "$STAGE_DIR/"
 elif [ -d "$ROOT_DIR/dist-demo" ]; then
   cp -r "$ROOT_DIR/dist-demo/." "$STAGE_DIR/"
+else
+  echo "Error: no demo build output found (demo-dist/ or dist-demo/)"
+  exit 1
 fi
-
-# Copy build artifacts
-cp -r "$ROOT_DIR/dist" "$STAGE_DIR/"
-
-# Copy package metadata
-cp "$ROOT_DIR/package.json" "$STAGE_DIR/"
-cp "$ROOT_DIR/README.md" "$STAGE_DIR/"
-[ -f "$ROOT_DIR/LICENSE" ] && cp "$ROOT_DIR/LICENSE" "$STAGE_DIR/"
-[ -f "$ROOT_DIR/CHANGELOG.md" ] && cp "$ROOT_DIR/CHANGELOG.md" "$STAGE_DIR/"
 
 echo "==> Committing & pushing to GitHub ($GITHUB_BRANCH)..."
 cd "$STAGE_DIR"

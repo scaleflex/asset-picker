@@ -4,43 +4,48 @@ const LAST_FOLDER_KEY = 'ap-last-folder';
 const LAST_VIEW_KEY = 'ap-last-view';
 const LAST_TAB_KEY = 'ap-last-tab';
 
-export function saveLastFolder(path: string): void {
+/** Scope a key by project token so each project remembers its own state. */
+function scopedKey(base: string, projectToken?: string): string {
+  return projectToken ? `${base}:${projectToken}` : base;
+}
+
+export function saveLastFolder(path: string, projectToken?: string): void {
   try {
-    localStorage.setItem(LAST_FOLDER_KEY, path);
+    localStorage.setItem(scopedKey(LAST_FOLDER_KEY, projectToken), path);
   } catch { /* ignore */ }
 }
 
-export function loadLastFolder(): string | null {
+export function loadLastFolder(projectToken?: string): string | null {
   try {
-    return localStorage.getItem(LAST_FOLDER_KEY);
+    return localStorage.getItem(scopedKey(LAST_FOLDER_KEY, projectToken));
   } catch {
     return null;
   }
 }
 
-export function saveLastView(mode: ViewMode): void {
+export function saveLastView(mode: ViewMode, projectToken?: string): void {
   try {
-    localStorage.setItem(LAST_VIEW_KEY, mode);
+    localStorage.setItem(scopedKey(LAST_VIEW_KEY, projectToken), mode);
   } catch { /* ignore */ }
 }
 
-export function loadLastView(): ViewMode | null {
+export function loadLastView(projectToken?: string): ViewMode | null {
   try {
-    return localStorage.getItem(LAST_VIEW_KEY) as ViewMode | null;
+    return localStorage.getItem(scopedKey(LAST_VIEW_KEY, projectToken)) as ViewMode | null;
   } catch {
     return null;
   }
 }
 
-export function saveLastTab(tab: TabKey): void {
+export function saveLastTab(tab: TabKey, projectToken?: string): void {
   try {
-    localStorage.setItem(LAST_TAB_KEY, tab);
+    localStorage.setItem(scopedKey(LAST_TAB_KEY, projectToken), tab);
   } catch { /* ignore */ }
 }
 
-export function loadLastTab(): TabKey | null {
+export function loadLastTab(projectToken?: string): TabKey | null {
   try {
-    const value = localStorage.getItem(LAST_TAB_KEY);
+    const value = localStorage.getItem(scopedKey(LAST_TAB_KEY, projectToken));
     if (value === 'assets' || value === 'folders') return value;
     return null;
   } catch {
