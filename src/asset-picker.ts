@@ -211,31 +211,6 @@ export class AssetPicker extends LitElement {
         background: var(--ap-background, oklch(1 0 0));
         animation: uploader-slide-in 250ms ease-out;
       }
-      .uploader-close-btn {
-        position: absolute;
-        top: 14px;
-        right: 20px;
-        z-index: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 30px;
-        height: 30px;
-        border: none;
-        border-radius: var(--ap-radius-sm, 6px);
-        background: none;
-        color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
-        cursor: pointer;
-        transition: all 150ms;
-      }
-      .uploader-close-btn:hover {
-        background: var(--ap-muted, oklch(0.974 0.006 239.819));
-        color: var(--ap-foreground, oklch(0.37 0.022 248.413));
-      }
-      .uploader-close-btn:focus-visible {
-        outline: 2px solid var(--ap-ring, oklch(0.65 0.19 258));
-        outline-offset: -2px;
-      }
       @keyframes uploader-slide-in {
         from { transform: translateX(100%); }
         to   { transform: translateX(0); }
@@ -1810,11 +1785,6 @@ export class AssetPicker extends LitElement {
 
     const uploaderTemplate = this._isUploaderOpen ? html`
       <div class="uploader-overlay">
-        ${this._isInline ? nothing : html`
-          <button class="uploader-close-btn" @click=${() => this._handleCancel('close-button')} title="Close">
-            <ap-icon name="close" .size=${18}></ap-icon>
-          </button>
-        `}
         <div class="uploader-body">${this._uploaderEl}</div>
       </div>
     ` : nothing;
