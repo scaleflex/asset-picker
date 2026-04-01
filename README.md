@@ -96,6 +96,8 @@ The npm package contains **only pre-built, minified production files** (`dist/`)
 
 ## Installation
 
+### npm / yarn / pnpm
+
 ```bash
 npm install @scaleflex/asset-picker
 ```
@@ -109,6 +111,16 @@ pnpm add @scaleflex/asset-picker
 ```
 
 `lit` is bundled with the package. For React usage, you also need `react` and `react-dom` (v18+) as peer dependencies.
+
+### CDN
+
+No bundler? Add a single script tag:
+
+```html
+<script src="https://cdn.scaleflex.com/asset-picker/0.2.17/asset-picker.min.js"></script>
+```
+
+This auto-registers `<sfx-asset-picker>` — no imports needed. See the [CDN quick start](#cdn-1) below.
 
 ### Package exports
 
@@ -189,6 +201,35 @@ function App() {
     </>
   );
 }
+```
+
+### CDN
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.scaleflex.com/asset-picker/0.2.17/asset-picker.min.js"></script>
+</head>
+<body>
+  <sfx-asset-picker></sfx-asset-picker>
+  <button onclick="document.querySelector('sfx-asset-picker').open()">Open Picker</button>
+
+  <script>
+    const picker = document.querySelector('sfx-asset-picker');
+    picker.config = {
+      auth: {
+        mode: 'securityTemplate',
+        securityTemplateKey: 'YOUR_KEY',
+        projectToken: 'YOUR_TOKEN',
+      },
+    };
+    picker.addEventListener('ap-select', (e) => {
+      console.log('Selected:', e.detail.assets);
+    });
+  </script>
+</body>
+</html>
 ```
 
 ---

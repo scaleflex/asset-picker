@@ -51,7 +51,11 @@ const page: Page = {
             <h2>Up and running in under a minute</h2>
             <p>Install from npm, import the custom element, and open the picker with a few lines of code.</p>
           </div>
-          <div class="quick-start-steps">
+          <div class="quick-start-tabs">
+            <button class="quick-start-tab active" data-tab="npm">npm</button>
+            <button class="quick-start-tab" data-tab="cdn">CDN</button>
+          </div>
+          <div class="quick-start-steps" data-tab-content="npm">
             <div class="quick-start-step">
               <div class="step-header">
                 <div class="step-number">1</div>
@@ -82,6 +86,27 @@ const page: Page = {
                 <h3>Use</h3>
               </div>
               <p class="step-description">Add <code>&lt;sfx-asset-picker&gt;</code> to your HTML, set config, and call <code>.open()</code>.</p>
+            </div>
+          </div>
+          <div class="quick-start-steps" data-tab-content="cdn" style="display:none">
+            <div class="quick-start-step">
+              <div class="step-header">
+                <div class="step-number">1</div>
+                <h3>Add script tag</h3>
+              </div>
+              <div class="step-code">
+                <code>&lt;script src="https://cdn.scaleflex.com/asset-picker/0.2.17/asset-picker.min.js"&gt;&lt;/script&gt;</code>
+                <button class="step-copy" data-code='<script src="https://cdn.scaleflex.com/asset-picker/0.2.17/asset-picker.min.js"></script>' aria-label="Copy to clipboard">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="quick-start-step">
+              <div class="step-header">
+                <div class="step-number">2</div>
+                <h3>Use</h3>
+              </div>
+              <p class="step-description">The script auto-registers <code>&lt;sfx-asset-picker&gt;</code>. Just add it to your HTML, set config, and call <code>.open()</code>. No bundler needed.</p>
             </div>
           </div>
           <div id="quick-start-code"></div>
@@ -253,6 +278,18 @@ const page: Page = {
     demoPicker.config = buildConfig({
       displayMode: 'inline',
       onSelect: (assets) => alert(`Selected ${assets.length} asset(s)`),
+    });
+
+    // Quick-start npm/CDN tab switching
+    document.querySelectorAll<HTMLButtonElement>('.quick-start-tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.tab!;
+        document.querySelectorAll('.quick-start-tab').forEach((t) => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll<HTMLElement>('[data-tab-content]').forEach((c) => {
+          c.style.display = c.dataset.tabContent === target ? '' : 'none';
+        });
+      });
     });
 
     // Copy buttons in quick-start steps

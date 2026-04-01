@@ -778,11 +778,45 @@ body:not(.has-sidebar) #content {
   margin: 0 auto;
 }
 
+.quick-start-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.quick-start-tab {
+  padding: 8px 20px;
+  border: 1px solid var(--sf-light-border);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--sf-dark-text);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quick-start-tab:hover {
+  border-color: var(--sf-primary);
+  color: var(--sf-primary);
+}
+
+.quick-start-tab.active {
+  background: var(--sf-primary);
+  border-color: var(--sf-primary);
+  color: #fff;
+}
+
 .quick-start-steps {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   margin-bottom: 40px;
+}
+
+.quick-start-steps[data-tab-content="cdn"] {
+  grid-template-columns: repeat(2, 1fr);
 }
 
 .quick-start-step {
