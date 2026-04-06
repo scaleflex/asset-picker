@@ -485,7 +485,7 @@ export class AssetPicker extends LitElement {
       showFillMetadata: uploaderCfg.showFillMetadata,
       connectors: uploaderCfg.connectors,
       sourcesLayout: uploaderCfg.sourcesLayout,
-      headerButton: uploaderCfg.headerButton ?? 'back',
+      header: uploaderCfg.header ?? 'back',
       clearOnClose: uploaderCfg.clearOnClose,
       clearOnComplete: uploaderCfg.clearOnComplete,
       rejectedFileAutoRemoveDelay: uploaderCfg.rejectedFileAutoRemoveDelay,

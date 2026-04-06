@@ -116,12 +116,13 @@ export interface UploaderIntegrationConfig {
   /** Layout for import-from sources: horizontal pills (default) or cards grid. */
   sourcesLayout?: 'pills' | 'cards';
   /**
-   * Controls the header navigation button.
-   * - `'none'`  — no button (default for inline)
-   * - `'close'` — X icon on the right (default for modal)
-   * - `'back'`  — back arrow on the left (for wizard flows)
+   * Controls the standard header bar.
+   * - `'close'` — header with X close button
+   * - `'back'`  — header with back arrow (default when embedded in Asset Picker)
+   * - `true`    — header visible, no button
+   * - `false`   — no header at all
    */
-  headerButton?: 'none' | 'close' | 'back';
+  header?: boolean | 'close' | 'back';
   /** Whether closing clears all files. Default: true. */
   clearOnClose?: boolean;
   /** Whether the "Done" action clears all files. Default: true. */
