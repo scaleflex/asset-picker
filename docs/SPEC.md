@@ -94,6 +94,8 @@ function App() {
 | `defaultSortDirection` | `'asc' \| 'desc'` | `'desc'` | Initial sort direction |
 | `tabs` | `TabKey[]` | `['assets', 'folders']` | Tabs to show |
 | `defaultTab` | `TabKey` | first in `tabs` | Which tab to activate when the picker opens |
+| `enableAISearch` | `boolean` | `false` | Show AI search toggle in the search bar |
+| `defaultAISearch` | `boolean` | `false` | Activate AI search by default on open (requires `enableAISearch`) |
 | `enabledFilters` | `FilterKey[]` | all | Which filters to show |
 | `rootFolderPath` | `string` | `'/'` | Starting folder path |
 | `rememberLastFolder` | `boolean` | `false` | Persist last browsed folder |

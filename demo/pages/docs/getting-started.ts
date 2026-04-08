@@ -40,10 +40,17 @@ const page: Page = {
         </ul>
 
         <h2>Installation</h2>
+
+        <h3>npm / yarn / pnpm</h3>
         ${code('bash', 'npm install @scaleflex/asset-picker')}
         ${code('bash', 'yarn add @scaleflex/asset-picker')}
         ${code('bash', 'pnpm add @scaleflex/asset-picker')}
         <p><code>lit</code> is bundled with the package. For React usage, you also need <code>react</code> and <code>react-dom</code> (v18+) as peer dependencies.</p>
+
+        <h3>CDN</h3>
+        <p>No bundler? Add a single script tag:</p>
+        ${code('markup', '<script src="https://cdn.scaleflex.com/asset-picker/0.2.17/asset-picker.min.js"><\/script>')}
+        <p>This auto-registers <code>&lt;sfx-asset-picker&gt;</code> — no imports needed.</p>
 
         <h3>Package exports</h3>
         <table>

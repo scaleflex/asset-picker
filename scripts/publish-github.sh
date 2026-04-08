@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Publishes the demo site to the public GitHub repo (release branch).
+# Publishes build artifacts (dist + demo) to the public GitHub repo.
 # GitHub Pages deploys from the release branch root.
 # Source code stays private on GitLab.
 #
@@ -10,9 +10,9 @@ set -euo pipefail
 #
 # Prerequisites:
 #   - GitHub remote "origin" pointing to the public repo
-#   - npm run build:demo must work
+#   - npm run build / npm run build:demo must work
 
-GITHUB_REMOTE="origin"
+GITHUB_REMOTE="github"
 GITHUB_BRANCH="release"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -26,8 +26,11 @@ echo "==> Building uploader dependency..."
 cd "$ROOT_DIR/../uploader"
 npm run build
 
-echo "==> Building demo..."
+echo "==> Building library..."
 cd "$ROOT_DIR"
+npm run build
+
+echo "==> Building demo..."
 npm run build:demo
 
 echo "==> Preparing release branch..."
@@ -57,6 +60,15 @@ else
   echo "Error: no demo build output found (demo-dist/ or dist-demo/)"
   exit 1
 fi
+
+# Copy build artifacts
+cp -r "$ROOT_DIR/dist" "$STAGE_DIR/"
+
+# Copy package metadata
+cp "$ROOT_DIR/package.json" "$STAGE_DIR/"
+cp "$ROOT_DIR/README.md" "$STAGE_DIR/"
+[ -f "$ROOT_DIR/LICENSE" ] && cp "$ROOT_DIR/LICENSE" "$STAGE_DIR/"
+[ -f "$ROOT_DIR/CHANGELOG.md" ] && cp "$ROOT_DIR/CHANGELOG.md" "$STAGE_DIR/"
 
 echo "==> Committing & pushing to GitHub ($GITHUB_BRANCH)..."
 cd "$STAGE_DIR"

@@ -211,31 +211,6 @@ export class AssetPicker extends LitElement {
         background: var(--ap-background, oklch(1 0 0));
         animation: uploader-slide-in 250ms ease-out;
       }
-      .uploader-close-btn {
-        position: absolute;
-        top: 14px;
-        right: 20px;
-        z-index: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 30px;
-        height: 30px;
-        border: none;
-        border-radius: var(--ap-radius-sm, 6px);
-        background: none;
-        color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
-        cursor: pointer;
-        transition: all 150ms;
-      }
-      .uploader-close-btn:hover {
-        background: var(--ap-muted, oklch(0.974 0.006 239.819));
-        color: var(--ap-foreground, oklch(0.37 0.022 248.413));
-      }
-      .uploader-close-btn:focus-visible {
-        outline: 2px solid var(--ap-ring, oklch(0.65 0.19 258));
-        outline-offset: -2px;
-      }
       @keyframes uploader-slide-in {
         from { transform: translateX(100%); }
         to   { transform: translateX(0); }
@@ -618,6 +593,7 @@ export class AssetPicker extends LitElement {
       isOpen: true,
       activeTab: resolvedTab,
       searchQuery: '',
+      isAISearchActive: !!(this.config?.enableAISearch && this.config?.defaultAISearch),
       filters: {
         metadata: {
           pinned: state.filters.metadata.pinned,
@@ -697,6 +673,7 @@ export class AssetPicker extends LitElement {
         const folder = state.currentFolderPath || '/';
 
         // Fetch files and stats in parallel
+        const aiActive = state.isAISearchActive && !!state.searchQuery;
         const filesPromise = getFiles(this.apiClient, {
           folder,
           offset: 0,
@@ -706,12 +683,22 @@ export class AssetPicker extends LitElement {
           search: state.searchQuery || undefined,
           q: searchNotation || undefined,
           recursive: 1,
+          ...(aiActive && {
+            with_ai: true,
+            ai_query: state.searchQuery,
+            ai_lang: state.config?.locale ?? 'en',
+          }),
         });
         const statsPromise = getFilesStats(this.apiClient, {
           folder,
           q: searchNotation || undefined,
           search: state.searchQuery || undefined,
           recursive: 1,
+          ...(aiActive && {
+            with_ai: true,
+            ai_query: state.searchQuery,
+            ai_lang: state.config?.locale ?? 'en',
+          }),
         }).catch(() => null);
 
         const [result, statsResult] = await Promise.all([filesPromise, statsPromise]);
@@ -759,12 +746,22 @@ export class AssetPicker extends LitElement {
             search: state.searchQuery || undefined,
             q: searchNotation || undefined,
             recursive: 0,
+            ...(state.isAISearchActive && state.searchQuery && {
+              with_ai: true,
+              ai_query: state.searchQuery,
+              ai_lang: state.config?.locale ?? 'en',
+            }),
           }),
           getFilesStats(this.apiClient, {
             folder,
             q: searchNotation || undefined,
             search: state.searchQuery || undefined,
             recursive: 0,
+            ...(state.isAISearchActive && state.searchQuery && {
+              with_ai: true,
+              ai_query: state.searchQuery,
+              ai_lang: state.config?.locale ?? 'en',
+            }),
           }).catch(() => null),
         ]);
 
@@ -833,6 +830,11 @@ export class AssetPicker extends LitElement {
         search: state.searchQuery || undefined,
         q: searchNotation || undefined,
         recursive: state.activeTab === 'folders' ? 0 : 1,
+        ...(state.isAISearchActive && state.searchQuery && {
+          with_ai: true,
+          ai_query: state.searchQuery,
+          ai_lang: state.config?.locale ?? 'en',
+        }),
       });
 
       if (loadMoreId !== this._loadMoreId) return;
@@ -872,9 +874,34 @@ export class AssetPicker extends LitElement {
   }
 
   private _handleSearchChange(e: CustomEvent) {
-    this.store.setState({ searchQuery: e.detail.value, offset: 0, assets: [], folders: [], isLoading: true });
+    const updates: Partial<AppState> = { searchQuery: e.detail.value, offset: 0, assets: [], folders: [], isLoading: true };
+    if (this.store.getState().isAISearchActive && e.detail.value) {
+      updates.sortBy = 'relevance';
+    }
+    this.store.setState(updates);
     this.selectionCtrl.resetRange();
     this._debouncedLoadData();
+  }
+
+  private _handleAISearchToggle(e: CustomEvent) {
+    const active = e.detail.active as boolean;
+    const state = this.store.getState();
+    const updates: Partial<AppState> = { isAISearchActive: active };
+    if (state.searchQuery) {
+      if (active) {
+        updates.sortBy = 'relevance';
+      } else if (state.sortBy === 'relevance') {
+        updates.sortBy = this.config?.defaultSortBy ?? 'created_at';
+      }
+      updates.offset = 0;
+      updates.assets = [];
+      updates.folders = [];
+      updates.isLoading = true;
+    }
+    this.store.setState(updates);
+    if (state.searchQuery) {
+      this._debouncedLoadData();
+    }
   }
 
   private _handleViewChange(e: CustomEvent) {
@@ -1187,6 +1214,11 @@ export class AssetPicker extends LitElement {
               search: state.searchQuery || undefined,
               q: searchNotation || undefined,
               recursive,
+              ...(state.isAISearchActive && state.searchQuery && {
+                with_ai: true,
+                ai_query: state.searchQuery,
+                ai_lang: state.config?.locale ?? 'en',
+              }),
             }),
           ),
         );
@@ -1670,11 +1702,14 @@ export class AssetPicker extends LitElement {
         .tabs=${this.config?.tabs ?? ['assets', 'folders']}
         .viewMode=${s.viewMode}
         .searchQuery=${s.searchQuery}
+        .enableAISearch=${!!this.config?.enableAISearch}
+        .isAISearchActive=${s.isAISearchActive}
         .regionalGroups=${s.regionalVariantGroups}
         .regionalFilters=${s.regionalFilters}
         .hideClose=${this._isInline}
         @tab-change=${this._handleTabChange}
         @search-change=${this._handleSearchChange}
+        @ai-search-toggle=${this._handleAISearchToggle}
         @view-change=${this._handleViewChange}
         @regional-change=${this._handleRegionalChange}
         @ap-close=${() => this._handleCancel('close-button')}
@@ -1810,11 +1845,6 @@ export class AssetPicker extends LitElement {
 
     const uploaderTemplate = this._isUploaderOpen ? html`
       <div class="uploader-overlay">
-        ${this._isInline ? nothing : html`
-          <button class="uploader-close-btn" @click=${() => this._handleCancel('close-button')} title="Close">
-            <ap-icon name="close" .size=${18}></ap-icon>
-          </button>
-        `}
         <div class="uploader-body">${this._uploaderEl}</div>
       </div>
     ` : nothing;

@@ -21,6 +21,7 @@ export interface AppState {
   activeTab: TabKey;
   viewMode: ViewMode;
   searchQuery: string;
+  isAISearchActive: boolean;
   sortBy: SortBy;
   sortDirection: SortDirection;
 

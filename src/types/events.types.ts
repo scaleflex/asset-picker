@@ -25,11 +25,16 @@ export interface FolderSelectDetail {
   event: MouseEvent;
 }
 
+export interface AISearchToggleDetail {
+  active: boolean;
+}
+
 declare global {
   interface HTMLElementEventMap {
     'ap-select': CustomEvent<AssetPickerSelectDetail>;
     'ap-cancel': CustomEvent<AssetPickerCancelDetail>;
     'ap-open': CustomEvent<AssetPickerOpenDetail>;
     'ap-error': CustomEvent<AssetPickerErrorDetail>;
+    'ai-search-toggle': CustomEvent<AISearchToggleDetail>;
   }
 }

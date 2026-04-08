@@ -17,6 +17,9 @@ export interface GetFilesParams {
   search?: string;       // text search query
   q?: string;            // search notation string (serialized filters + search combined)
   recursive?: number;
+  with_ai?: boolean;     // enable AI-powered semantic search
+  ai_query?: string;     // AI search query text
+  ai_lang?: string;      // language hint for AI search (e.g. 'en')
 }
 
 export interface GetFilesResponse extends ApiBaseResponse {
