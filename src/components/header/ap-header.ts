@@ -42,7 +42,7 @@ export class ApHeader extends LitElement {
       width: 100%;
       height: 36px;
       box-sizing: border-box;
-      padding: 0 32px 0 38px;
+      padding: 0 34px 0 38px;
       border: 1px solid var(--ap-input, oklch(0.871 0.016 241.798));
       border-radius: var(--ap-radius-sm, 6px);
       font-size: var(--ap-font-size-sm, 0.875rem);
@@ -65,16 +65,24 @@ export class ApHeader extends LitElement {
       color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
       font-weight: 400;
     }
-    .clear-btn {
+    :host([ai-search]) input {
+      padding-right: 90px;
+    }
+    .search-actions {
       position: absolute;
-      right: 8px;
+      right: 6px;
       top: 50%;
       transform: translateY(-50%);
       display: flex;
       align-items: center;
+      gap: 2px;
+    }
+    .clear-btn {
+      display: flex;
+      align-items: center;
       justify-content: center;
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       border: none;
       border-radius: var(--ap-radius-sm, 6px);
       background: none;
@@ -85,6 +93,38 @@ export class ApHeader extends LitElement {
     .clear-btn:hover {
       color: var(--ap-foreground, oklch(0.37 0.022 248.413));
       background: var(--ap-muted, oklch(0.974 0.006 239.819));
+    }
+    .ai-toggle {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 26px;
+      padding: 0 8px;
+      border: 1px solid var(--ap-input, oklch(0.871 0.016 241.798));
+      border-radius: var(--ap-radius-sm, 6px);
+      background: none;
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+      font-size: 12px;
+      font-weight: 500;
+      font-family: var(--ap-font-family, system-ui, sans-serif);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .ai-toggle:hover {
+      color: var(--ap-foreground, oklch(0.37 0.022 248.413));
+      background: var(--ap-muted, oklch(0.974 0.006 239.819));
+      border-color: var(--ap-secondary-foreground-50, oklch(53.03% 0.039 249.89 / 0.5));
+    }
+    .ai-toggle.active {
+      background: var(--ap-primary, oklch(0.578 0.198 268.129));
+      color: white;
+      border-color: transparent;
+    }
+    .ai-toggle.active:hover {
+      background: var(--ap-primary, oklch(0.578 0.198 268.129));
+      color: white;
+      border-color: transparent;
+      opacity: 0.9;
     }
     .icon-btn {
       display: flex;
@@ -133,6 +173,8 @@ export class ApHeader extends LitElement {
   @property({ type: Array }) regionalGroups: RegionalVariantGroup[] = [];
   @property({ type: Object }) regionalFilters: RegionalFilters = {};
   @property({ type: Boolean }) hideClose = false;
+  @property({ type: Boolean, reflect: true, attribute: 'ai-search' }) enableAISearch = false;
+  @property({ type: Boolean }) isAISearchActive = false;
   @state() private _localSearch = '';
 
   private _debouncedSearch = debounce((value: string) => {
@@ -181,6 +223,14 @@ export class ApHeader extends LitElement {
     }));
   }
 
+  private _toggleAISearch() {
+    this.dispatchEvent(new CustomEvent('ai-search-toggle', {
+      detail: { active: !this.isAISearchActive },
+      bubbles: true,
+      composed: true,
+    }));
+  }
+
   private _handleClose() {
     this.dispatchEvent(new CustomEvent('ap-close', { bubbles: true, composed: true }));
   }
@@ -202,15 +252,30 @@ export class ApHeader extends LitElement {
           <ap-icon class="search-icon" name="search" .size=${16}></ap-icon>
           <input
             type="text"
-            placeholder=${this.activeTab === 'folders' ? 'Search folders and assets' : 'Search assets'}
+            placeholder=${this.isAISearchActive
+              ? (this.activeTab === 'folders' ? 'AI search folders and assets' : 'AI search assets')
+              : (this.activeTab === 'folders' ? 'Search folders and assets' : 'Search assets')}
             .value=${this.searchQuery}
             @input=${this._handleInput}
           />
-          ${this._localSearch ? html`
-            <button class="clear-btn" @click=${this._clearSearch} aria-label="Clear search">
-              <ap-icon name="close" .size=${14}></ap-icon>
-            </button>
-          ` : ''}
+          <div class="search-actions">
+            ${this._localSearch ? html`
+              <button class="clear-btn" @click=${this._clearSearch} aria-label="Clear search">
+                <ap-icon name="close" .size=${14}></ap-icon>
+              </button>
+            ` : ''}
+            ${this.enableAISearch ? html`
+              <button
+                class="ai-toggle ${this.isAISearchActive ? 'active' : ''}"
+                @click=${this._toggleAISearch}
+                aria-label=${this.isAISearchActive ? 'Disable AI search' : 'Enable AI search'}
+                title=${this.isAISearchActive ? 'AI search on' : 'AI search off'}
+              >
+                <ap-icon name="sparkles" .size=${12}></ap-icon>
+                <span>AI</span>
+              </button>
+            ` : ''}
+          </div>
         </div>
         <div class="actions">
           <ap-regional-settings

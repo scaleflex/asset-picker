@@ -79,6 +79,10 @@ export interface AssetPickerConfig {
    *
    * Auth and target folder are derived automatically from the asset picker's state.
    */
+  /** Enable AI-powered semantic search toggle in the search bar. Defaults to false. */
+  enableAISearch?: boolean;
+  /** Activate AI search mode by default when the picker opens. Requires `enableAISearch: true`. Defaults to false. */
+  defaultAISearch?: boolean;
   uploader?: UploaderIntegrationConfig;
 }
 

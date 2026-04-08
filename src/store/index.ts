@@ -12,6 +12,7 @@ export function createStore(): Store<AppState> {
     activeTab: 'assets',
     viewMode: 'grid',
     searchQuery: '',
+    isAISearchActive: false,
     sortBy: 'modified_at',
     sortDirection: 'desc',
 

@@ -23,11 +23,17 @@ function buildApiParams(params: GetFilesParams): Record<string, unknown> {
 
   if (params.folder) apiParams.folder = params.folder;
 
-  // Combine search query and filter notation into q param
+  // When AI search is active, send search text as ai_query, not in q
   const parts: string[] = [];
-  if (params.search) parts.push(params.search);
+  if (params.search && !params.with_ai) parts.push(params.search);
   if (params.q) parts.push(params.q);
   if (parts.length > 0) apiParams.q = parts.join(' ');
+
+  if (params.with_ai) {
+    apiParams.with_ai = true;
+    if (params.ai_query) apiParams.ai_query = params.ai_query;
+    if (params.ai_lang) apiParams.ai_lang = params.ai_lang;
+  }
 
   return apiParams;
 }
@@ -51,15 +57,20 @@ export interface GetFilesStatsResponse {
 
 export async function getFilesStats(
   client: ApiClient,
-  params: { folder: string; q?: string; search?: string; recursive?: number },
+  params: { folder: string; q?: string; search?: string; recursive?: number; with_ai?: boolean; ai_query?: string; ai_lang?: string },
 ): Promise<GetFilesStatsResponse> {
   const apiParams: Record<string, unknown> = {
     folder: params.folder,
     recursive: params.recursive ?? 1,
   };
   const parts: string[] = [];
-  if (params.search) parts.push(params.search);
+  if (params.search && !params.with_ai) parts.push(params.search);
   if (params.q) parts.push(params.q);
   if (parts.length > 0) apiParams.q = parts.join(' ');
+  if (params.with_ai) {
+    apiParams.with_ai = true;
+    if (params.ai_query) apiParams.ai_query = params.ai_query;
+    if (params.ai_lang) apiParams.ai_lang = params.ai_lang;
+  }
   return client.request<GetFilesStatsResponse>('/files/stats', apiParams);
 }
