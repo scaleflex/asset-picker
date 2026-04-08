@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Uploader not opening when loaded via CDN script tags
+
 ## [0.2.0] - 2026-03-22
 
 ### Added
