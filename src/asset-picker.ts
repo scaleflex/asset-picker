@@ -418,6 +418,9 @@ export class AssetPicker extends LitElement {
    * Guards against concurrent calls via a shared promise.
    */
   private _ensureUploaderImport(): Promise<void> {
+    // Already registered (e.g. loaded via CDN <script> tag)
+    if (customElements.get('sfx-uploader')) return Promise.resolve();
+
     if (this._uploaderImportPromise) return this._uploaderImportPromise;
 
     this._uploaderImportPromise = import('@scaleflex/uploader/define').then(() => {}, (err) => {
