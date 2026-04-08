@@ -117,7 +117,7 @@ pnpm add @scaleflex/asset-picker
 No bundler? Add a single script tag:
 
 ```html
-<script src="https://cdn.scaleflex.com/asset-picker/0.2.17/asset-picker.min.js"></script>
+<script src="https://cdn.scaleflex.com/asset-picker/0.2.18/asset-picker.min.js"></script>
 ```
 
 This auto-registers `<sfx-asset-picker>` — no imports needed. See the [CDN quick start](#cdn-1) below.
@@ -209,7 +209,7 @@ function App() {
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="https://cdn.scaleflex.com/asset-picker/0.2.17/asset-picker.min.js"></script>
+  <script src="https://cdn.scaleflex.com/asset-picker/0.2.18/asset-picker.min.js"></script>
 </head>
 <body>
   <sfx-asset-picker></sfx-asset-picker>
