@@ -1,3 +1,5 @@
+import type { TransformationResult } from './transformation.types';
+
 export interface AssetInfo {
   img_type?: string;
   img_w?: number;
@@ -72,6 +74,7 @@ export interface Asset {
     name: string;
     email: string;
   };
+  transformation?: TransformationResult;
 }
 
 export type AssetType = 'image' | 'video' | 'audio' | 'document' | 'archive' | 'font' | 'other';

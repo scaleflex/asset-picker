@@ -30,3 +30,17 @@ export const FOLDERS_SORT_OPTIONS: SortOption[] = [
   { value: 'files_count_recursive', label: 'Assets count' },
   { value: 'files_size_recursive', label: 'Assets size' },
 ];
+
+export const LABELS_SORT_OPTIONS: SortOption[] = [
+  { value: 'name', label: 'Name' },
+];
+
+export const COLLECTIONS_SORT_OPTIONS: SortOption[] = [
+  { value: 'name', label: 'Name' },
+  { value: 'created_at', label: 'Uploaded' },
+  { value: 'updated_at', label: 'Modified' },
+];
+
+export const COLLECTION_FOLDERS_SORT_OPTIONS: SortOption[] = [
+  { value: 'name', label: 'Name' },
+];

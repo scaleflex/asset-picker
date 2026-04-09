@@ -168,6 +168,10 @@ const page: Page = {
               <h3>React wrapper</h3>
               <p>First-class React component with typed props and ref.</p>
             </a>
+            <a href="#/examples/transformations" class="quick-start-card">
+              <h3>Transformations</h3>
+              <p>Export options dialog for format, quality, and resize before selection.</p>
+            </a>
           </div>
         </div>
       </section>

@@ -328,6 +328,7 @@ export class ApFilterApproval extends LitElement {
 
         <!-- Empty / Not empty radio buttons -->
         <ap-radio-group
+          clearable
           .options=${EMPTY_OPTIONS}
           .value=${this.dueDatePreset === EMPTY_VALUE || this.dueDatePreset === NOT_EMPTY_VALUE
             ? this.dueDatePreset
@@ -339,6 +340,7 @@ export class ApFilterApproval extends LitElement {
 
         <!-- Date range options -->
         <ap-radio-group
+          clearable
           columns="2"
           .options=${WITHIN_DATE_RANGE_OPTIONS}
           .value=${this.dueDatePreset !== EMPTY_VALUE && this.dueDatePreset !== NOT_EMPTY_VALUE

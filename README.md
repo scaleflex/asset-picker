@@ -79,6 +79,7 @@ The npm package contains **only pre-built, minified production files** (`dist/`)
 - **Default & forced filters** — pre-apply filters on open or lock filters the user cannot remove
 - **Infinite scroll** — automatic pagination as the user scrolls
 - **Folder navigation** — browse the full DAM folder tree with breadcrumb
+- **Labels view** — browse assets organized by label with breadcrumb navigation
 - **Asset preview panel** — side panel with metadata, thumbnails, and video/audio playback
 - **Multi-select & select all** — single or bulk selection with configurable max
 - **Keyboard navigation** — arrow keys, Enter, Escape, Shift+click range select
@@ -280,7 +281,7 @@ Use when your application already has a SASS key — e.g. inside the Scaleflex H
 | `defaultViewMode` | `'grid' \| 'list'` | `'grid'` | Initial view mode |
 | `defaultSortBy` | `SortBy` | `'created_at'` | Initial sort field (see table below) |
 | `defaultSortDirection` | `'asc' \| 'desc'` | `'desc'` | Initial sort direction |
-| `tabs` | `TabKey[]` | `['assets', 'folders']` | Tabs to show. If only one, the dropdown is hidden |
+| `tabs` | `TabKey[]` | `['assets', 'folders']` | Tabs to show (`'assets'`, `'folders'`, `'labels'`). If only one, the dropdown is hidden |
 | `defaultTab` | `TabKey` | first in `tabs` | Which tab to activate when the picker opens |
 | `enabledFilters` | `FilterKey[]` | all | Restrict which filters appear in the toolbar |
 | `rootFolderPath` | `string` | `'/'` | Start browsing from a specific folder path (e.g. `'/marketing/banners/'`) |
@@ -288,7 +289,7 @@ Use when your application already has a SASS key — e.g. inside the Scaleflex H
 | `brandColor` | `string` | from API | Brand accent colour as hex (e.g. `'#3b82f6'`). Overrides the API-fetched value |
 | `rememberLastFolder` | `boolean` | `false` | Persist the last browsed folder and restore on next open |
 | `rememberLastView` | `boolean` | `false` | Persist the last used view mode (grid/list) and restore on next open |
-| `rememberLastTab` | `boolean` | `false` | Persist the last active tab (assets/folders) and restore on next open |
+| `rememberLastTab` | `boolean` | `false` | Persist the last active tab and restore on next open |
 | `defaultFilters` | `FiltersInput` | `undefined` | Filters pre-applied on open. User can modify/remove |
 | `forcedFilters` | `FiltersInput` | `undefined` | Filters always active. Shown as locked chips the user cannot remove |
 | `displayMode` | `'modal' \| 'inline'` | `'modal'` | `'modal'` renders as a dialog overlay, `'inline'` renders in page flow |

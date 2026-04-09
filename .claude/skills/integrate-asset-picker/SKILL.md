@@ -207,11 +207,11 @@ picker.config = {
 
   // Navigation
   rootFolderPath: '/marketing/',     // start in a specific folder
-  tabs: ['assets', 'folders'],       // default: both. Use ['assets'] to hide folders tab
+  tabs: ['assets', 'folders', 'labels'], // available: 'assets', 'folders', 'labels', 'collections'
   defaultTab: 'assets',              // which tab opens first. Defaults to first in `tabs`
   rememberLastFolder: true,          // persist last folder in localStorage
   rememberLastView: true,            // persist grid/list preference
-  rememberLastTab: true,             // persist last active tab (assets/folders)
+  rememberLastTab: true,             // persist last active tab
 
   // Sorting
   defaultSortBy: 'created_at',      // 'name' | 'created_at' | 'modified_at' | 'size' | 'type' | etc.

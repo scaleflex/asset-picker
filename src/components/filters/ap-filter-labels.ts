@@ -155,7 +155,7 @@ export class ApFilterLabels extends LitElement {
           <ap-icon name="tag" .size=${16}></ap-icon>
         </span>
         <span class="label-name">${label.name}</span>
-        <span class="count">${label.assetsCount}</span>
+        <span class="count">${label.assets_count}</span>
       </div>
     `;
   }
@@ -191,6 +191,13 @@ export class ApFilterLabels extends LitElement {
         ${!this._isSearching && this.selected.length > 0
           ? html`
               <div class="filter-section">
+                <div class="section-header">
+                  <span class="section-label">Selected</span>
+                  <button
+                    class="clear-btn"
+                    @click=${this._clearAll}
+                  >Clear all</button>
+                </div>
                 <div class="chips-wrap">
                   ${this.selected.map((sid) => {
                     const label = this._getLabelBySid(sid);

@@ -635,7 +635,13 @@ export class ApFilterMetadata extends LitElement {
         newSet.delete(prefixedKey);
         this._specificModeFields = newSet;
       }
-      this._onEmptyOption(field, mode);
+      // Empty string means deselected (clearable radio) — clear the filter
+      if (!mode) {
+        const applied = this._getApplied(prefixedKey);
+        this._emitFilterChange(field, applied.operator, []);
+      } else {
+        this._onEmptyOption(field, mode);
+      }
     }
   }
 
@@ -708,8 +714,8 @@ export class ApFilterMetadata extends LitElement {
   private _onBooleanSelect(field: MetadataModelField, value: string) {
     const applied = this._getApplied(getPrefixedKey(field));
     const current = applied.values?.[0];
-    // Toggle off if same value selected
-    if (current === value) {
+    // Deselected via clearable radio or toggle off
+    if (!value || current === value) {
       this._emitFilterChange(field, undefined, []);
     } else {
       this._emitFilterChange(field, applied.operator, [value]);
@@ -859,6 +865,13 @@ export class ApFilterMetadata extends LitElement {
 
   private _onDatePreset(field: MetadataModelField, preset: string) {
     const prefixedKey = getPrefixedKey(field);
+
+    // Deselected via clearable radio — clear the filter
+    if (!preset) {
+      this._clearFieldFilter(field);
+      return;
+    }
+
     this._datePresets = { ...this._datePresets, [prefixedKey]: preset };
 
     // Presets requiring manual date input
@@ -1008,8 +1021,8 @@ export class ApFilterMetadata extends LitElement {
   private _onEmptyOption(field: MetadataModelField, value: string) {
     const applied = this._getApplied(getPrefixedKey(field));
     const current = applied.values?.[0];
-    if (current === value) {
-      // Toggle off special value, restore operator
+    if (!value || current === value) {
+      // Deselected (clearable radio) or toggle off — clear values
       this._emitFilterChange(field, applied.operator, []);
     } else {
       this._emitFilterChange(field, applied.operator, [value]);
@@ -1127,6 +1140,7 @@ export class ApFilterMetadata extends LitElement {
         <div class="filter-section">
           <span class="section-label">Content</span>
           <ap-radio-group
+            clearable
             .options=${EMPTY_AND_SPECIFIC_OPTIONS}
             .value=${contentMode}
             @ap-change=${(e: CustomEvent) => this._onContentModeChange(field, e.detail.value)}
@@ -1211,6 +1225,7 @@ export class ApFilterMetadata extends LitElement {
         <div class="filter-section">
           <span class="section-label">Content</span>
           <ap-radio-group
+            clearable
             .options=${EMPTY_AND_SPECIFIC_OPTIONS}
             .value=${contentMode}
             @ap-change=${(e: CustomEvent) => this._onContentModeChange(field, e.detail.value)}
@@ -1274,6 +1289,7 @@ export class ApFilterMetadata extends LitElement {
         <div class="filter-section">
           <span class="section-label">Value</span>
           <ap-radio-group
+            clearable
             .options=${BOOLEAN_OPTIONS}
             .value=${currentValue}
             @ap-change=${(e: CustomEvent) => this._onBooleanSelect(field, e.detail.value)}
@@ -1354,6 +1370,13 @@ export class ApFilterMetadata extends LitElement {
               ${selectedValues.length > 0
                 ? html`
                     <div class="filter-section">
+                      <div class="section-header">
+                        <span class="section-label">Selected</span>
+                        <button
+                          class="clear-btn"
+                          @click=${() => this._clearFieldFilter(field)}
+                        >Clear all</button>
+                      </div>
                       <div class="chips-wrap">
                         ${selectedValues.map((val) => {
                           const opt = options.find((o) => o.api_value === val);
@@ -1497,6 +1520,13 @@ export class ApFilterMetadata extends LitElement {
               ${selectedValues.length > 0
                 ? html`
                     <div class="filter-section">
+                      <div class="section-header">
+                        <span class="section-label">Selected</span>
+                        <button
+                          class="clear-btn"
+                          @click=${() => this._clearFieldFilter(field)}
+                        >Clear all</button>
+                      </div>
                       <div class="chips-wrap">
                         ${selectedValues.map((val) => {
                           const opt = options.find((o) => o.api_value === val);
@@ -1634,6 +1664,13 @@ export class ApFilterMetadata extends LitElement {
               ${tags.length > 0
                 ? html`
                     <div class="filter-section">
+                      <div class="section-header">
+                        <span class="section-label">Selected</span>
+                        <button
+                          class="clear-btn"
+                          @click=${() => this._clearFieldFilter(field)}
+                        >Clear all</button>
+                      </div>
                       <div class="chips-wrap">
                         ${tags.map(
                           (tag) => html`
@@ -1746,6 +1783,7 @@ export class ApFilterMetadata extends LitElement {
 
         <div class="filter-section">
           <ap-radio-group
+            clearable
             .options=${emptyOptions}
             .value=${activePreset === 'empty' || activePreset === 'non-empty' ? activePreset : ''}
             @ap-change=${(e: CustomEvent) => this._onDatePreset(field, e.detail.value)}
@@ -1754,6 +1792,7 @@ export class ApFilterMetadata extends LitElement {
           <div class="separator"></div>
 
           <ap-radio-group
+            clearable
             columns="2"
             .options=${DATE_RANGE_OPTIONS}
             .value=${activePreset !== 'empty' && activePreset !== 'non-empty' ? activePreset : ''}
@@ -1851,6 +1890,7 @@ export class ApFilterMetadata extends LitElement {
         <div class="filter-section">
           <span class="section-label">Content</span>
           <ap-radio-group
+            clearable
             .options=${EMPTY_AND_SPECIFIC_OPTIONS}
             .value=${contentMode}
             @ap-change=${(e: CustomEvent) => this._onContentModeChange(field, e.detail.value)}
@@ -1909,6 +1949,7 @@ export class ApFilterMetadata extends LitElement {
 
         <div class="filter-section">
           <ap-radio-group
+            clearable
             .options=${EMPTY_OPTIONS}
             .value=${currentValue}
             @ap-change=${(e: CustomEvent) => this._onEmptyOption(field, e.detail.value)}

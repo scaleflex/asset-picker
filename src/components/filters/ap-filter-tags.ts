@@ -84,7 +84,8 @@ export class ApFilterTags extends LitElement {
     }
 
     .search-clear {
-      top: 10px;
+      top: 50%;
+      transform: translateY(-50%);
       right: 8px;
     }
 
@@ -228,6 +229,13 @@ export class ApFilterTags extends LitElement {
         ${!this._isSearching && this.selected.length > 0
           ? html`
               <div class="filter-section">
+                <div class="section-header">
+                  <span class="section-label">Selected</span>
+                  <button
+                    class="clear-btn"
+                    @click=${this._clearAll}
+                  >Clear all</button>
+                </div>
                 <div class="chips-wrap">
                   ${this.selected.map((sid) => {
                     const tag = this._getTagBySid(sid);
@@ -324,14 +332,9 @@ export class ApFilterTags extends LitElement {
 
     return html`
       <div class="filter-section">
-        <div class="section-header">
-          <span class="section-label">${suggestedTags.length > 0 ? 'Suggested tags' : ''}</span>
-          <button
-            class="clear-btn"
-            ?disabled=${this.selected.length === 0}
-            @click=${this._clearAll}
-          >Clear all</button>
-        </div>
+        ${suggestedTags.length > 0
+          ? html`<span class="section-label">Suggested tags</span>`
+          : nothing}
         ${suggestedTags.length > 0
           ? html`
               <div class="options-list short">

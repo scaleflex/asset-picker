@@ -84,6 +84,7 @@ export class ApRadioGroup extends LitElement {
   @property() value = '';
   @property({ type: Array }) options: RadioOption[] = [];
   @property({ type: Boolean }) disabled = false;
+  @property({ type: Boolean }) clearable = false;
   @property({ reflect: true }) direction: 'vertical' | 'horizontal' = 'vertical';
   @property({ reflect: true }) columns?: string;
 
@@ -169,8 +170,9 @@ export class ApRadioGroup extends LitElement {
 
   private _select(opt: RadioOption) {
     if (this.disabled || opt.disabled) return;
+    const value = this.clearable && opt.value === this.value ? '' : opt.value;
     this.dispatchEvent(new CustomEvent('ap-change', {
-      detail: { value: opt.value },
+      detail: { value },
       bubbles: true,
       composed: true,
     }));

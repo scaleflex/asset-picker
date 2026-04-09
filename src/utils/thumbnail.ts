@@ -1,5 +1,7 @@
 import type { Asset } from '../types/asset.types';
 import type { FolderPreviewImage } from '../types/folder.types';
+import type { TransformationParams } from '../types/transformation.types';
+import { FORMAT_TO_CDN, QUALITY_MAP } from '../types/transformation.types';
 import { getExtensionFromType, getFileTypeFromMime } from './file-type';
 
 /**
@@ -125,4 +127,49 @@ export function getFolderPreviewUrl(preview: FolderPreviewImage, width: string):
   }
 
   return addCdnParams(url, { w: width, dpr });
+}
+
+/**
+ * Build a transformed CDN URL by applying format, quality, and resize params.
+ * Normalizes the URL via getFormattedPreviewUrl() first, then appends CDN query params.
+ */
+export function buildTransformCdnParams(
+  params: TransformationParams,
+  options?: { isMultiSelect?: boolean; isAspectLocked?: boolean },
+): Record<string, string> {
+  const cdnParams: Record<string, string> = {};
+
+  if (params.format) {
+    cdnParams.force_format = FORMAT_TO_CDN[params.format];
+  }
+
+  if (params.quality && params.format !== 'png') {
+    cdnParams.q = String(QUALITY_MAP[params.quality]);
+  }
+
+  if (params.width) cdnParams.w = String(params.width);
+  if (params.height) cdnParams.h = String(params.height);
+
+  if (params.width || params.height) {
+    cdnParams.org_if_sml = '1';
+    if (options?.isMultiSelect) {
+      cdnParams.func = 'bound';
+    } else if (options?.isAspectLocked === false) {
+      cdnParams.func = 'cover';
+    }
+  }
+
+  return cdnParams;
+}
+
+export function buildTransformedUrl(
+  cdnUrl: string,
+  params: TransformationParams,
+  options?: { isMultiSelect?: boolean; isAspectLocked?: boolean },
+): string {
+  const url = getFormattedPreviewUrl(cdnUrl);
+  if (!url) return cdnUrl;
+
+  const cdnParams = buildTransformCdnParams(params, options);
+  return Object.keys(cdnParams).length > 0 ? addCdnParams(url, cdnParams) : url;
 }

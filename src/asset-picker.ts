@@ -10,12 +10,18 @@ import { ApiClient } from './services/api-client';
 import { getFiles, getFilesStats } from './services/files.service';
 import { getFolders, getFoldersPreviews } from './services/folders.service';
 import { getLabels } from './services/labels.service';
+import { getCollections, getCollectionFolders, filterCollectionFolders } from './services/collections.service';
+import type { Collection, CollectionFolder } from './types/collection.types';
 import { getTags } from './services/tags.service';
 // Settings are now fetched via getMetadataSettings (single API call)
 import { exchangeSassKey } from './services/auth.service';
 import type { AssetPickerConfig, ViewMode, SortBy, TabKey } from './types/config.types';
 import type { Asset } from './types/asset.types';
 import type { Folder } from './types/folder.types';
+import type { Label } from './types/label.types';
+import type { TransformationParams } from './types/transformation.types';
+import { isImage, getCdnUrl } from './utils/asset-helpers';
+import { addCdnParams, buildTransformCdnParams } from './utils/thumbnail';
 import {
   FILTER_KEYS,
   APPROVAL_FILTER_KEYS,
@@ -39,6 +45,9 @@ import {
   MAIN_SORT_OPTIONS,
   SEARCH_SORT_OPTIONS,
   FOLDERS_SORT_OPTIONS,
+  LABELS_SORT_OPTIONS,
+  COLLECTIONS_SORT_OPTIONS,
+  COLLECTION_FOLDERS_SORT_OPTIONS,
   type SortOption,
 } from './components/toolbar/sort.constants';
 
@@ -65,11 +74,18 @@ import './components/views/ap-asset-card';
 import './components/views/ap-asset-row';
 import './components/views/ap-folder-card';
 import './components/views/ap-folder-row';
+import './components/views/ap-label-card';
+import './components/views/ap-label-row';
+import './components/views/ap-collection-card';
+import './components/views/ap-collection-row';
+import './components/views/ap-collection-folder-card';
+import './components/views/ap-collection-folder-row';
 import './components/views/ap-skeleton';
 import './components/preview/ap-preview-panel';
 import './components/selection/ap-selection-bar';
 import './components/selection/ap-marquee-overlay';
 import './components/selection/ap-folder-resolve-dialog';
+import './components/selection/ap-transformation-dialog';
 import './components/shared/ap-icon';
 import './components/shared/ap-spinner';
 import './components/shared/ap-checkbox';
@@ -138,6 +154,33 @@ export class AssetPicker extends LitElement {
       }
       .empty-desc {
         font-size: var(--ap-font-size-sm, 0.875rem);
+      }
+      .labels-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+        padding: 0 20px 16px;
+      }
+      .labels-list {
+        padding: 0 20px 16px;
+      }
+      .collections-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 12px;
+        padding: 0 20px 16px;
+      }
+      .collections-list {
+        padding: 0 20px 16px;
+      }
+      .collection-folders-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 12px;
+        padding: 0 20px 16px;
+      }
+      .collection-folders-list {
+        padding: 0 20px 16px;
       }
       .loading-center {
         display: flex;
@@ -256,6 +299,10 @@ export class AssetPicker extends LitElement {
   @state() private _isDragOver = false;
   @state() private _isUploaderOpen = false;
   @state() private _folderResolveOpen = false;
+  @state() private _transformOpen = false;
+  private _transformAssets: Asset[] = [];
+  private _transformFolders: Folder[] = [];
+  private _transformAfterResolve = false;
 
   @property({ type: Object }) config?: AssetPickerConfig;
 
@@ -347,12 +394,13 @@ export class AssetPicker extends LitElement {
         this.store.setState({ sassKey });
       }
 
-      // Fetch settings (includes brand color + metadata model + regional variants), labels, and tags
-      const [metadataResult, labelsResult, tagsResult, fileTypesResult] = await Promise.allSettled([
+      // Fetch settings (includes brand color + metadata model + regional variants), labels, tags, and collections
+      const [metadataResult, labelsResult, tagsResult, fileTypesResult, collectionsResult] = await Promise.allSettled([
         getMetadataSettings(this.apiClient),
         getLabels(this.apiClient),
         getTags(this.apiClient),
         getFileTypes(this.apiClient),
+        getCollections(this.apiClient),
       ]);
 
       // Collect all results into a single setState batch
@@ -372,6 +420,10 @@ export class AssetPicker extends LitElement {
 
       if (tagsResult.status === 'fulfilled') {
         batch.tags = tagsResult.value;
+      }
+
+      if (collectionsResult.status === 'fulfilled') {
+        batch.collections = collectionsResult.value.collections || [];
       }
 
       if (fileTypesResult.status === 'fulfilled') {
@@ -612,6 +664,11 @@ export class AssetPicker extends LitElement {
       folders: [],
       currentFolder: null,
       currentFolderPath: this._resolveInitialFolderPath(resolvedTab),
+      activeLabelUuid: null,
+      activeCollectionUuid: null,
+      activeCollectionFolders: [],
+      activeCollectionFolder: null,
+      isLoadingCollectionFolders: false,
       breadcrumb: this._buildBreadcrumbFromPath(
         this._resolveInitialFolderPath(resolvedTab),
         this.config?.rootFolderPath || '/',
@@ -653,6 +710,10 @@ export class AssetPicker extends LitElement {
     this._isDragOver = false;
     this._isUploaderOpen = false;
     this._folderResolveOpen = false;
+    this._transformOpen = false;
+    this._transformAssets = [];
+    this._transformFolders = [];
+    this._transformAfterResolve = false;
     this._selectAllId++;
   }
 
@@ -802,6 +863,170 @@ export class AssetPicker extends LitElement {
           hasMore: folderHasMore,
           isLoading: false,
         });
+      } else if (tab === 'labels') {
+        // Labels root: no API call, labels are already in state
+        if (!state.activeLabelUuid) {
+          this.store.setState({
+            assets: [],
+            folders: [],
+            totalCount: state.labels.length,
+            totalFolderCount: 0,
+            offset: 0,
+            hasMore: false,
+            isLoading: false,
+          });
+          return;
+        }
+
+        // Inside a label: fetch files filtered by label SID
+        const activeLabel = state.labels.find((l) => l.uuid === state.activeLabelUuid);
+        if (!activeLabel) {
+          this.store.setState({ isLoading: false });
+          return;
+        }
+
+        const labelSid = activeLabel.sid.replace('#', '');
+        const searchNotation = this._buildSearchNotation();
+        const labelQ = `labels:${labelSid}${searchNotation ? ' ' + searchNotation : ''}`;
+
+        const aiActive = state.isAISearchActive && !!state.searchQuery;
+        const filesPromise = getFiles(this.apiClient, {
+          folder: '/',
+          offset: 0,
+          limit: state.limit,
+          sort_by: state.sortBy,
+          sort_direction: state.sortDirection,
+          search: state.searchQuery || undefined,
+          q: labelQ,
+          recursive: 1,
+          ...(aiActive && {
+            with_ai: true,
+            ai_query: state.searchQuery,
+            ai_lang: state.config?.locale ?? 'en',
+          }),
+        });
+        const statsPromise = getFilesStats(this.apiClient, {
+          folder: '/',
+          q: labelQ,
+          search: state.searchQuery || undefined,
+          recursive: 1,
+          ...(aiActive && {
+            with_ai: true,
+            ai_query: state.searchQuery,
+            ai_lang: state.config?.locale ?? 'en',
+          }),
+        }).catch(() => null);
+
+        const [result, statsResult] = await Promise.all([filesPromise, statsPromise]);
+
+        if (loadId !== this._loadId) return;
+
+        const filesCount = result.files?.length ?? 0;
+        const hasMore = filesCount >= state.limit;
+        const totalCount = statsResult?.stats?.approx_files_count
+          ?? statsResult?.info?.total_files_count
+          ?? result.info?.total_files_count
+          ?? result.base?.count?.files_recursive
+          ?? result.base?.count?.files_direct
+          ?? filesCount;
+
+        this.store.setState({
+          assets: result.files || [],
+          folders: [],
+          totalCount,
+          totalFolderCount: 0,
+          offset: 0,
+          hasMore,
+          isLoading: false,
+        });
+      } else if (tab === 'collections') {
+        // Collections root or folder listing: no API call, data is client-side
+        if (!state.activeCollectionUuid) {
+          this.store.setState({
+            assets: [],
+            folders: [],
+            totalCount: 0,
+            totalFolderCount: 0,
+            offset: 0,
+            hasMore: false,
+            isLoading: false,
+          });
+          return;
+        }
+
+        const acf = state.activeCollectionFolder;
+        const isLeaf = acf && !(acf.children?.length);
+
+        if (!isLeaf) {
+          this.store.setState({
+            assets: [],
+            folders: [],
+            totalCount: 0,
+            totalFolderCount: 0,
+            offset: 0,
+            hasMore: false,
+            isLoading: false,
+          });
+          return;
+        }
+
+        // Leaf folder: fetch files using collection_uuid + f64 params
+        const collectionUuid = state.activeCollectionUuid!;
+        const f64 = acf.filters || undefined;
+        const searchNotation = this._buildSearchNotation();
+
+        const aiActive = state.isAISearchActive && !!state.searchQuery;
+        const filesPromise = getFiles(this.apiClient, {
+          offset: 0,
+          limit: state.limit,
+          sort_by: state.sortBy,
+          sort_direction: state.sortDirection,
+          search: state.searchQuery || undefined,
+          q: searchNotation || undefined,
+          recursive: 1,
+          collection_uuid: collectionUuid,
+          f64,
+          ...(aiActive && {
+            with_ai: true,
+            ai_query: state.searchQuery,
+            ai_lang: state.config?.locale ?? 'en',
+          }),
+        });
+        const statsPromise = getFilesStats(this.apiClient, {
+          q: searchNotation || undefined,
+          search: state.searchQuery || undefined,
+          recursive: 1,
+          collection_uuid: collectionUuid,
+          f64,
+          ...(aiActive && {
+            with_ai: true,
+            ai_query: state.searchQuery,
+            ai_lang: state.config?.locale ?? 'en',
+          }),
+        }).catch(() => null);
+
+        const [result, statsResult] = await Promise.all([filesPromise, statsPromise]);
+
+        if (loadId !== this._loadId) return;
+
+        const filesCount = result.files?.length ?? 0;
+        const hasMore = filesCount >= state.limit;
+        const totalCount = statsResult?.stats?.approx_files_count
+          ?? statsResult?.info?.total_files_count
+          ?? result.info?.total_files_count
+          ?? result.base?.count?.files_recursive
+          ?? result.base?.count?.files_direct
+          ?? filesCount;
+
+        this.store.setState({
+          assets: result.files || [],
+          folders: [],
+          totalCount,
+          totalFolderCount: 0,
+          offset: 0,
+          hasMore,
+          isLoading: false,
+        });
       }
     } catch (err) {
       if (loadId !== this._loadId) return;
@@ -818,21 +1043,54 @@ export class AssetPicker extends LitElement {
     const state = this.store.getState();
     if (state.isLoading || !state.hasMore || !this.apiClient) return;
 
+    // Labels root has no pagination
+    if (state.activeTab === 'labels' && !state.activeLabelUuid) return;
+
+    // Collections root / folder listing has no pagination
+    if (state.activeTab === 'collections' && !(state.activeCollectionFolder && !(state.activeCollectionFolder.children?.length))) return;
+
     const loadMoreId = ++this._loadMoreId;
     const newOffset = state.offset + state.limit;
     this.store.setState({ isLoading: true });
 
     try {
       const searchNotation = this._buildSearchNotation();
+
+      // Build label query for labels tab
+      let q = searchNotation || undefined;
+      let folder = state.currentFolderPath || '/';
+      let recursive = state.activeTab === 'folders' ? 0 : 1;
+      if (state.activeTab === 'labels' && state.activeLabelUuid) {
+        const activeLabel = state.labels.find((l) => l.uuid === state.activeLabelUuid);
+        if (activeLabel) {
+          const labelSid = activeLabel.sid.replace('#', '');
+          q = `labels:${labelSid}${searchNotation ? ' ' + searchNotation : ''}`;
+        }
+        folder = '/';
+        recursive = 1;
+      }
+
+      // Build collection params for collections tab
+      let collectionUuid: string | undefined;
+      let f64: string | undefined;
+      if (state.activeTab === 'collections' && state.activeCollectionFolder) {
+        collectionUuid = state.activeCollectionUuid || undefined;
+        f64 = state.activeCollectionFolder.filters || undefined;
+        folder = '';  // no folder param for collection queries
+        recursive = 1;
+      }
+
       const result = await getFiles(this.apiClient, {
-        folder: state.currentFolderPath || '/',
+        ...(folder ? { folder } : {}),
         offset: newOffset,
         limit: state.limit,
         sort_by: state.sortBy,
         sort_direction: state.sortDirection,
         search: state.searchQuery || undefined,
-        q: searchNotation || undefined,
-        recursive: state.activeTab === 'folders' ? 0 : 1,
+        q,
+        recursive,
+        ...(collectionUuid && { collection_uuid: collectionUuid }),
+        ...(f64 && { f64 }),
         ...(state.isAISearchActive && state.searchQuery && {
           with_ai: true,
           ai_query: state.searchQuery,
@@ -877,8 +1135,25 @@ export class AssetPicker extends LitElement {
   }
 
   private _handleSearchChange(e: CustomEvent) {
+    const state = this.store.getState();
+
+    // Labels root: client-side filtering, no API call needed
+    if (state.activeTab === 'labels' && !state.activeLabelUuid) {
+      this.store.setState({ searchQuery: e.detail.value });
+      return;
+    }
+
+    // Collections root or folder listing: client-side filtering, no API call needed
+    if (state.activeTab === 'collections') {
+      const isLeaf = state.activeCollectionFolder && !(state.activeCollectionFolder.children?.length);
+      if (!isLeaf) {
+        this.store.setState({ searchQuery: e.detail.value });
+        return;
+      }
+    }
+
     const updates: Partial<AppState> = { searchQuery: e.detail.value, offset: 0, assets: [], folders: [], isLoading: true };
-    if (this.store.getState().isAISearchActive && e.detail.value) {
+    if (state.isAISearchActive && e.detail.value) {
       updates.sortBy = 'relevance';
     }
     this.store.setState(updates);
@@ -956,6 +1231,11 @@ export class AssetPicker extends LitElement {
     this._selectAllId++;
     this.store.setState({
       activeTab: tab,
+      activeLabelUuid: null,
+      activeCollectionUuid: null,
+      activeCollectionFolders: [],
+      activeCollectionFolder: null,
+      isLoadingCollectionFolders: false,
       currentFolder: null,
       currentFolderPath: this.config?.rootFolderPath ?? '/',
       breadcrumb: [],
@@ -984,15 +1264,26 @@ export class AssetPicker extends LitElement {
 
   private _handleQuickSelect(e: CustomEvent) {
     const asset: Asset = e.detail.asset;
-    this.config?.onSelect?.([asset]);
+    if (this.config?.transformations && isImage(asset)) {
+      this._transformAssets = [asset];
+      this._transformFolders = [];
+      this._transformOpen = true;
+      return;
+    }
+    this._emitSelect([asset]);
+  }
+
+  private _emitSelect(assets: Asset[], folders?: Folder[]) {
+    const detail: Record<string, unknown> = { assets };
+    if (folders?.length) detail.folders = folders;
+
+    this.config?.onSelect?.(assets, folders?.length ? folders : undefined);
     this.dispatchEvent(new CustomEvent('ap-select', {
-      detail: { assets: [asset] },
+      detail,
       bubbles: true,
       composed: true,
     }));
-    if (!this._isInline) {
-      this.close();
-    }
+    if (!this._isInline) this.close();
   }
 
   private _handleFolderOpen(e: CustomEvent) {
@@ -1017,6 +1308,78 @@ export class AssetPicker extends LitElement {
   private _handleBreadcrumbNavigate(e: CustomEvent) {
     const uuid = e.detail.uuid;
     const state = this.store.getState();
+
+    // Labels tab: breadcrumb navigate goes back to labels root
+    if (state.activeTab === 'labels') {
+      this._selectAllId++;
+      this.store.setState({
+        activeLabelUuid: null,
+        breadcrumb: [],
+        searchQuery: '',
+        offset: 0,
+        assets: [],
+        folders: [],
+      });
+      this.selectionCtrl.resetRange();
+      this._loadData();
+      return;
+    }
+
+    // Collections tab: breadcrumb navigation
+    if (state.activeTab === 'collections') {
+      this._selectAllId++;
+
+      if (!uuid) {
+        // Navigate to collections root
+        this.store.setState({
+          activeCollectionUuid: null,
+          activeCollectionFolder: null,
+          activeCollectionFolders: [],
+          breadcrumb: [],
+          searchQuery: '',
+          offset: 0,
+          assets: [],
+          folders: [],
+          isLoading: false,
+        });
+        this.selectionCtrl.resetRange();
+        return;
+      }
+
+      // Click collection title (first breadcrumb)
+      if (uuid === state.activeCollectionUuid) {
+        this.store.setState({
+          activeCollectionFolder: null,
+          breadcrumb: [state.breadcrumb[0]],
+          searchQuery: '',
+          offset: 0,
+          assets: [],
+          folders: [],
+          isLoading: false,
+        });
+        this.selectionCtrl.resetRange();
+        return;
+      }
+
+      // Navigate to a folder level by path
+      const targetFolder = this._findCollectionFolder(state.activeCollectionFolders, uuid);
+      if (targetFolder) {
+        const idx = state.breadcrumb.findIndex((b) => b.uuid === uuid);
+        const crumbs = state.breadcrumb.slice(0, idx + 1);
+        this.store.setState({
+          activeCollectionFolder: targetFolder,
+          breadcrumb: crumbs,
+          searchQuery: '',
+          offset: 0,
+          assets: [],
+          folders: [],
+        });
+        this.selectionCtrl.resetRange();
+        this._loadData();
+      }
+      return;
+    }
+
     const idx = uuid ? state.breadcrumb.findIndex((b) => b.uuid === uuid) : -1;
     const crumbs = uuid ? state.breadcrumb.slice(0, idx + 1) : [];
     const folderPath = crumbs.length > 0 ? crumbs[crumbs.length - 1].path : (this.config?.rootFolderPath || '/');
@@ -1032,6 +1395,108 @@ export class AssetPicker extends LitElement {
     });
     this.selectionCtrl.resetRange();
     this._loadData();
+  }
+
+  private _handleLabelOpen(e: CustomEvent) {
+    const label: Label = e.detail.label;
+    this._selectAllId++;
+    this.store.setState({
+      activeLabelUuid: label.uuid,
+      breadcrumb: [{ uuid: label.uuid, name: label.name, path: '' }],
+      searchQuery: '',
+      offset: 0,
+      assets: [],
+      folders: [],
+    });
+    this.selectionCtrl.resetRange();
+    this._loadData();
+  }
+
+  private async _handleCollectionOpen(e: CustomEvent) {
+    const collection: Collection = e.detail.collection;
+    if (!this.apiClient) return;
+
+    this._selectAllId++;
+    this.store.setState({
+      activeCollectionUuid: collection.uuid,
+      activeCollectionFolder: null,
+      activeCollectionFolders: [],
+      isLoadingCollectionFolders: true,
+      breadcrumb: [{ uuid: collection.uuid, name: collection.title, path: '' }],
+      searchQuery: '',
+      offset: 0,
+      assets: [],
+      folders: [],
+      isLoading: true,
+    });
+    this.selectionCtrl.resetRange();
+
+    try {
+      const result = await getCollectionFolders(this.apiClient, collection.uuid);
+      const filtered = filterCollectionFolders(result.folders || []);
+      this.store.setState({
+        activeCollectionFolders: filtered,
+        isLoadingCollectionFolders: false,
+        isLoading: false,
+      });
+    } catch (err) {
+      this.store.setState({ isLoadingCollectionFolders: false, isLoading: false });
+      this.dispatchEvent(new CustomEvent('ap-error', {
+        detail: { error: err as Error, context: 'loadCollectionFolders' },
+        bubbles: true,
+        composed: true,
+      }));
+    }
+  }
+
+  private _handleCollectionFolderOpen(e: CustomEvent) {
+    const folder: CollectionFolder = e.detail.folder;
+    const state = this.store.getState();
+
+    // Build breadcrumb from folder.path (split on ' -> ')
+    const pathParts = folder.path.split(' -> ').filter(Boolean);
+    const breadcrumbItems: BreadcrumbItem[] = [
+      { uuid: state.activeCollectionUuid!, name: state.breadcrumb[0]?.name || 'Collection', path: '' },
+    ];
+    let accumulatedPath = '';
+    for (const part of pathParts) {
+      accumulatedPath = accumulatedPath ? `${accumulatedPath} -> ${part}` : part;
+      breadcrumbItems.push({
+        uuid: accumulatedPath,
+        name: part,
+        path: accumulatedPath,
+      });
+    }
+
+    this._selectAllId++;
+    this.store.setState({
+      activeCollectionFolder: folder,
+      breadcrumb: breadcrumbItems,
+      searchQuery: '',
+      offset: 0,
+      assets: [],
+      folders: [],
+    });
+    this.selectionCtrl.resetRange();
+    this._loadData();
+  }
+
+  private _findCollectionFolder(folders: CollectionFolder[], path: string): CollectionFolder | null {
+    for (const f of folders) {
+      if (f.path === path) return f;
+      if (f.children) {
+        const found = this._findCollectionFolder(f.children, path);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  private _getVisibleCollectionFolders(): CollectionFolder[] {
+    const state = this.store.getState();
+    if (!state.activeCollectionUuid) return [];
+    if (!state.activeCollectionFolder) return state.activeCollectionFolders;
+    return state.activeCollectionFolder.children ?? [];
   }
 
   private _resolveInitialFolderPath(resolvedTab: TabKey): string {
@@ -1070,31 +1535,36 @@ export class AssetPicker extends LitElement {
 
     if (folders.length > 0 && this.config?.folderSelection !== false) {
       if (this.config?.folderSelectionMode === 'assets') {
-        // Mode B: show resolution dialog
         this._folderResolveOpen = true;
         return;
       }
-      // Mode A: return folders alongside assets
-      this.config?.onSelect?.(assets, folders);
-      this.dispatchEvent(new CustomEvent('ap-select', {
-        detail: { assets, folders },
-        bubbles: true,
-        composed: true,
-      }));
-      if (!this._isInline) this.close();
+    }
+
+    this._emitSelect(assets, folders.length ? folders : undefined);
+  }
+
+  private _handleSelectionTransform(e: CustomEvent) {
+    const assets: Asset[] = e.detail.assets;
+    const folders: Folder[] = e.detail.folders || [];
+
+    if (folders.length > 0 && this.config?.folderSelection !== false) {
+      if (this.config?.folderSelectionMode === 'assets') {
+        this._transformAfterResolve = true;
+        this._folderResolveOpen = true;
+        return;
+      }
+    }
+
+    // Only pass image assets to the dialog; non-images are kept for the final emit
+    const imageAssets = assets.filter(isImage);
+    if (imageAssets.length === 0) {
+      this._emitSelect(assets, folders.length ? folders : undefined);
       return;
     }
 
-    // Default: assets only
-    this.config?.onSelect?.(assets);
-    this.dispatchEvent(new CustomEvent('ap-select', {
-      detail: { assets },
-      bubbles: true,
-      composed: true,
-    }));
-    if (!this._isInline) {
-      this.close();
-    }
+    this._transformAssets = assets;
+    this._transformFolders = folders;
+    this._transformOpen = true;
   }
 
   private async _handleFolderResolveConfirm(e: CustomEvent) {
@@ -1133,16 +1603,18 @@ export class AssetPicker extends LitElement {
       const max = this.config?.maxSelections;
       const result = max ? allAssets.slice(0, max) : allAssets;
 
-      this.config?.onSelect?.(result);
-      this.dispatchEvent(new CustomEvent('ap-select', {
-        detail: { assets: result },
-        bubbles: true,
-        composed: true,
-      }));
-
       this._folderResolveOpen = false;
       this.store.setState({ isResolvingFolders: false });
-      if (!this._isInline) this.close();
+
+      if (this._transformAfterResolve) {
+        this._transformAfterResolve = false;
+        this._transformAssets = result;
+        this._transformFolders = [];
+        this._transformOpen = true;
+        return;
+      }
+
+      this._emitSelect(result);
     } catch (err) {
       this.store.setState({ isResolvingFolders: false });
       this.dispatchEvent(new CustomEvent('ap-error', {
@@ -1155,6 +1627,49 @@ export class AssetPicker extends LitElement {
 
   private _handleFolderResolveCancel() {
     this._folderResolveOpen = false;
+    this._transformAfterResolve = false;
+  }
+
+  private _handleTransformConfirm(e: CustomEvent) {
+    const params: TransformationParams = e.detail.params;
+    const isAspectLocked: boolean = e.detail.isAspectLocked ?? true;
+    const assets = this._transformAssets;
+    const folders = this._transformFolders;
+    const isMulti = assets.length > 1;
+
+    const cdnParams = buildTransformCdnParams(params, { isMultiSelect: isMulti, isAspectLocked });
+    const transformedAssets = assets.map((asset) => {
+      if (!isImage(asset)) return asset;
+      const cdnUrl = asset.url?.cdn;
+      const permalink = asset.url?.permalink;
+      const url: { cdn: string; permalink_cdn?: string } = {
+        cdn: cdnUrl ? addCdnParams(cdnUrl, cdnParams) : '',
+      };
+      if (permalink) {
+        url.permalink_cdn = addCdnParams(permalink, cdnParams);
+      }
+      return { ...asset, transformation: { params, url } };
+    });
+
+    this._transformOpen = false;
+    this._transformAssets = [];
+    this._transformFolders = [];
+    this._emitSelect(transformedAssets, folders.length ? folders : undefined);
+  }
+
+  private _handleTransformSkip() {
+    const assets = this._transformAssets;
+    const folders = this._transformFolders;
+    this._transformOpen = false;
+    this._transformAssets = [];
+    this._transformFolders = [];
+    this._emitSelect(assets, folders.length ? folders : undefined);
+  }
+
+  private _handleTransformCancel() {
+    this._transformOpen = false;
+    this._transformAssets = [];
+    this._transformFolders = [];
   }
 
   private async _handleSelectAll(e?: CustomEvent) {
@@ -1188,11 +1703,33 @@ export class AssetPicker extends LitElement {
 
     try {
       const searchNotation = this._buildSearchNotation();
-      const folder = state.currentFolderPath || '/';
+      let folder = state.currentFolderPath || '/';
       const limit = state.limit;
       const alreadyLoaded = state.assets;
       const totalCount = state.totalCount;
-      const recursive = state.activeTab === 'folders' ? 0 : 1;
+      let recursive = state.activeTab === 'folders' ? 0 : 1;
+
+      // Build label query for labels tab
+      let q: string | undefined = searchNotation || undefined;
+      if (state.activeTab === 'labels' && state.activeLabelUuid) {
+        const activeLabel = state.labels.find((l) => l.uuid === state.activeLabelUuid);
+        if (activeLabel) {
+          const labelSid = activeLabel.sid.replace('#', '');
+          q = `labels:${labelSid}${searchNotation ? ' ' + searchNotation : ''}`;
+        }
+        folder = '/';
+        recursive = 1;
+      }
+
+      // Build collection params for collections tab
+      let collectionUuid: string | undefined;
+      let f64: string | undefined;
+      if (state.activeTab === 'collections' && state.activeCollectionFolder) {
+        collectionUuid = state.activeCollectionUuid || undefined;
+        f64 = state.activeCollectionFolder.filters || undefined;
+        folder = '';
+        recursive = 1;
+      }
 
       // Calculate remaining pages to fetch
       const remainingPages: number[] = [];
@@ -1209,14 +1746,16 @@ export class AssetPicker extends LitElement {
         const results = await Promise.all(
           batch.map((offset) =>
             getFiles(this.apiClient!, {
-              folder,
+              ...(folder ? { folder } : {}),
               offset,
               limit,
               sort_by: state.sortBy,
               sort_direction: state.sortDirection,
               search: state.searchQuery || undefined,
-              q: searchNotation || undefined,
+              q,
               recursive,
+              ...(collectionUuid && { collection_uuid: collectionUuid }),
+              ...(f64 && { f64 }),
               ...(state.isAISearchActive && state.searchQuery && {
                 with_ai: true,
                 ai_query: state.searchQuery,
@@ -1673,6 +2212,15 @@ export class AssetPicker extends LitElement {
 
   private _getSortOptions(): SortOption[] {
     const s = this.storeCtrl.state;
+    if (s.activeTab === 'labels' && !s.activeLabelUuid) {
+      return LABELS_SORT_OPTIONS;
+    }
+    if (s.activeTab === 'collections') {
+      if (!s.activeCollectionUuid) return COLLECTIONS_SORT_OPTIONS;
+      const isLeaf = s.activeCollectionFolder && !(s.activeCollectionFolder.children?.length);
+      if (!isLeaf) return COLLECTION_FOLDERS_SORT_OPTIONS;
+      // Leaf folder showing assets: fall through to main/search options
+    }
     if (s.searchQuery) {
       return SEARCH_SORT_OPTIONS;
     }
@@ -1703,6 +2251,9 @@ export class AssetPicker extends LitElement {
       <ap-header
         .activeTab=${s.activeTab}
         .tabs=${this.config?.tabs ?? ['assets', 'folders']}
+        .isInsideLabel=${s.activeTab === 'labels' && !!s.activeLabelUuid}
+        .isInsideCollection=${s.activeTab === 'collections' && !!s.activeCollectionUuid}
+        .isInsideCollectionLeaf=${s.activeTab === 'collections' && !!s.activeCollectionFolder && !(s.activeCollectionFolder.children?.length)}
         .viewMode=${s.viewMode}
         .searchQuery=${s.searchQuery}
         .enableAISearch=${!!this.config?.enableAISearch}
@@ -1743,6 +2294,11 @@ export class AssetPicker extends LitElement {
               .totalCount=${s.totalCount}
               .totalFolderCount=${s.totalFolderCount}
               .showUpload=${hasUploader}
+              .showFilters=${!(s.activeTab === 'labels' && !s.activeLabelUuid) && !(s.activeTab === 'collections' && !(s.activeCollectionFolder && !(s.activeCollectionFolder.children?.length)))}
+              .countLabel=${s.activeTab === 'labels' && !s.activeLabelUuid ? `${s.labels.length} label${s.labels.length !== 1 ? 's' : ''}`
+                : s.activeTab === 'collections' && !s.activeCollectionUuid ? `${s.collections.length} collection${s.collections.length !== 1 ? 's' : ''}`
+                : s.activeTab === 'collections' && s.activeCollectionUuid && !(s.activeCollectionFolder && !(s.activeCollectionFolder.children?.length)) ? `${this._getVisibleCollectionFolders().length} folder${this._getVisibleCollectionFolders().length !== 1 ? 's' : ''}`
+                : ''}
               .sortBy=${s.sortBy}
               .sortDirection=${s.sortDirection}
               .sortOptions=${this._getSortOptions()}
@@ -1766,6 +2322,7 @@ export class AssetPicker extends LitElement {
               @upload-click=${this._handleUploadClick}
             ></ap-content-toolbar>
 
+            ${(s.activeTab === 'labels' && !s.activeLabelUuid) || (s.activeTab === 'collections' && !(s.activeCollectionFolder && !(s.activeCollectionFolder.children?.length))) ? nothing : html`
             <ap-filters-bar
               .appliedFilters=${s.filters.applied}
               .appliedMetadata=${s.filters.metadata.applied}
@@ -1785,16 +2342,20 @@ export class AssetPicker extends LitElement {
               @filters-clear-all=${this._handleFiltersClearAll}
               @filters-set=${this._handleFiltersSet}
             ></ap-filters-bar>
+            `}
 
             ${s.breadcrumb.length > 0
               ? html`<ap-breadcrumb
                   .items=${s.breadcrumb}
+                  .rootLabel=${s.activeTab === 'labels' ? 'Labels' : s.activeTab === 'collections' ? 'Collections' : 'Root'}
                   @breadcrumb-navigate=${this._handleBreadcrumbNavigate}
                 ></ap-breadcrumb>`
               : nothing}
           </div>
 
           ${s.isLoading && s.assets.length === 0 && s.folders.length === 0
+              && !(s.activeTab === 'labels' && !s.activeLabelUuid)
+              && !(s.activeTab === 'collections' && !(s.activeCollectionFolder && !(s.activeCollectionFolder.children?.length)))
             ? html`<ap-skeleton .variant=${s.viewMode} .gridSize=${this.config?.gridSize ?? 'normal'} .multiSelect=${this.config?.multiSelect !== false} .folderCount=${2}></ap-skeleton>`
             : this._renderContent(s, selectedIds, selectedFolderIds, folderSelectable)}
 
@@ -1806,6 +2367,15 @@ export class AssetPicker extends LitElement {
               @folder-resolve-confirm=${this._handleFolderResolveConfirm}
               @folder-resolve-cancel=${this._handleFolderResolveCancel}
             ></ap-folder-resolve-dialog>
+          ` : nothing}
+          ${this._transformOpen ? html`
+            <ap-transformation-dialog
+              .assets=${this._transformAssets}
+              .isMultiSelect=${this._transformAssets.length > 1}
+              @transform-confirm=${this._handleTransformConfirm}
+              @transform-skip=${this._handleTransformSkip}
+              @transform-cancel=${this._handleTransformCancel}
+            ></ap-transformation-dialog>
           ` : nothing}
         </div>
 
@@ -1839,7 +2409,9 @@ export class AssetPicker extends LitElement {
         .isSelectingAll=${s.isSelectingAll}
         .multiSelect=${this.config?.multiSelect ?? true}
         .maxSelections=${this.config?.maxSelections}
+        .showTransform=${!!this.config?.transformations && selectedAssets.some(isImage)}
         @selection-confirm=${this._handleSelectionConfirm}
+        @selection-transform=${this._handleSelectionTransform}
         @selection-clear=${this._handleSelectionClear}
         @selection-deselect=${this._handleSelectionDeselect}
         @select-all=${this._handleSelectAll}
@@ -1983,6 +2555,246 @@ export class AssetPicker extends LitElement {
           @asset-quick-select=${this._handleQuickSelect}
           @folder-open=${this._handleFolderOpen}
           @folder-select=${this._handleFolderSelect}
+          @select-all=${this._handleSelectAll}
+          @selection-clear=${this._handleSelectionClear}
+        ></ap-list-view>
+        <div id="sentinel"></div>
+      `;
+    }
+
+    if (s.activeTab === 'labels') {
+      // Labels root: show label cards/rows
+      if (!s.activeLabelUuid) {
+        let filteredLabels = s.labels;
+        if (s.searchQuery) {
+          const q = s.searchQuery.toLowerCase();
+          filteredLabels = s.labels.filter((l) => l.name.toLowerCase().includes(q));
+        }
+
+        // Client-side sort
+        const dir = s.sortDirection === 'asc' ? 1 : -1;
+        filteredLabels = [...filteredLabels].sort((a, b) => dir * a.name.localeCompare(b.name));
+
+        if (filteredLabels.length === 0) {
+          return html`
+            <div class="empty-state">
+              <ap-icon name="tag" .size=${48}></ap-icon>
+              <div class="empty-title">${s.searchQuery ? 'No labels match your search' : 'No labels found'}</div>
+              <div class="empty-desc">${s.searchQuery ? 'Try a different search term' : 'Labels will appear here once created'}</div>
+            </div>
+          `;
+        }
+
+        if (s.viewMode === 'grid') {
+          return html`
+            <div class="labels-grid">
+              ${filteredLabels.map((label, i) => html`
+                <ap-label-card .label=${label} .index=${i} @label-open=${this._handleLabelOpen}></ap-label-card>
+              `)}
+            </div>
+          `;
+        }
+
+        return html`
+          <div class="labels-list">
+            ${filteredLabels.map((label, i) => html`
+              <ap-label-row .label=${label} .index=${i} @label-open=${this._handleLabelOpen}></ap-label-row>
+            `)}
+          </div>
+        `;
+      }
+
+      // Inside a label: show assets (same as assets tab)
+      if (!s.isLoading && s.assets.length === 0) {
+        return html`
+          <div class="empty-state">
+            <ap-icon name="tag" .size=${48}></ap-icon>
+            <div class="empty-title">No assets in this label</div>
+            <div class="empty-desc">Assets added to this label will appear here</div>
+          </div>
+        `;
+      }
+
+      if (s.viewMode === 'grid') {
+        return html`
+          <ap-grid-view
+            .assets=${s.assets}
+            .folders=${[]}
+            .selectedIds=${selectedIds}
+            .selectedFolderIds=${selectedFolderIds}
+            .isLoading=${s.isLoading}
+            .multiSelect=${this.config?.multiSelect ?? true}
+            .folderSelectable=${false}
+            .gridSize=${this.config?.gridSize ?? 'normal'}
+            @asset-select=${this._handleAssetSelect}
+            @asset-preview=${this._handleAssetPreview}
+            @asset-quick-select=${this._handleQuickSelect}
+          ></ap-grid-view>
+          <div id="sentinel"></div>
+        `;
+      }
+
+      return html`
+        <ap-list-view
+          .assets=${s.assets}
+          .folders=${[]}
+          .selectedIds=${selectedIds}
+          .selectedFolderIds=${selectedFolderIds}
+          .isLoading=${s.isLoading}
+          .multiSelect=${this.config?.multiSelect ?? true}
+          .folderSelectable=${false}
+          .totalCount=${s.totalCount}
+          .isSelectingAll=${s.isSelectingAll}
+          @asset-select=${this._handleAssetSelect}
+          @asset-preview=${this._handleAssetPreview}
+          @asset-quick-select=${this._handleQuickSelect}
+          @select-all=${this._handleSelectAll}
+          @selection-clear=${this._handleSelectionClear}
+        ></ap-list-view>
+        <div id="sentinel"></div>
+      `;
+    }
+
+    if (s.activeTab === 'collections') {
+      // Level 1: Collections root — show collection cards/rows
+      if (!s.activeCollectionUuid) {
+        let filteredCollections = s.collections;
+        if (s.searchQuery) {
+          const q = s.searchQuery.toLowerCase();
+          filteredCollections = s.collections.filter((c) => c.title.toLowerCase().includes(q));
+        }
+
+        // Client-side sort
+        const dir = s.sortDirection === 'asc' ? 1 : -1;
+        if (s.sortBy === 'created_at') {
+          filteredCollections = [...filteredCollections].sort((a, b) => dir * (new Date(a.created_at).getTime() - new Date(b.created_at).getTime()));
+        } else if (s.sortBy === 'updated_at') {
+          filteredCollections = [...filteredCollections].sort((a, b) => dir * (new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime()));
+        } else {
+          filteredCollections = [...filteredCollections].sort((a, b) => dir * a.title.localeCompare(b.title));
+        }
+
+        if (filteredCollections.length === 0) {
+          return html`
+            <div class="empty-state">
+              <ap-icon name="layout-grid" .size=${48}></ap-icon>
+              <div class="empty-title">${s.searchQuery ? 'No collections match your search' : 'No collections found'}</div>
+              <div class="empty-desc">${s.searchQuery ? 'Try a different search term' : 'Collections will appear here once created'}</div>
+            </div>
+          `;
+        }
+
+        if (s.viewMode === 'grid') {
+          return html`
+            <div class="collections-grid">
+              ${filteredCollections.map((c, i) => html`
+                <ap-collection-card .collection=${c} .index=${i} @collection-open=${this._handleCollectionOpen}></ap-collection-card>
+              `)}
+            </div>
+          `;
+        }
+
+        return html`
+          <div class="collections-list">
+            ${filteredCollections.map((c, i) => html`
+              <ap-collection-row .collection=${c} .index=${i} @collection-open=${this._handleCollectionOpen}></ap-collection-row>
+            `)}
+          </div>
+        `;
+      }
+
+      // Loading collection folders
+      if (s.isLoadingCollectionFolders) {
+        return html`<div class="loading-center"><ap-spinner></ap-spinner></div>`;
+      }
+
+      // Level 2 & 3: Inside a collection — showing folders
+      const visibleFolders = this._getVisibleCollectionFolders();
+      const isShowingFolders = !s.activeCollectionFolder || (s.activeCollectionFolder.children?.length ?? 0) > 0;
+
+      if (isShowingFolders) {
+        let filteredFolders = visibleFolders;
+        if (s.searchQuery) {
+          const q = s.searchQuery.toLowerCase();
+          filteredFolders = visibleFolders.filter((f) => f.name.toLowerCase().includes(q));
+        }
+        // Client-side sort by name
+        const dir = s.sortDirection === 'asc' ? 1 : -1;
+        filteredFolders = [...filteredFolders].sort((a, b) => dir * a.name.localeCompare(b.name));
+
+        if (filteredFolders.length === 0) {
+          return html`
+            <div class="empty-state">
+              <ap-icon name="folder" .size=${48}></ap-icon>
+              <div class="empty-title">${s.searchQuery ? 'No folders match your search' : 'No folders in this collection'}</div>
+              <div class="empty-desc">${s.searchQuery ? 'Try a different search term' : 'Collection folders will appear here'}</div>
+            </div>
+          `;
+        }
+
+        if (s.viewMode === 'grid') {
+          return html`
+            <div class="collection-folders-grid">
+              ${filteredFolders.map((f, i) => html`
+                <ap-collection-folder-card .folder=${f} .index=${i} @collection-folder-open=${this._handleCollectionFolderOpen}></ap-collection-folder-card>
+              `)}
+            </div>
+          `;
+        }
+
+        return html`
+          <div class="collection-folders-list">
+            ${filteredFolders.map((f, i) => html`
+              <ap-collection-folder-row .folder=${f} .index=${i} @collection-folder-open=${this._handleCollectionFolderOpen}></ap-collection-folder-row>
+            `)}
+          </div>
+        `;
+      }
+
+      // Level 4: Leaf folder — showing assets
+      if (!s.isLoading && s.assets.length === 0) {
+        return html`
+          <div class="empty-state">
+            <ap-icon name="folder" .size=${48}></ap-icon>
+            <div class="empty-title">No assets in this collection folder</div>
+            <div class="empty-desc">Assets matching this collection's criteria will appear here</div>
+          </div>
+        `;
+      }
+
+      if (s.viewMode === 'grid') {
+        return html`
+          <ap-grid-view
+            .assets=${s.assets}
+            .folders=${[]}
+            .selectedIds=${selectedIds}
+            .selectedFolderIds=${selectedFolderIds}
+            .isLoading=${s.isLoading}
+            .multiSelect=${this.config?.multiSelect ?? true}
+            .folderSelectable=${false}
+            .gridSize=${this.config?.gridSize ?? 'normal'}
+            @asset-select=${this._handleAssetSelect}
+            @asset-preview=${this._handleAssetPreview}
+            @asset-quick-select=${this._handleQuickSelect}
+          ></ap-grid-view>
+          <div id="sentinel"></div>
+        `;
+      }
+
+      return html`
+        <ap-list-view
+          .assets=${s.assets}
+          .folders=${[]}
+          .selectedIds=${selectedIds}
+          .selectedFolderIds=${selectedFolderIds}
+          .isLoading=${s.isLoading}
+          .multiSelect=${this.config?.multiSelect ?? true}
+          .folderSelectable=${false}
+          .totalCount=${s.totalCount}
+          .isSelectingAll=${s.isSelectingAll}
+          @asset-select=${this._handleAssetSelect}
+          @asset-preview=${this._handleAssetPreview}
+          @asset-quick-select=${this._handleQuickSelect}
           @select-all=${this._handleSelectAll}
           @selection-clear=${this._handleSelectionClear}
         ></ap-list-view>

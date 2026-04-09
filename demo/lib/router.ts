@@ -36,6 +36,7 @@ const routes: RouteEntry[] = [
   { pattern: '/examples/uploader', load: () => import('../pages/examples/uploader').then((m) => m.default) },
   { pattern: '/examples/folder-selection', load: () => import('../pages/examples/folder-selection').then((m) => m.default) },
   { pattern: '/examples/ai-search', load: () => import('../pages/examples/ai-search').then((m) => m.default) },
+  { pattern: '/examples/transformations', load: () => import('../pages/examples/transformations').then((m) => m.default) },
 ];
 
 let currentPage: Page | null = null;

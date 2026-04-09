@@ -92,7 +92,8 @@ export class ApFilterProductRef extends LitElement {
     }
 
     .search-clear {
-      top: 10px;
+      top: 50%;
+      transform: translateY(-50%);
       right: 8px;
     }
 
@@ -455,8 +456,8 @@ export class ApFilterProductRef extends LitElement {
             : nothing}
         </div>
 
-        <!-- Clear all (when has selection) -->
-        ${!noSelection
+        <!-- Clear all (when searching and has selection) -->
+        ${this._isSearching && !noSelection
           ? html`
               <div class="section-header">
                 <span class="section-label"></span>
@@ -473,7 +474,13 @@ export class ApFilterProductRef extends LitElement {
         ${!this._isSearching && this.selected.length > 0
           ? html`
               <div class="filter-section">
-                <span class="section-label">Selected</span>
+                <div class="section-header">
+                  <span class="section-label">Selected</span>
+                  <button
+                    class="clear-btn"
+                    @click=${this._clearAll}
+                  >Clear all</button>
+                </div>
                 <div class="chips-wrap">
                   ${this.selected.map(
                     (ref) => html`

@@ -52,6 +52,12 @@ const page: Page = {
           <div class="form-group checkbox-group">
             <label><input type="checkbox" id="tab-folders" /> Folders</label>
           </div>
+          <div class="form-group checkbox-group">
+            <label><input type="checkbox" id="tab-labels" /> Labels</label>
+          </div>
+          <div class="form-group checkbox-group">
+            <label><input type="checkbox" id="tab-collections" /> Collections</label>
+          </div>
         </div>
         <button class="btn-primary open-btn-spacing" id="open-btn">Open picker</button>
       </section>
@@ -83,6 +89,8 @@ const page: Page = {
 
     bindToggle('tab-assets', 'assets');
     bindToggle('tab-folders', 'folders');
+    bindToggle('tab-labels', 'labels');
+    bindToggle('tab-collections', 'collections');
 
     document.getElementById('open-btn')!.addEventListener('click', () => {
       picker.config = buildConfig({

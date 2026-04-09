@@ -9,6 +9,8 @@ import './ap-regional-settings';
 const TAB_OPTIONS: { value: TabKey; label: string; icon: string }[] = [
   { value: 'assets', label: 'Assets', icon: 'gallery-vertical-end' },
   { value: 'folders', label: 'Folders', icon: 'folder-open' },
+  { value: 'labels', label: 'Labels', icon: 'tag' },
+  { value: 'collections', label: 'Collections', icon: 'layout-grid' },
 ];
 
 @customElement('ap-header')
@@ -168,6 +170,9 @@ export class ApHeader extends LitElement {
 
   @property() activeTab: TabKey = 'assets';
   @property({ type: Array }) tabs: TabKey[] = ['assets', 'folders'];
+  @property({ type: Boolean }) isInsideLabel = false;
+  @property({ type: Boolean }) isInsideCollection = false;
+  @property({ type: Boolean }) isInsideCollectionLeaf = false;
   @property() viewMode: ViewMode = 'grid';
   @property() searchQuery = '';
   @property({ type: Array }) regionalGroups: RegionalVariantGroup[] = [];
@@ -254,7 +259,10 @@ export class ApHeader extends LitElement {
             type="text"
             placeholder=${this.isAISearchActive
               ? (this.activeTab === 'folders' ? 'AI search folders and assets' : 'AI search assets')
-              : (this.activeTab === 'folders' ? 'Search folders and assets' : 'Search assets')}
+              : (this.activeTab === 'labels' && !this.isInsideLabel ? 'Search labels'
+                : this.activeTab === 'collections' && !this.isInsideCollection ? 'Search collections'
+                : this.activeTab === 'collections' && this.isInsideCollection && !this.isInsideCollectionLeaf ? 'Search collection folders'
+                : this.activeTab === 'folders' ? 'Search folders and assets' : 'Search assets')}
             .value=${this.searchQuery}
             @input=${this._handleInput}
           />

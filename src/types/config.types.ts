@@ -23,7 +23,7 @@ export type GridSize = 'normal' | 'large';
 export type SortBy = 'name' | 'created_at' | 'modified_at' | 'size' | 'type' | 'relevance' | 'title' | 'color' | 'uploaded' | 'updated_at' | 'files_count_recursive' | 'files_size_recursive';
 export type SortDirection = 'asc' | 'desc';
 
-export type TabKey = 'assets' | 'folders';
+export type TabKey = 'assets' | 'folders' | 'labels' | 'collections';
 
 export interface AssetPickerConfig {
   auth: AuthConfig;
@@ -34,7 +34,7 @@ export interface AssetPickerConfig {
   defaultViewMode?: ViewMode;
   defaultSortBy?: SortBy;
   defaultSortDirection?: SortDirection;
-  /** Tabs to show. Defaults to ['assets', 'folders']. If only one tab, the dropdown is hidden. */
+  /** Tabs to show ('assets', 'folders', 'labels', 'collections'). Defaults to ['assets', 'folders']. If only one tab, the dropdown is hidden. */
   tabs?: TabKey[];
   /** Which tab to activate when the picker opens. Defaults to the first entry in `tabs`. */
   defaultTab?: TabKey;
@@ -79,6 +79,8 @@ export interface AssetPickerConfig {
    *
    * Auth and target folder are derived automatically from the asset picker's state.
    */
+  /** Enable transformation options (format, quality, resize) before selection is finalized. Defaults to false. */
+  transformations?: boolean;
   /** Enable AI-powered semantic search toggle in the search bar. Defaults to false. */
   enableAISearch?: boolean;
   /** Activate AI search mode by default when the picker opens. Requires `enableAISearch: true`. Defaults to false. */

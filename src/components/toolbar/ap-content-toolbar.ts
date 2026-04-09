@@ -378,6 +378,8 @@ export class ApContentToolbar extends LitElement {
   @property({ type: Number }) totalFolderCount = 0;
   @property({ type: Boolean }) isLoading = false;
   @property({ type: Boolean }) showUpload = false;
+  @property({ type: Boolean }) showFilters = true;
+  @property() countLabel = '';
   @property() sortBy: SortBy = 'created_at';
   @property() sortDirection: SortDirection = 'desc';
   @property({ type: Array }) sortOptions: SortOption[] = MAIN_SORT_OPTIONS;
@@ -875,12 +877,13 @@ export class ApContentToolbar extends LitElement {
       <div class="toolbar-row">
         ${this.isLoading
           ? html`<span class="count-skeleton"></span>`
-          : html`<span class="count">${[
+          : html`<span class="count">${this.countLabel || [
                 this.totalFolderCount > 0 ? `${this.totalFolderCount.toLocaleString()} folder${this.totalFolderCount !== 1 ? 's' : ''}` : '',
                 this.totalCount > 0 || this.totalFolderCount === 0 ? `${this.totalCount.toLocaleString()} asset${this.totalCount !== 1 ? 's' : ''}` : '',
               ].filter(Boolean).join(', ')}</span>`}
         <span class="spacer"></span>
         <div class="controls">
+          ${this.showFilters ? html`
           <div class="filter-dropdown">
             <button class="add-btn ${this._showDropdown ? 'open' : ''}" @click=${this._toggleDropdown}>
               <ap-icon name="filter" .size=${16}></ap-icon>
@@ -897,6 +900,7 @@ export class ApContentToolbar extends LitElement {
               </div>
             ` : nothing}
           </div>
+          ` : nothing}
           <ap-dropdown
             variant="borderless"
             label="Sort"

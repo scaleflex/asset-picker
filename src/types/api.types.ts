@@ -1,6 +1,7 @@
 import type { Asset } from './asset.types';
 import type { Folder } from './folder.types';
 import type { Label } from './label.types';
+import type { Collection, CollectionFolder } from './collection.types';
 import type { SortBy, SortDirection } from './config.types';
 
 export interface ApiBaseResponse {
@@ -20,6 +21,8 @@ export interface GetFilesParams {
   with_ai?: boolean;     // enable AI-powered semantic search
   ai_query?: string;     // AI search query text
   ai_lang?: string;      // language hint for AI search (e.g. 'en')
+  collection_uuid?: string; // filter by collection
+  f64?: string;          // base64-encoded collection folder filter
 }
 
 export interface GetFilesResponse extends ApiBaseResponse {
@@ -46,6 +49,14 @@ export interface GetFoldersResponse extends ApiBaseResponse {
 
 export interface GetLabelsResponse extends ApiBaseResponse {
   labels: Label[];
+}
+
+export interface GetCollectionsResponse extends ApiBaseResponse {
+  collections: Collection[];
+}
+
+export interface GetCollectionFoldersResponse extends ApiBaseResponse {
+  folders: CollectionFolder[];
 }
 
 export interface GetSettingsResponse extends ApiBaseResponse {

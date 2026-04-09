@@ -92,7 +92,7 @@ function App() {
 | `defaultViewMode` | `'grid' \| 'list'` | `'grid'` | Initial view mode |
 | `defaultSortBy` | `SortBy` | `'created_at'` | Initial sort field |
 | `defaultSortDirection` | `'asc' \| 'desc'` | `'desc'` | Initial sort direction |
-| `tabs` | `TabKey[]` | `['assets', 'folders']` | Tabs to show |
+| `tabs` | `TabKey[]` | `['assets', 'folders']` | Tabs to show (`'assets'`, `'folders'`, `'labels'`, `'collections'`) |
 | `defaultTab` | `TabKey` | first in `tabs` | Which tab to activate when the picker opens |
 | `enableAISearch` | `boolean` | `false` | Show AI search toggle in the search bar |
 | `defaultAISearch` | `boolean` | `false` | Activate AI search by default on open (requires `enableAISearch`) |
@@ -102,7 +102,8 @@ function App() {
 | `rememberLastView` | `boolean` | `false` | Persist last view mode |
 | `rememberLastTab` | `boolean` | `false` | Persist last active tab |
 | `gridSize` | `'normal' \| 'large'` | `'normal'` | Grid card density: normal (4 cols at ~1200px) or large (3 cols at ~1200px) |
-| `onSelect` | `(assets: Asset[]) => void` | - | Callback on confirm |
+| `transformations` | `boolean` | `false` | Enable export options dialog (format, quality, resize) before selection is finalized |
+| `onSelect` | `(assets: Asset[], folders?: Folder[]) => void` | - | Callback on confirm |
 | `onCancel` | `() => void` | - | Callback on cancel |
 
 ## Authentication
@@ -128,6 +129,8 @@ Uses the SASS key directly as `X-Filerobot-Key` header. For Scaleflex Hub apps w
 
 - **Assets**: Browse files with grid/list view
 - **Folders**: Navigate folder hierarchy
+- **Labels**: Browse assets by label — click a label to see all tagged assets
+- **Collections**: Browse assets by collection — navigate collection folders, drill into leaf folders to see matching assets
 
 ## Filters
 
@@ -150,6 +153,23 @@ Uses the SASS key directly as `X-Filerobot-Key` header. For Scaleflex Hub apps w
 - **Cmd/Ctrl + click**: Toggle selection (multi-select)
 - **Shift + click**: Range selection
 - **Drag (marquee)**: Rubber-band area selection
+
+## Transformations
+
+When `transformations: true`, an "Export options" button appears in the selection bar for image assets. Clicking it opens a dialog with:
+
+- **Format**: WebP, JPEG, PNG, GIF (radio group)
+- **Quality**: Excellent (90), Good (75), Fair (60) — hidden for PNG (lossless)
+- **Size**: Width/height inputs with aspect ratio lock, plus presets (Original, Large 1200px, Medium 600px, Small 300px)
+
+Users can **Apply** (includes transformation params + transformed CDN URLs in the `onSelect` callback), **Skip** (proceeds with original assets, no transformations), or **Cancel** (returns to selection without confirming).
+
+When transformations are applied, each image asset in the `onSelect` callback includes a `transformation` property:
+- `params`: `{ format, quality, width, height }` — the chosen transformation settings
+- `url.cdn`: `string` — transformed CDN URL (e.g. `https://token.filerobot.com/path/image.jpg?force_format=webp&q=75&w=1200`)
+- `url.permalink_cdn`: `string | undefined` — transformed permalink CDN URL, included only if the asset has a permalink
+
+Non-image assets and skipped transformations have no `transformation` property. For multi-select, width/height act as max dimensions (each asset preserves its own aspect ratio).
 
 ## Preview Panel
 
@@ -191,7 +211,7 @@ Brand color is auto-fetched from `GET /v5/public/settings` -> `project_branding.
 
 | Event | Detail | Description |
 |-------|--------|-------------|
-| `ap-select` | `{ assets: Asset[] }` | User confirmed selection |
+| `ap-select` | `{ assets: Asset[], folders?: Folder[] }` | User confirmed selection |
 | `ap-cancel` | `{ reason: string }` | User cancelled (backdrop/escape/button) |
 | `ap-open` | `{ timestamp: number }` | Picker opened |
 | `ap-error` | `{ error: Error, context: string }` | Error occurred |
@@ -204,6 +224,8 @@ Brand color is auto-fetched from `GET /v5/public/settings` -> `project_branding.
 - `GET /v5/folders` - List folders
 - `GET /v5/folders/{uuid}` - Get folder details
 - `GET /v5/labels` - List labels
+- `GET /v5/collections` - List collections
+- `GET /v5/collections/{uuid}/folders` - Get collection folders
 - `GET /v5/filters` - Get filter values
 
 ## Bundle

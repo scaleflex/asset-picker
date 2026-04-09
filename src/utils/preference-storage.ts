@@ -46,7 +46,7 @@ export function saveLastTab(tab: TabKey, projectToken?: string): void {
 export function loadLastTab(projectToken?: string): TabKey | null {
   try {
     const value = localStorage.getItem(scopedKey(LAST_TAB_KEY, projectToken));
-    if (value === 'assets' || value === 'folders') return value;
+    if (value === 'assets' || value === 'folders' || value === 'labels' || value === 'collections') return value;
     return null;
   } catch {
     return null;

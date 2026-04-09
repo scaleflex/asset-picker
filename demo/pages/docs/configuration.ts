@@ -49,7 +49,7 @@ const page: Page = {
             <tr><td><code>defaultViewMode</code></td><td><code>'grid' | 'list'</code></td><td><code>'grid'</code></td><td>Initial view mode</td></tr>
             <tr><td><code>defaultSortBy</code></td><td><code>SortBy</code></td><td><code>'created_at'</code></td><td>Initial sort field (see table below)</td></tr>
             <tr><td><code>defaultSortDirection</code></td><td><code>'asc' | 'desc'</code></td><td><code>'desc'</code></td><td>Initial sort direction</td></tr>
-            <tr><td><code>tabs</code></td><td><code>TabKey[]</code></td><td><code>['assets', 'folders']</code></td><td>Tabs to show. If only one, the dropdown is hidden</td></tr>
+            <tr><td><code>tabs</code></td><td><code>TabKey[]</code></td><td><code>['assets', 'folders']</code></td><td>Tabs to show (<code>'assets'</code>, <code>'folders'</code>, <code>'labels'</code>, <code>'collections'</code>). If only one, the dropdown is hidden</td></tr>
             <tr><td><code>defaultTab</code></td><td><code>TabKey</code></td><td>first in <code>tabs</code></td><td>Which tab to activate when the picker opens</td></tr>
             <tr><td><code>enabledFilters</code></td><td><code>FilterKey[]</code></td><td>all</td><td>Restrict which filters appear in the toolbar</td></tr>
             <tr><td><code>rootFolderPath</code></td><td><code>string</code></td><td><code>'/'</code></td><td>Start browsing from a specific folder path (e.g. <code>'/marketing/banners/'</code>)</td></tr>
@@ -57,13 +57,14 @@ const page: Page = {
             <tr><td><code>brandColor</code></td><td><code>string</code></td><td>from API</td><td>Brand accent colour as hex (e.g. <code>'#3b82f6'</code>)</td></tr>
             <tr><td><code>rememberLastFolder</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Persist the last browsed folder and restore on next open</td></tr>
             <tr><td><code>rememberLastView</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Persist the last used view mode (grid/list) and restore on next open</td></tr>
-            <tr><td><code>rememberLastTab</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Persist the last active tab (assets/folders) and restore on next open</td></tr>
+            <tr><td><code>rememberLastTab</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Persist the last active tab and restore on next open</td></tr>
             <tr><td><code>defaultFilters</code></td><td><code>FiltersInput</code></td><td><code>undefined</code></td><td>Filters pre-applied on open. User can modify/remove</td></tr>
             <tr><td><code>forcedFilters</code></td><td><code>FiltersInput</code></td><td><code>undefined</code></td><td>Filters always active. Locked chips the user cannot remove</td></tr>
             <tr><td><code>enableAISearch</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Show an AI search toggle in the search bar. When active, queries use semantic/visual AI matching via the Filerobot API</td></tr>
             <tr><td><code>defaultAISearch</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Activate AI search mode by default when the picker opens. Requires <code>enableAISearch: true</code></td></tr>
             <tr><td><code>uploader</code></td><td><code>UploaderIntegrationConfig</code></td><td><code>undefined</code></td><td>Enable the integrated uploader. Shows an Upload button &amp; drop zone. Requires <code>@scaleflex/uploader</code> (optional peer dep, loaded dynamically)</td></tr>
-            <tr><td><code>onSelect</code></td><td><code>(assets: Asset[]) =&gt; void</code></td><td><code>undefined</code></td><td>Callback when assets are selected</td></tr>
+            <tr><td><code>transformations</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Enable transformation options (format, quality, resize) before selection is finalized. When enabled, an "Export options" button appears in the selection bar for image assets, opening a dialog to adjust format, quality, and dimensions. The resulting CDN URLs include the transformation parameters</td></tr>
+            <tr><td><code>onSelect</code></td><td><code>(assets: Asset[], folders?: Folder[]) =&gt; void</code></td><td><code>undefined</code></td><td>Callback when assets are selected. When transformations are enabled, each image asset includes a <code>transformation</code> property with <code>params</code> and <code>url</code> (<code>{ cdn, permalink_cdn? }</code> — transformed CDN URLs)</td></tr>
             <tr><td><code>onCancel</code></td><td><code>() =&gt; void</code></td><td><code>undefined</code></td><td>Callback when the picker is cancelled</td></tr>
           </tbody>
         </table>

@@ -193,6 +193,13 @@ export class ApFilterType extends LitElement {
     .option.selected ap-icon {
       color: var(--ap-primary, oklch(0.578 0.198 268.129));
     }
+
+    .no-results {
+      padding: 12px;
+      text-align: center;
+      font-size: var(--ap-font-size-sm, 0.875rem);
+      color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+    }
   `;
 
   @property({ type: Array }) selected: string[] = [];
@@ -367,7 +374,9 @@ export class ApFilterType extends LitElement {
           : nothing}
       </div>
       <div class="groups">
-        ${groups.map((g) => this._renderGroup(g))}
+        ${groups.length === 0 && this._search.trim()
+          ? html`<div class="no-results">No formats found</div>`
+          : groups.map((g) => this._renderGroup(g))}
       </div>
     `;
   }

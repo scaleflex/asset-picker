@@ -90,6 +90,10 @@ export class ApSelectionBar extends LitElement {
     .btn-confirm:hover {
       background: oklch(1 0 0 / 0.1);
     }
+    .btn-transform {
+      margin-right: 8px;
+      border-color: oklch(1 0 0 / 0.5);
+    }
     @media (prefers-reduced-motion: reduce) {
       .bar { animation: none; }
     }
@@ -102,6 +106,7 @@ export class ApSelectionBar extends LitElement {
   @property({ type: Boolean }) isSelectingAll = false;
   @property({ type: Boolean }) multiSelect = true;
   @property({ type: Number }) maxSelections?: number;
+  @property({ type: Boolean }) showTransform = false;
 
   private get _totalSelected(): number {
     return this.selectedAssets.length + this.selectedFolders.length;
@@ -119,6 +124,14 @@ export class ApSelectionBar extends LitElement {
 
   private _confirm() {
     this.dispatchEvent(new CustomEvent('selection-confirm', {
+      detail: { assets: this.selectedAssets, folders: this.selectedFolders },
+      bubbles: true,
+      composed: true,
+    }));
+  }
+
+  private _transform() {
+    this.dispatchEvent(new CustomEvent('selection-transform', {
       detail: { assets: this.selectedAssets, folders: this.selectedFolders },
       bubbles: true,
       composed: true,
@@ -191,6 +204,9 @@ export class ApSelectionBar extends LitElement {
             : nothing}
         ` : nothing}
         <div class="spacer"></div>
+        ${this.showTransform ? html`
+          <button class="btn-confirm btn-transform" @click=${this._transform}>Transform</button>
+        ` : nothing}
         <button class="btn-confirm" @click=${this._confirm}>Confirm</button>
       </div>
     `;

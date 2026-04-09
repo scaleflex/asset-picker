@@ -4,5 +4,5 @@ export interface Label {
   name: string;
   color: string;
   shape: string;
-  assetsCount: number;
+  assets_count: number;
 }

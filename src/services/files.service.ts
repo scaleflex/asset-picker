@@ -35,6 +35,9 @@ function buildApiParams(params: GetFilesParams): Record<string, unknown> {
     if (params.ai_lang) apiParams.ai_lang = params.ai_lang;
   }
 
+  if (params.collection_uuid) apiParams.collection_uuid = params.collection_uuid;
+  if (params.f64) apiParams.f64 = params.f64;
+
   return apiParams;
 }
 
@@ -57,12 +60,12 @@ export interface GetFilesStatsResponse {
 
 export async function getFilesStats(
   client: ApiClient,
-  params: { folder: string; q?: string; search?: string; recursive?: number; with_ai?: boolean; ai_query?: string; ai_lang?: string },
+  params: { folder?: string; q?: string; search?: string; recursive?: number; with_ai?: boolean; ai_query?: string; ai_lang?: string; collection_uuid?: string; f64?: string },
 ): Promise<GetFilesStatsResponse> {
   const apiParams: Record<string, unknown> = {
-    folder: params.folder,
     recursive: params.recursive ?? 1,
   };
+  if (params.folder) apiParams.folder = params.folder;
   const parts: string[] = [];
   if (params.search && !params.with_ai) parts.push(params.search);
   if (params.q) parts.push(params.q);
@@ -72,5 +75,7 @@ export async function getFilesStats(
     if (params.ai_query) apiParams.ai_query = params.ai_query;
     if (params.ai_lang) apiParams.ai_lang = params.ai_lang;
   }
+  if (params.collection_uuid) apiParams.collection_uuid = params.collection_uuid;
+  if (params.f64) apiParams.f64 = params.f64;
   return client.request<GetFilesStatsResponse>('/files/stats', apiParams);
 }

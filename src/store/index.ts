@@ -27,6 +27,13 @@ export function createStore(): Store<AppState> {
     currentFolder: null,
     currentFolderPath: '/',
     breadcrumb: [],
+    activeLabelUuid: null,
+
+    collections: [],
+    activeCollectionUuid: null,
+    activeCollectionFolders: [],
+    activeCollectionFolder: null,
+    isLoadingCollectionFolders: false,
 
     offset: 0,
     limit: 100,

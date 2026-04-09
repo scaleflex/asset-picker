@@ -58,6 +58,11 @@ export class ApFilterDate extends LitElement {
   }
 
   private _selectPreset(value: string) {
+    // Deselected via clearable radio — clear filter
+    if (!value) {
+      this._clearAll();
+      return;
+    }
     const kind = this._kindFromValue(value);
     this.kind = kind;
     this.preset = value;
@@ -154,6 +159,7 @@ export class ApFilterDate extends LitElement {
       <div class="filter-section">
         <span class="section-label">Range</span>
         <ap-radio-group
+          clearable
           columns="2"
           .options=${this._rangeOptions}
           .value=${this.preset}

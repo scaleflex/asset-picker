@@ -43,6 +43,7 @@ export class ApBreadcrumb extends LitElement {
   `;
 
   @property({ type: Array }) items: BreadcrumbItem[] = [];
+  @property() rootLabel = 'Root';
 
   private _navigate(uuid: string) {
     this.dispatchEvent(new CustomEvent('breadcrumb-navigate', { detail: { uuid }, bubbles: true, composed: true }));
@@ -52,7 +53,7 @@ export class ApBreadcrumb extends LitElement {
     if (this.items.length === 0) return html``;
     return html`
       <nav class="breadcrumb" aria-label="Breadcrumb">
-        <button @click=${() => this._navigate('')}>Root</button>
+        <button @click=${() => this._navigate('')}>${this.rootLabel}</button>
         ${this.items.map(
           (item, i) => html`
             <ap-icon name="chevron-right" .size=${14}></ap-icon>

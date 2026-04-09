@@ -64,6 +64,7 @@ export class ApDropdown extends LitElement {
         gap: 8px;
         width: 100%;
         padding: 6px 12px;
+        justify-content: space-between;
         border: none;
         background: none;
         color: var(--ap-foreground, oklch(0.37 0.022 248.413));
@@ -76,15 +77,43 @@ export class ApDropdown extends LitElement {
       .option:hover, .option.focused {
         background: var(--ap-muted, oklch(0.974 0.006 239.819));
       }
+      .option-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
       .option[aria-selected="true"] {
         background: var(--ap-selection-bg, oklch(0.578 0.198 268.129 / 0.08));
+        color: var(--ap-primary, oklch(0.578 0.198 268.129));
+      }
+      .option[aria-selected="true"] > ap-icon {
         color: var(--ap-primary, oklch(0.578 0.198 268.129));
       }
       .trigger .label {
         color: var(--ap-secondary-foreground, oklch(53.03% 0.039 249.89));
       }
+      .clear-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        margin: 0 -4px 0 auto;
+        border: none;
+        background: none;
+        color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+        cursor: pointer;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .clear-trigger:hover {
+        color: var(--ap-foreground, oklch(0.37 0.022 248.413));
+      }
+      .clear-trigger ap-icon {
+        color: inherit;
+      }
       .trigger ap-icon {
         color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
+        margin-left: auto;
       }
       .option ap-icon {
         color: var(--ap-muted-foreground, oklch(0.685 0.033 249.82));
@@ -98,6 +127,7 @@ export class ApDropdown extends LitElement {
   @property() value = '';
   @property() label = '';
   @property({ reflect: true }) variant: 'default' | 'borderless' = 'default';
+  @property({ type: Boolean }) clearable = false;
   @property({ type: Array }) options: DropdownOption[] = [];
   @state() private _open = false;
   @state() private _focusedIndex = -1;
@@ -107,6 +137,7 @@ export class ApDropdown extends LitElement {
   @state() private _menuBottom = 0;
   @state() private _menuLeft = 0;
   @state() private _menuRight = 0;
+  @state() private _menuWidth = 0;
 
   close() {
     this._open = false;
@@ -127,7 +158,9 @@ export class ApDropdown extends LitElement {
       >
         ${selected?.icon ? html`<ap-icon name=${selected.icon} .size=${16}></ap-icon>` : nothing}
         ${this.label ? html`<span class="label">${this.label}${selected ? ': ' : ''}</span>` : nothing}${selected ? selected.label : ''}
-        <ap-icon name="chevron-down" .size=${14}></ap-icon>
+        ${this.clearable && selected
+          ? html`<span class="clear-trigger" @click=${this._clear}><ap-icon name="close" .size=${12}></ap-icon></span>`
+          : html`<ap-icon name="chevron-down" .size=${14}></ap-icon>`}
       </button>
       ${this._open ? html`
         <div
@@ -136,6 +169,7 @@ export class ApDropdown extends LitElement {
           style="
             ${this._menuPosition === 'below' ? `top: ${this._menuTop}px` : `bottom: ${this._menuBottom}px`};
             ${this._menuAlign === 'align-left' ? `left: ${this._menuLeft}px` : `right: ${this._menuRight}px`};
+            ${this._menuWidth ? `min-width: ${this._menuWidth}px` : ''};
           "
           role="listbox"
           @keydown=${this._handleMenuKeydown}
@@ -149,8 +183,11 @@ export class ApDropdown extends LitElement {
                 @click=${() => this._select(opt.value)}
                 @mouseenter=${() => { this._focusedIndex = i; }}
               >
-                ${opt.icon ? html`<ap-icon name=${opt.icon} .size=${16}></ap-icon>` : nothing}
-                ${opt.label}
+                <span class="option-label">
+                  ${opt.icon ? html`<ap-icon name=${opt.icon} .size=${16}></ap-icon>` : nothing}
+                  ${opt.label}
+                </span>
+                ${opt.value === this.value ? html`<ap-icon name="check" .size=${14}></ap-icon>` : nothing}
               </button>
             `
           )}
@@ -172,6 +209,11 @@ export class ApDropdown extends LitElement {
     }
   }
 
+  private _clear(e: Event) {
+    e.stopPropagation();
+    this.dispatchEvent(new CustomEvent('ap-change', { detail: { value: '' }, bubbles: true, composed: true }));
+  }
+
   private _select(value: string) {
     this._open = false;
     document.removeEventListener('click', this._handleOutsideClick);
@@ -180,6 +222,7 @@ export class ApDropdown extends LitElement {
 
   private _updateMenuPosition() {
     const rect = this.getBoundingClientRect();
+    this._menuWidth = rect.width;
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
     const menuHeight = Math.min(this.options.length * 36 + 8, 300);
