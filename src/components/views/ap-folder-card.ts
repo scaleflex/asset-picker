@@ -259,7 +259,7 @@ export class ApFolderCard extends LitElement {
           const img = e.target as HTMLImageElement;
           const slot = img.parentElement;
           // If the loaded image is an icon, apply icon styling
-          if (img.src.includes('scaleflex/assets/file-types')) {
+          if (img.src.includes('assets/file-types')) {
             img.classList.add('icon-mode');
             slot?.classList.add('icon-bg');
           }
