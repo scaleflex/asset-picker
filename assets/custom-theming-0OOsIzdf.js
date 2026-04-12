@@ -1,4 +1,4 @@
-import{b as s}from"./index-DeQhaZNH.js";import{r as d}from"./code-block-Bk3NnwHF.js";const n={render(){return`
+import{b as s}from"./index-BqysEWZn.js";import{r as d}from"./code-block-Bk3NnwHF.js";const n={render(){return`
       <div class="page-header">
         <h1>Custom theming</h1>
         <p>Override CSS custom properties on the <code>&lt;sfx-asset-picker&gt;</code> element for full control over colors, radii, and fonts — including dark themes.</p>

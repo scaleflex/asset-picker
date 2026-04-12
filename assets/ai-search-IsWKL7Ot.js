@@ -1,4 +1,4 @@
-import{b as c}from"./index-DeQhaZNH.js";import{r}from"./code-block-Bk3NnwHF.js";let e=!1;const l={render(){return`
+import{b as c}from"./index-BqysEWZn.js";import{r}from"./code-block-Bk3NnwHF.js";let e=!1;const l={render(){return`
       <div class="page-header">
         <h1>AI search</h1>
         <p>

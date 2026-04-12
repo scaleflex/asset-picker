@@ -1,4 +1,4 @@
-import{b as d}from"./index-DeQhaZNH.js";import{r as g}from"./code-block-Bk3NnwHF.js";const a={lastTab:"ap-last-tab",lastFolder:"ap-last-folder",lastView:"ap-last-view"};let t=!0,s=!0,o=!0;function r(e){try{localStorage.removeItem(e)}catch{}}const u={render(){return`
+import{b as d}from"./index-BqysEWZn.js";import{r as g}from"./code-block-Bk3NnwHF.js";const a={lastTab:"ap-last-tab",lastFolder:"ap-last-folder",lastView:"ap-last-view"};let t=!0,s=!0,o=!0;function r(e){try{localStorage.removeItem(e)}catch{}}const u={render(){return`
       <div class="page-header">
         <h1>Preferences</h1>
         <p>Persist the user's last active tab, last folder, and last view mode across sessions using <code>rememberLastTab</code>, <code>rememberLastFolder</code>, and <code>rememberLastView</code>. Values are stored in localStorage and restored automatically on next open.</p>

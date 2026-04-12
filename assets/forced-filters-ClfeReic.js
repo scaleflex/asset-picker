@@ -1,4 +1,4 @@
-import{b as c}from"./index-DeQhaZNH.js";import{r as a}from"./code-block-Bk3NnwHF.js";let t=["image"];function n(){const e=document.getElementById("code-container");if(!e)return;e.innerHTML="";const o=t.map(i=>`'${i}'`).join(", ");a("#code-container",[{label:"JavaScript",lang:"javascript",code:`
+import{b as c}from"./index-BqysEWZn.js";import{r as a}from"./code-block-Bk3NnwHF.js";let t=["image"];function n(){const e=document.getElementById("code-container");if(!e)return;e.innerHTML="";const o=t.map(i=>`'${i}'`).join(", ");a("#code-container",[{label:"JavaScript",lang:"javascript",code:`
 picker.config = {
   auth: { /* ... */ },
   forcedFilters: {

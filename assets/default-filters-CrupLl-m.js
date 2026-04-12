@@ -1,4 +1,4 @@
-import{b as l}from"./index-DeQhaZNH.js";import{r as a}from"./code-block-Bk3NnwHF.js";let t="image";function i(){const e=document.getElementById("code-container");e&&(e.innerHTML="",a("#code-container",[{label:"JavaScript",lang:"javascript",code:`
+import{b as l}from"./index-BqysEWZn.js";import{r as a}from"./code-block-Bk3NnwHF.js";let t="image";function i(){const e=document.getElementById("code-container");e&&(e.innerHTML="",a("#code-container",[{label:"JavaScript",lang:"javascript",code:`
 picker.config = {
   auth: { /* ... */ },
   defaultFilters: {

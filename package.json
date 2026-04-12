@@ -1,6 +1,6 @@
 {
   "name": "@scaleflex/asset-picker",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Framework-agnostic Asset Picker for Scaleflex VXP DAM",
   "type": "module",
   "main": "dist/index.cjs",
@@ -45,6 +45,7 @@
     "lit": "^3.2.0"
   },
   "devDependencies": {
+    "@scaleflex/uploader": "^1.0.6",
     "@tailwindcss/vite": "^4.0.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

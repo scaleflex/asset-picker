@@ -1627,8 +1627,8 @@ _t.styles = S`
       display: flex;
       flex-direction: column;
       height: 100%;
-      height: 100%;
       max-height: var(--ap-modal-max-height, 85vh);
+      overflow: hidden;
     }
     .modal-header {
       flex-shrink: 0;
@@ -13501,7 +13501,15 @@ const Ds = class Ds extends C {
       header: s.header ?? "back",
       clearOnClose: s.clearOnClose,
       clearOnComplete: s.clearOnComplete,
-      rejectedFileAutoRemoveDelay: s.rejectedFileAutoRemoveDelay
+      closeOnComplete: s.closeOnComplete,
+      rejectedFileAutoRemoveDelay: s.rejectedFileAutoRemoveDelay,
+      lastUploadReview: s.lastUploadReview,
+      showLocateButton: s.showLocateButton,
+      showCopyCdnButton: s.showCopyCdnButton,
+      getLocateUrl: s.getLocateUrl,
+      minimizeOnUpload: s.minimizeOnUpload,
+      metadataConfig: s.metadataConfig,
+      tusConfig: s.tusConfig
     };
   }
   /** Open the uploader panel, optionally pre-loading files (from drop). */

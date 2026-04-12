@@ -124,7 +124,66 @@ export interface UploaderIntegrationConfig {
     clearOnClose?: boolean;
     /** Whether the "Done" action clears all files. Default: true. */
     clearOnComplete?: boolean;
+    /** Auto-close after all uploads complete. true = 1500ms delay, or pass ms. Default: false. */
+    closeOnComplete?: boolean | number;
     /** Auto-remove rejected files after this delay (ms). Default: 4000. Set 0 or false to disable. */
     rejectedFileAutoRemoveDelay?: number | false;
+    /**
+     * Enable last-upload review screen. Shows previously uploaded files when re-opening.
+     * - `false` (default) — disabled
+     * - `true` — enabled, auto-scoped by container + airboxPuid
+     * - `string` — explicit storage key suffix for same-airbox disambiguation
+     */
+    lastUploadReview?: boolean | string;
+    /** Show "Locate" button on completed files. Default: false. */
+    showLocateButton?: boolean;
+    /** Show "Copy CDN URL" button on completed files. Default: false. */
+    showCopyCdnButton?: boolean;
+    /** Custom URL resolver for the "Locate" button. Return null to hide for a specific file. */
+    getLocateUrl?: (file: any) => string | null | undefined;
+    /** Show "Minimize & continue" button during uploads. Default: false. */
+    minimizeOnUpload?: boolean;
+    /** Metadata schema configuration for the "Fill Metadata" modal. */
+    metadataConfig?: {
+        /** Project UUID for fetching metadata schema from Hub API. */
+        projectUuid: string;
+        /** Pre-fetched raw metadata schema (skips Hub API call). */
+        rawMetadata?: unknown;
+        /** Hub API base URL. Default: 'https://hub.scaleflex.com/api'. */
+        hubApiBase?: string;
+        /** Headers for Hub API requests (x-session-token, x-company-token, x-project-token). */
+        hubHeaders?: Record<string, string>;
+        /** Which metadata fields to show: 'all' or an array of field keys. */
+        fields?: 'all' | string[];
+        /** Field keys that must be filled before upload. */
+        requiredFields?: string[];
+        /** Enforce required fields before upload. 'auto' enforces only when metadata is shown. */
+        enforceRequiredBeforeUpload?: boolean | 'auto';
+        /** Show the tags field. */
+        showTags?: boolean;
+        /** Language for field labels. */
+        language?: string;
+        /** Default values for metadata fields. */
+        defaults?: Record<string, unknown>;
+    };
+    /**
+     * Resumable upload via tus protocol.
+     * - `true` — enable with defaults (10 MB threshold, 5 MB chunks)
+     * - object — fine-grained tus settings
+     */
+    tusConfig?: boolean | {
+        /** File size (bytes) above which tus is used. Default: 10 MB. 0 = always use tus. */
+        sizeThreshold?: number;
+        /** Chunk size in bytes. Default: 5 MB. */
+        chunkSize?: number;
+        /** Custom tus endpoint URL. */
+        endpoint?: string;
+        /** Persist fingerprints for cross-session resume. Default: true. */
+        resumable?: boolean;
+        /** Number of parallel chunk uploads. Default: 1. */
+        parallelChunks?: number;
+        /** Retry delays in ms. Default: [0, 1000, 3000, 5000]. */
+        retryDelays?: number[];
+    };
 }
 //# sourceMappingURL=config.types.d.ts.map
