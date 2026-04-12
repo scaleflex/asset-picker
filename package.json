@@ -31,8 +31,7 @@
     "CHANGELOG.md"
   ],
   "scripts": {
-    "dev": "vite serve dev",
-    "dev:demo": "vite serve --config vite.demo.config.ts",
+    "dev": "vite serve --config vite.demo.config.ts",
     "build": "vite build",
     "build:cdn": "vite build --config vite.cdn.config.ts",
     "release": "node scripts/release-cdn.mjs plugin",
