@@ -63,7 +63,8 @@ export function initAuthUI() {
       projectToken: tokenInput.value.trim() || DEFAULTS.projectToken,
       securityTemplateKey: keyInput.value.trim() || DEFAULTS.securityTemplateKey,
     });
-    popover.classList.add('hidden');
+    // Reload the page so all picker instances reinitialize with new credentials
+    window.location.reload();
   });
 
   document.addEventListener('click', (e) => {

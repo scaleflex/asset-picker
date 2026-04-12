@@ -2,10 +2,12 @@ import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
 import { resolve } from 'path';
 
+const isDev = process.env.NODE_ENV !== 'production';
+
 export default defineConfig({
   plugins: [tailwindcss()],
   root: 'demo',
-  base: '/asset-picker/',
+  base: isDev ? '/' : '/asset-picker/',
   build: {
     outDir: resolve(__dirname, 'demo-dist'),
     emptyOutDir: true,

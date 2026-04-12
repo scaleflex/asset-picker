@@ -76,20 +76,27 @@ const FILEROBOT_CDN_REGEX = /^(https:\/\/)([a-z0-9_-]+)\.filerobot\.com\//i;
 
 export function getFormattedPreviewUrl(cdnUrl: string, containerToken?: string): string {
   if (!cdnUrl) return '';
+
+  // Strip CDN version prefix (e.g. /v7/) from path — some tokens include it, but
+  // assets.filerobot.com URLs must not contain it.
+  const stripVersionPrefix = (url: string): string =>
+    url.replace(/(\.filerobot\.com\/[a-z0-9_-]+)\/v\d+\//i, '$1/');
+
   // Already an assets.filerobot.com URL
-  if (cdnUrl.includes('assets.filerobot.com')) return cdnUrl;
+  if (cdnUrl.includes('assets.filerobot.com')) return stripVersionPrefix(cdnUrl);
 
   const match = cdnUrl.match(FILEROBOT_CDN_REGEX);
   if (match) {
     const token = match[2];
-    return cdnUrl.replace(FILEROBOT_CDN_REGEX, `$1assets.filerobot.com/${token}/`);
+    const converted = cdnUrl.replace(FILEROBOT_CDN_REGEX, `$1assets.filerobot.com/${token}/`);
+    return stripVersionPrefix(converted);
   }
 
   // Fallback: if we have a containerToken, try to build it from the URL
   if (containerToken) {
     try {
       const u = new URL(cdnUrl);
-      return `https://assets.filerobot.com/${containerToken}${u.pathname}${u.search}`;
+      return stripVersionPrefix(`https://assets.filerobot.com/${containerToken}${u.pathname}${u.search}`);
     } catch {
       // ignore
     }
