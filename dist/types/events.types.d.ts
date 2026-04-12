@@ -1,0 +1,34 @@
+import { Asset } from './asset.types';
+import { Folder } from './folder.types';
+export interface AssetPickerSelectDetail {
+    assets: Asset[];
+    folders?: Folder[];
+}
+export interface AssetPickerCancelDetail {
+    reason: 'backdrop' | 'escape' | 'button';
+}
+export interface AssetPickerOpenDetail {
+    timestamp: number;
+}
+export interface AssetPickerErrorDetail {
+    error: Error;
+    context: string;
+}
+export interface FolderSelectDetail {
+    folder: Folder;
+    index: number;
+    event: MouseEvent;
+}
+export interface AISearchToggleDetail {
+    active: boolean;
+}
+declare global {
+    interface HTMLElementEventMap {
+        'ap-select': CustomEvent<AssetPickerSelectDetail>;
+        'ap-cancel': CustomEvent<AssetPickerCancelDetail>;
+        'ap-open': CustomEvent<AssetPickerOpenDetail>;
+        'ap-error': CustomEvent<AssetPickerErrorDetail>;
+        'ai-search-toggle': CustomEvent<AISearchToggleDetail>;
+    }
+}
+//# sourceMappingURL=events.types.d.ts.map

@@ -1,0 +1,74 @@
+{
+  "name": "@scaleflex/asset-picker",
+  "version": "1.0.1",
+  "description": "Framework-agnostic Asset Picker for Scaleflex VXP DAM",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.js",
+      "require": "./dist/react.cjs"
+    },
+    "./define": {
+      "types": "./dist/define.d.ts",
+      "import": "./dist/define.js",
+      "require": "./dist/define.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    ".claude",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "dev": "vite serve --config vite.demo.config.ts",
+    "build": "vite build",
+    "build:cdn": "vite build --config vite.cdn.config.ts",
+    "release": "node scripts/release-cdn.mjs plugin",
+    "typecheck": "tsc --noEmit",
+    "build:demo": "vite build --config vite.demo.config.ts",
+    "publish:github": "./scripts/publish-github.sh",
+    "push:source": "git push gitlab main"
+  },
+  "dependencies": {
+    "hls.js": "^1.6.15",
+    "lit": "^3.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.5.3",
+    "vite": "^6.0.0",
+    "vite-plugin-dts": "^4.0.0"
+  },
+  "peerDependencies": {
+    "@scaleflex/uploader": "^1.0.0",
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "@scaleflex/uploader": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+}
