@@ -1,9 +1,11 @@
 import { LitElement } from 'lit';
 import { FilterFileType } from '../../types/filter.types';
+import { TFunction } from '../../store/store.types';
 export declare class ApFilterType extends LitElement {
     static styles: import('lit').CSSResult;
     selected: string[];
     fileTypes: FilterFileType[];
+    t: TFunction;
     private _search;
     private _expanded;
     private _extValues;

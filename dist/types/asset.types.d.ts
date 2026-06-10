@@ -52,6 +52,8 @@ export interface Asset {
         cdn: string;
         path: string;
         permalink?: string;
+        /** Signed CDN permalink — only present when requested via `fields=cdn_permalink`. */
+        cdn_permalink?: string;
     };
     public_id?: string;
     visibility?: string;

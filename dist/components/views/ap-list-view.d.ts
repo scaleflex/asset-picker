@@ -1,12 +1,16 @@
 import { LitElement } from 'lit';
 import { Asset } from '../../types/asset.types';
 import { Folder, FolderPreviewImage } from '../../types/folder.types';
+import { TFunction } from '../../store/store.types';
 export declare class ApListView extends LitElement {
     static styles: import('lit').CSSResult;
+    t: TFunction;
     assets: Asset[];
     folders: Folder[];
     selectedIds: string[];
     selectedFolderIds: string[];
+    disabledAssetIds: string[];
+    disabledFolderIds: string[];
     isLoading: boolean;
     multiSelect: boolean;
     folderSelectable: boolean;

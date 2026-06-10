@@ -1,9 +1,13 @@
 import { LitElement } from 'lit';
 import { Asset } from '../../types/asset.types';
+import { TFunction } from '../../store/store.types';
 export declare class ApTransformationDialog extends LitElement {
     static styles: import('lit').CSSResult[];
     assets: Asset[];
     isMultiSelect: boolean;
+    t: TFunction;
+    exportOriginalLabel?: string;
+    applyExportLabel?: string;
     private _format;
     private _quality;
     private _width;

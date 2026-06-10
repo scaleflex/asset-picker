@@ -1,5 +1,6 @@
 import { LitElement, nothing } from 'lit';
 import { ApiClient } from '../../services/api-client';
+import { TFunction } from '../../store/store.types';
 import { MetadataModelField } from '../../types/filter.types';
 interface MetadataFilterValue {
     operator?: string;
@@ -16,6 +17,7 @@ export declare class ApFilterMetadata extends LitElement {
     pinnedFields: string[];
     appliedMetadata: Record<string, MetadataFilterValue>;
     apiClient?: ApiClient;
+    t: TFunction;
     private _showFieldSelection;
     private _fieldSearch;
     private _collapsedFields;
@@ -28,6 +30,13 @@ export declare class ApFilterMetadata extends LitElement {
     private _specificModeFields;
     private _selectSearches;
     private _tagDebounceTimers;
+    private get _tTextOperatorOptions();
+    private get _tNumberOperatorOptions();
+    private get _tSingleSelectOperatorOptions();
+    private get _tMultiSelectOperatorOptions();
+    private get _tBooleanOptions();
+    private get _tEmptyOptions();
+    private get _tEmptyAndSpecificOptions();
     connectedCallback(): void;
     disconnectedCallback(): void;
     private _focusSearch;

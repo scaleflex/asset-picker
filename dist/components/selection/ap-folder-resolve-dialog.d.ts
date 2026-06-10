@@ -1,9 +1,11 @@
 import { LitElement } from 'lit';
 import { Folder } from '../../types/folder.types';
+import { TFunction } from '../../store/store.types';
 export declare class ApFolderResolveDialog extends LitElement {
     static styles: import('lit').CSSResult[];
     folders: Folder[];
     loading: boolean;
+    t: TFunction;
     private _mode;
     private _handleConfirm;
     private _handleCancel;

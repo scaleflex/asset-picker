@@ -1,5 +1,6 @@
 import { LitElement } from 'lit';
 import { SortBy, SortDirection } from '../../types/config.types';
+import { TFunction } from '../../store/store.types';
 import { FiltersState, FilterKey, AnyFilterKey, MetadataModelField } from '../../types/filter.types';
 import { Label } from '../../types/label.types';
 import { TagWithLabel } from '../../types/tag.types';
@@ -11,6 +12,7 @@ export declare class ApContentToolbar extends LitElement {
     totalFolderCount: number;
     isLoading: boolean;
     showUpload: boolean;
+    showCreateFolder: boolean;
     showFilters: boolean;
     countLabel: string;
     sortBy: SortBy;
@@ -24,6 +26,7 @@ export declare class ApContentToolbar extends LitElement {
     pinnedFilters: AnyFilterKey[];
     forcedFilterKeys: string[];
     apiClient?: ApiClient;
+    t: TFunction;
     private _sortDropdown?;
     private _showDropdown;
     private _showMetadataSelector;
@@ -38,6 +41,7 @@ export declare class ApContentToolbar extends LitElement {
     updated(changed: Map<string, unknown>): void;
     private _closeAllDropdowns;
     private _handleUploadClick;
+    private _handleCreateFolderClick;
     private _toggleDropdown;
     private _toggleMetadataSelector;
     /** Close any open filter panel */

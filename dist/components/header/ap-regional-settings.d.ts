@@ -1,9 +1,11 @@
 import { LitElement } from 'lit';
 import { RegionalVariantGroup, RegionalFilters } from '../../types/filter.types';
+import { TFunction } from '../../store/store.types';
 export declare class ApRegionalSettings extends LitElement {
     static styles: import('lit').CSSResult;
     groups: RegionalVariantGroup[];
     selectedFilters: RegionalFilters;
+    t: TFunction;
     private _open;
     connectedCallback(): void;
     disconnectedCallback(): void;

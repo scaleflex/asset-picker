@@ -1,9 +1,11 @@
 import { LitElement } from 'lit';
+import { TFunction } from '../../store/store.types';
 export declare class ApFilterImage extends LitElement {
     static styles: import('lit').CSSResult[];
     selectedResolution: string[];
     selectedOrientation: string[];
     selectedFaces: string[];
+    t: TFunction;
     private get _hasSelection();
     private _toggle;
     private _toggleResolution;

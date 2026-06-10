@@ -1,5 +1,6 @@
 import { LitElement } from 'lit';
 import { ViewMode, TabKey } from '../../types/config.types';
+import { TFunction } from '../../store/store.types';
 import { RegionalVariantGroup, RegionalFilters } from '../../types/filter.types';
 export declare class ApHeader extends LitElement {
     static styles: import('lit').CSSResult[];
@@ -15,6 +16,7 @@ export declare class ApHeader extends LitElement {
     hideClose: boolean;
     enableAISearch: boolean;
     isAISearchActive: boolean;
+    t: TFunction;
     private _localSearch;
     private _debouncedSearch;
     disconnectedCallback(): void;

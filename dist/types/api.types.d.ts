@@ -3,6 +3,7 @@ import { Folder } from './folder.types';
 import { Label } from './label.types';
 import { Collection, CollectionFolder } from './collection.types';
 import { SortBy, SortDirection } from './config.types';
+import { Permission } from './permission.types';
 export interface ApiBaseResponse {
     status: string;
     msg: string;
@@ -21,6 +22,7 @@ export interface GetFilesParams {
     ai_lang?: string;
     collection_uuid?: string;
     f64?: string;
+    fields?: string[];
 }
 export interface GetFilesResponse extends ApiBaseResponse {
     files: Asset[];
@@ -61,6 +63,10 @@ export interface GetSettingsResponse extends ApiBaseResponse {
 }
 export interface SassKeyResponse extends ApiBaseResponse {
     key: string;
+    permissions?: Permission[];
+}
+export interface CreateFolderResponse extends ApiBaseResponse {
+    folder?: Folder;
 }
 export interface GetFiltersResponse extends ApiBaseResponse {
     filters: {

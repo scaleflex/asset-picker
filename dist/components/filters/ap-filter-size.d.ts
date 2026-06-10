@@ -1,8 +1,10 @@
 import { LitElement } from 'lit';
+import { TFunction } from '../../store/store.types';
 export declare class ApFilterSize extends LitElement {
     static styles: import('lit').CSSResult[];
     min: number;
     max: number;
+    t: TFunction;
     private _minVal;
     private _maxVal;
     private _unit;

@@ -5,6 +5,7 @@ export declare class ApFolderCard extends LitElement {
     folder: Folder;
     previews: FolderPreviewImage[];
     selected: boolean;
+    disabled: boolean;
     selectable: boolean;
     multiSelect: boolean;
     index: number;

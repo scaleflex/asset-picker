@@ -2,8 +2,10 @@ import { LitElement } from 'lit';
 import { Asset } from '../../types/asset.types';
 import { Folder } from '../../types/folder.types';
 import { GridSize } from '../../types/config.types';
+import { TFunction } from '../../store/store.types';
 export declare class ApGridView extends LitElement {
     static styles: import('lit').CSSResult;
+    t: TFunction;
     assets: Asset[];
     folders: Folder[];
     folderPreviews: Record<string, {
@@ -12,6 +14,8 @@ export declare class ApGridView extends LitElement {
     }[]>;
     selectedIds: string[];
     selectedFolderIds: string[];
+    disabledAssetIds: string[];
+    disabledFolderIds: string[];
     isLoading: boolean;
     multiSelect: boolean;
     folderSelectable: boolean;

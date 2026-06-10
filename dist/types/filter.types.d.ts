@@ -142,6 +142,7 @@ export interface FiltersState {
 }
 export interface FilterItemConfig {
     key: FilterKey;
+    labelKey: string;
     label: string;
     icon: string;
     type: 'string' | 'date';

@@ -1,9 +1,11 @@
 import { LitElement } from 'lit';
+import { TFunction } from '../../store/store.types';
 import { ApiClient } from '../../services/api-client';
 export declare class ApFilterProductRef extends LitElement {
     static styles: import('lit').CSSResult[];
     selected: string[];
     apiClient?: ApiClient;
+    t: TFunction;
     private _searchInput?;
     private _search;
     private _debouncedSearch;

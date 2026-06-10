@@ -1,8 +1,10 @@
 import { LitElement } from 'lit';
+import { TFunction } from '../../store/store.types';
 import { DateField, DateKind } from '../../types/filter.types';
 export declare class ApFilterDate extends LitElement {
     static styles: import('lit').CSSResult[];
     filterKey: string;
+    t: TFunction;
     field: DateField;
     kind: DateKind | null;
     preset: string;
@@ -10,6 +12,7 @@ export declare class ApFilterDate extends LitElement {
     to: string;
     private get _isLicenseExpiry();
     private get _rangeOptions();
+    private get _fieldOptions();
     private get _todayStr();
     private get _hasFilter();
     /** Determine the DateKind from a preset/option value */

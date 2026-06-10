@@ -26,6 +26,9 @@ export declare class AssetPicker extends LitElement {
     private _isUploaderOpen;
     private _folderResolveOpen;
     private _transformOpen;
+    private _createFolderOpen;
+    private _isCreatingFolder;
+    private _createFolderError;
     private _transformAssets;
     private _transformFolders;
     private _transformAfterResolve;
@@ -35,6 +38,7 @@ export declare class AssetPicker extends LitElement {
     disconnectedCallback(): void;
     updated(changed: Map<string, unknown>): void;
     private _initConfig;
+    private _initI18n;
     private _doInit;
     /**
      * Ensure the uploader module is loaded (dynamic import).
@@ -72,6 +76,7 @@ export declare class AssetPicker extends LitElement {
     private _handleAssetSelect;
     private _handleFolderSelect;
     private _handleAssetPreview;
+    private get _transformationsConfig();
     private _handleQuickSelect;
     private _emitSelect;
     private _handleFolderOpen;
@@ -96,6 +101,11 @@ export declare class AssetPicker extends LitElement {
     private _handleTransformConfirm;
     private _handleTransformSkip;
     private _handleTransformCancel;
+    private _cancelCreateFolderRequested;
+    private _openCreateFolderDialog;
+    private _handleCreateFolderCancel;
+    private _handleCreateFolderConfirm;
+    private _mapCreateFolderError;
     private _handleSelectAll;
     private _handleSelectionClear;
     private _handleSelectionDeselect;

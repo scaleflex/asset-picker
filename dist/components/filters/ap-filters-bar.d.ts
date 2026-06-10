@@ -1,4 +1,5 @@
 import { LitElement, nothing } from 'lit';
+import { TFunction } from '../../store/store.types';
 import { Filters, FiltersInput, MetadataFilters, AnyFilterKey, MetadataModelField } from '../../types/filter.types';
 import { TagWithLabel } from '../../types/tag.types';
 import { Label } from '../../types/label.types';
@@ -16,6 +17,7 @@ export declare class ApFiltersBar extends LitElement {
     activeMetadataField: string | null;
     pendingFilter: AnyFilterKey | null;
     pendingMetadataField: string | null;
+    t: TFunction;
     private _mapTypeLabel;
     private _getSizeSummary;
     private _getFilterSummary;

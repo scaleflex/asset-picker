@@ -16,6 +16,7 @@ export declare const METADATA_FILTER_ITEM: FilterItemConfig;
 export declare const APPROVAL_FILTER_ITEM: FilterItemConfig;
 export declare const ALL_FILTER_ITEMS: FilterItemConfig[];
 export declare const FILTER_LABELS: Partial<Record<AnyFilterKey, string>>;
+export declare const FILTER_LABEL_KEYS: Partial<Record<AnyFilterKey, string>>;
 export declare const MIME_TYPES: {
     readonly IMAGE: "image";
     readonly VIDEO: "video";
@@ -29,34 +30,42 @@ export declare const MIME_TYPES: {
 };
 export declare const ASSET_TYPE_OPTIONS: ({
     value: "image";
+    labelKey: string;
     label: string;
     icon: string;
 } | {
     value: "video";
+    labelKey: string;
     label: string;
     icon: string;
 } | {
     value: "audio";
+    labelKey: string;
     label: string;
     icon: string;
 } | {
     value: "document";
+    labelKey: string;
     label: string;
     icon: string;
 } | {
     value: "archive";
+    labelKey: string;
     label: string;
     icon: string;
 } | {
     value: "template_fdt";
+    labelKey: string;
     label: string;
     icon: string;
 } | {
     value: "font";
+    labelKey: string;
     label: string;
     icon: string;
 } | {
     value: "other";
+    labelKey: string;
     label: string;
     icon: string;
 })[];
@@ -69,121 +78,157 @@ export declare const IMAGE_FILTER_KEY_INDEX: {
 export declare const RESOLUTION_OPTIONS: {
     value: string;
     label: string;
+    labelKey: string;
 }[];
 export declare const ORIENTATION_OPTIONS: {
     value: string;
     label: string;
+    labelKey: string;
 }[];
-export declare const FACES_OPTIONS: {
+export declare const FACES_OPTIONS: ({
     value: string;
     label: string;
-}[];
+    labelKey: string;
+} | {
+    value: string;
+    label: string;
+    labelKey?: undefined;
+})[];
 export declare const DATE_FIELD_OPTIONS: {
     value: string;
     label: string;
+    labelKey: string;
 }[];
 export declare const DATE_RANGE_OPTIONS: {
     value: string;
     label: string;
+    labelKey: string;
 }[];
 export declare const LICENSE_DATE_RANGE_OPTIONS: {
     value: string;
     label: string;
+    labelKey: string;
 }[];
 export declare const WITHIN_DATE_RANGE_OPTIONS: {
     value: string;
     label: string;
+    labelKey: string;
 }[];
 export declare const APPROVAL_STATUS_OPTIONS: {
     value: string;
     label: string;
+    labelKey: string;
 }[];
 export declare const COLOR_PALETTE: string[];
 export declare const COLOR_DIFFERENCE_OPTIONS: {
     label: string;
     value: string;
+    labelKey: string;
 }[];
 export declare const TEXT_OPERATOR_OPTIONS: ({
     label: string;
     value: ":";
+    labelKey: string;
 } | {
     label: string;
     value: "~~~";
+    labelKey: string;
 })[];
 export declare const SINGLE_SELECT_OPERATOR_OPTIONS: ({
     label: string;
     value: ":";
+    labelKey: string;
 } | {
     label: string;
     value: ":-";
+    labelKey: string;
 })[];
 export declare const MULTI_SELECT_OPERATOR_OPTIONS: ({
     label: string;
     value: ":=";
+    labelKey: string;
 } | {
     label: string;
     value: ":";
+    labelKey: string;
 } | {
     label: string;
     value: ":-";
+    labelKey: string;
 })[];
 export declare const NUMBER_OPERATOR_OPTIONS: ({
     label: string;
     value: ":";
+    labelKey: string;
 } | {
     label: string;
     value: ">=";
+    labelKey: string;
 } | {
     label: string;
     value: ":-";
+    labelKey: string;
 } | {
     label: string;
     value: "<=";
+    labelKey: string;
 } | {
     label: string;
     value: "..";
+    labelKey: string;
 })[];
 export declare const PRODUCTS_OPERATOR_OPTIONS: ({
     label: string;
     value: ":";
+    labelKey: string;
 } | {
     label: string;
     value: "~^";
+    labelKey: string;
 } | {
     label: string;
     value: "~";
+    labelKey: string;
 })[];
 export declare const APPROVAL_OPERATOR_OPTIONS: ({
     label: string;
     value: ":=";
+    labelKey: string;
 } | {
     label: string;
     value: ":-";
+    labelKey: string;
 })[];
 export declare const APPROVAL_PERSON_OPERATOR_OPTIONS: ({
     label: string;
     value: "~";
+    labelKey: string;
 } | {
     label: string;
     value: ":-";
+    labelKey: string;
 })[];
 export declare const APPROVAL_STATUS_ONLY_OPTIONS: {
     value: string;
     label: string;
+    labelKey: string;
     icon: string;
     iconColor: string;
 }[];
 export declare const EMPTY_OPTIONS: {
     label: string;
     value: string;
+    labelKey: string;
 }[];
 export declare const EMPTY_AND_SPECIFIC_OPTIONS: {
     label: string;
     value: string;
+    labelKey: string;
 }[];
 export declare const BOOLEAN_OPTIONS: {
     label: string;
     value: string;
+    labelKey: string;
 }[];
 export declare const METADATA_FIELD_TYPE_ICONS: Record<MetadataFieldType, string>;
 export type MetadataFilterUIType = 'text' | 'number' | 'boolean' | 'select-one' | 'multi-select' | 'tags' | 'date' | 'geo' | 'attachment';

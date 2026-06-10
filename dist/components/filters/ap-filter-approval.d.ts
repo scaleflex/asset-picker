@@ -1,6 +1,8 @@
 import { LitElement } from 'lit';
+import { TFunction } from '../../store/store.types';
 export declare class ApFilterApproval extends LitElement {
     static styles: import('lit').CSSResult[];
+    t: TFunction;
     selectedStatus: string[];
     statusOperator: string;
     approverValue: string;

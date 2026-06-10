@@ -2,6 +2,7 @@ import { LitElement, nothing } from 'lit';
 import { Asset } from '../../types/asset.types';
 import { Label } from '../../types/label.types';
 import { MetadataModelField, RegionalFilters } from '../../types/filter.types';
+import { TFunction } from '../../store/store.types';
 export declare class ApPreviewPanel extends LitElement {
     static styles: import('lit').CSSResult;
     asset: Asset | null;
@@ -13,6 +14,7 @@ export declare class ApPreviewPanel extends LitElement {
     labels: Label[];
     regionalFilters: RegionalFilters;
     multiSelect: boolean;
+    t: TFunction;
     previewArea?: HTMLElement;
     private _videoEl?;
     private _isFullscreen;

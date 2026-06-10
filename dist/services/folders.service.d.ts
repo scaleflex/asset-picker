@@ -23,4 +23,11 @@ export interface FolderPreviewsResponse {
     folders: Record<string, FolderPreview[]>;
 }
 export declare function getFoldersPreviews(client: ApiClient, folderUuids: string[]): Promise<Record<string, FolderPreview[]>>;
+/**
+ * Creates a folder under `parentFolderPath`. The backend's `name` field is
+ * actually a full path; we build it here from parent + leaf name. Caller
+ * is responsible for trimming and validating `leafName`; `parentFolderPath`
+ * is expected to start with `/`.
+ */
+export declare function createFolder(client: ApiClient, leafName: string, parentFolderPath: string): Promise<void>;
 //# sourceMappingURL=folders.service.d.ts.map

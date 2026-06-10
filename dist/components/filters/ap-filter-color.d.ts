@@ -1,8 +1,10 @@
 import { LitElement } from 'lit';
+import { TFunction } from '../../store/store.types';
 export declare class ApFilterColor extends LitElement {
     static styles: import('lit').CSSResult[];
     /** Stored filter values from state, e.g. ["#FF0000 1 1 20", "#00FF00 2 2 30"] */
     values: string[];
+    t: TFunction;
     private _colors;
     private _advanced;
     private _showPalette;

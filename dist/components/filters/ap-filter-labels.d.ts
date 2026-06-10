@@ -1,9 +1,11 @@
 import { LitElement } from 'lit';
 import { Label } from '../../types/label.types';
+import { TFunction } from '../../store/store.types';
 export declare class ApFilterLabels extends LitElement {
     static styles: import('lit').CSSResult[];
     labels: Label[];
     selected: string[];
+    t: TFunction;
     private _searchInput?;
     private _search;
     connectedCallback(): void;

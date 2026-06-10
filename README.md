@@ -40,6 +40,7 @@
 - [Configuration](#configuration)
   - [Authentication](#authentication)
   - [Config Options](#config-options)
+  - [Content-Security-Policy & thumbnail proxying](#content-security-policy--thumbnail-proxying)
   - [Default & Forced Filters](#default--forced-filters)
 - [Public Methods](#public-methods)
 - [Events](#events)
@@ -86,6 +87,7 @@ The npm package contains **only pre-built, minified production files** (`dist/`)
 - **Marquee selection** — click-and-drag to select multiple assets
 - **Approval workflow** — filter by approval status, approver, requester, due date
 - **Regional variants** — metadata variant groups with per-variant filtering
+- **Internationalisation** — built-in i18n via i18next; pass `locale` in config (`'fr'`, `'de'`, `'en-US'`, etc.) — falls back to English for untranslated keys
 - **Customisable theming** — brand color config + 20 CSS custom properties
 - **Tiny footprint** — ~70 KB gzipped (main chunk)
 
@@ -118,7 +120,7 @@ pnpm add @scaleflex/asset-picker
 No bundler? Add a single script tag:
 
 ```html
-<script src="https://cdn.scaleflex.com/asset-picker/0.2.18/asset-picker.min.js"></script>
+<script src="https://cdn.scaleflex.com/asset-picker/1.2.2/asset-picker.min.js"></script>
 ```
 
 This auto-registers `<sfx-asset-picker>` — no imports needed. See the [CDN quick start](#cdn-1) below.
@@ -156,6 +158,7 @@ Both ESM (`import`) and CJS (`require`) builds are provided.
       securityTemplateKey: 'YOUR_KEY',
       projectToken: 'YOUR_TOKEN',
     },
+    locale: 'fr', // optional — defaults to 'en'
   };
 
   // 4. Listen for events
@@ -195,6 +198,7 @@ function App() {
             securityTemplateKey: 'YOUR_KEY',
             projectToken: 'YOUR_TOKEN',
           },
+          locale: 'fr', // optional — defaults to 'en'
         }}
         onSelect={(assets) => console.log(assets)}
         onCancel={() => console.log('Cancelled')}
@@ -210,7 +214,7 @@ function App() {
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="https://cdn.scaleflex.com/asset-picker/0.2.18/asset-picker.min.js"></script>
+  <script src="https://cdn.scaleflex.com/asset-picker/1.2.2/asset-picker.min.js"></script>
 </head>
 <body>
   <sfx-asset-picker></sfx-asset-picker>
@@ -224,6 +228,7 @@ function App() {
         securityTemplateKey: 'YOUR_KEY',
         projectToken: 'YOUR_TOKEN',
       },
+      locale: 'fr', // optional — defaults to 'en'
     };
     picker.addEventListener('ap-select', (e) => {
       console.log('Selected:', e.detail.assets);
@@ -275,7 +280,8 @@ Use when your application already has a SASS key — e.g. inside the Scaleflex H
 |---|---|---|---|
 | `auth` | `AuthConfig` | **required** | Authentication credentials (see above) |
 | `apiBase` | `string` | auto | Override the API base URL |
-| `locale` | `string` | `undefined` | Locale for translations |
+| `apiFields` | `string[]` | `['cdn_permalink']` | Extra computed Files API fields to request, added on top of the default response (does not narrow it). The default exposes the signed CDN permalink as `url.cdn_permalink` on selected assets. Pass extra keys (e.g. `['cdn_permalink', 'relations']`) or `[]` to request none |
+| `locale` | `string` | `'en'` | BCP 47 locale tag for the UI language (e.g. `'fr'`, `'de'`, `'en-US'`). Translations are loaded lazily from the Scaleflex TMS CDN; falls back to English for any untranslated keys |
 | `multiSelect` | `boolean` | `true` | Enable multi-asset selection |
 | `maxSelections` | `number` | `undefined` | Maximum number of selectable assets |
 | `defaultViewMode` | `'grid' \| 'list'` | `'grid'` | Initial view mode |
@@ -298,6 +304,7 @@ Use when your application already has a SASS key — e.g. inside the Scaleflex H
 | `folderSelection` | `boolean` | `true` | Allow selecting folders via checkboxes |
 | `folderSelectionMode` | `'folder' \| 'assets'` | `'folder'` | `'folder'` returns Folder objects; `'assets'` fetches folder contents and returns only Assets |
 | `uploader` | `UploaderIntegrationConfig` | `undefined` | Enable integrated uploader. Adds an "Upload" button and drop zone. Requires `@scaleflex/uploader` |
+| `transformRemoteThumbnail` | `(url: string, ctx: RemoteThumbnailContext) => string` | `undefined` | Rewrite every preview/thumbnail image URL before it renders (e.g. wrap in a CSP-permitted proxy). See [Content-Security-Policy](#content-security-policy--thumbnail-proxying) |
 | `onSelect` | `(assets: Asset[], folders?: Folder[]) => void` | `undefined` | Callback when assets are selected |
 | `onCancel` | `() => void` | `undefined` | Callback when the picker is cancelled |
 
@@ -317,6 +324,45 @@ Use when your application already has a SASS key — e.g. inside the Scaleflex H
 | `'updated_at'` | Assets |
 | `'files_count_recursive'` | Folders only |
 | `'files_size_recursive'` | Folders only |
+
+### Content-Security-Policy & thumbnail proxying
+
+If the host page enforces a `Content-Security-Policy` that does not allow the Filerobot
+asset CDN (`assets.filerobot.com` / `*.filerobot.com`) as an `img-src`, asset thumbnails
+will be blocked. Use `transformRemoteThumbnail` to rewrite every preview image URL through
+a CSP-permitted proxy:
+
+```ts
+picker.config = {
+  auth: { /* ... */ },
+  transformRemoteThumbnail: (url, ctx) => {
+    // ctx.source: 'asset' | 'video' | 'pdf' | 'folder' (+ 'url-import' | 'connector'
+    // when forwarded to the integrated uploader). ctx.asset is the Asset when available.
+    return `https://proxy.example.com/?u=${encodeURIComponent(url)}`;
+  },
+};
+```
+
+What it covers:
+
+- **Rewritten:** grid cards, list rows, folder previews, and every image in the preview
+  panel — the main image, the fullscreen image, and the video poster. If the `uploader`
+  is enabled, the same function is forwarded to it (`ctx.source` is `'url-import'` or
+  `'connector'`), so branch on `ctx.source` to handle both.
+- **Not rewritten:** the `<video>` / `<audio>` playback streams (including HLS). Those
+  are the actual media, not previews — allow their origin in `media-src` instead.
+
+Notes:
+
+- Return the original `url` (or any falsy value) to leave it unchanged. The callback runs
+  once per image per render, so keep it pure and cheap; thrown errors are caught and the
+  original URL is used.
+- The transform is registered process-wide. If two pickers share a page the last one
+  configured wins, and a picker mounted without this option clears a previously registered
+  transform.
+- **File-type fallback icons** (shown for non-thumbnailable assets) are served from
+  `scaleflex.cloudimg.io` and are **not** routed through this callback. A strict CSP must
+  allowlist that origin in `img-src`, or use a CDN proxy at the network level for it.
 
 ### Default & Forced Filters
 
@@ -350,6 +396,23 @@ forcedFilters: {
 - **`defaultFilters`** are seeded into the applied filters state when `open()` is called. The user sees them as normal filter chips and can modify or remove them freely.
 - **`forcedFilters`** are merged into every API request but are **not** stored in the mutable applied state. They render as locked chips (with a lock icon instead of an X button). The user cannot remove them, and "Clear filters" does not affect them. Forced filter keys are also hidden from the "Add filter" dropdown.
 - If the same key appears in both `defaultFilters` and `forcedFilters`, the forced filter takes precedence — the default filter for that key is skipped.
+
+### Internationalisation
+
+The picker ships with English strings baked in as fallbacks. To render the UI in a different language, pass a [BCP 47](https://www.rfc-editor.org/rfc/rfc5646) locale tag via `locale`. Translations are loaded lazily from the Scaleflex TMS CDN on first use; if a key is not yet translated the English default is shown.
+
+```ts
+picker.config = {
+  auth: { /* ... */ },
+  locale: 'fr', // 'fr', 'de', 'en-US', etc. — defaults to 'en'
+};
+```
+
+To debug missing translations locally, set the flag in `localStorage` and reload — untranslated keys are logged to the console:
+
+```js
+localStorage.setItem('apTranslationsMissingKeysEnabled', 'true');
+```
 
 ---
 
@@ -468,6 +531,7 @@ function App() {
           sassKey: 'YOUR_SASS_KEY',
           projectToken: 'YOUR_TOKEN',
         },
+        locale: 'fr', // optional — defaults to 'en'
       }}
     >
       <Dashboard />
@@ -804,6 +868,7 @@ import type {
   SassKeyAuth,
   Asset,
   Folder,
+  FolderOwner,
   FilterKey,
   AnyFilterKey,
   AnyFilter,
@@ -893,7 +958,7 @@ interface Folder {
   uuid: string;
   name: string;
   path: string;
-  owner?: string;
+  owner?: FolderOwner;
   created_at: string;
   modified_at?: string;
   updated_at?: string;
@@ -903,11 +968,24 @@ interface Folder {
   };
   size?: {
     total_recursive_bytes?: number;
+    total_recursive_pretty?: string;
   };
   visibility?: {
     in_cdn?: { actual: string; set: string };
     in_dam?: { actual: string; set: string };
   };
+  meta?: Record<string, unknown>;
+  decoration?: {
+    highlight_color?: string | null;
+    has_custom_preview?: boolean | null;
+  };
+}
+
+interface FolderOwner {
+  uuid: string;
+  name: string;
+  email: string;
+  photo?: string | null;
 }
 ```
 

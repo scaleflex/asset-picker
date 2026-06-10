@@ -1,6 +1,22 @@
 import { Asset } from '../types/asset.types';
 import { FolderPreviewImage } from '../types/folder.types';
+import { RemoteThumbnailContext } from '../types/config.types';
 import { TransformationParams } from '../types/transformation.types';
+/**
+ * Register the host's `transformRemoteThumbnail` callback. Called once when the
+ * picker config is applied. Pass null/undefined to clear it.
+ */
+export declare function setRemoteThumbnailTransform(fn: ((url: string, ctx: RemoteThumbnailContext) => string) | null | undefined): void;
+/**
+ * Run the registered transform over a URL, falling back to the original on a
+ * falsy result or a thrown error. No-op when no transform is configured.
+ *
+ * Exported so components that build preview URLs inline (e.g. the preview
+ * panel's fullscreen image) can opt into the same rewrite. Apply it exactly
+ * once per URL — the helpers in this module already apply it, so don't wrap
+ * their return values again.
+ */
+export declare function applyRemoteThumbnailTransform(url: string, ctx: RemoteThumbnailContext): string;
 /**
  * Get the best thumbnail URL for an asset.
  * Priority matches portals-fe getItemIcon():

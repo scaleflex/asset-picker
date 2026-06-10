@@ -1,6 +1,7 @@
 import { SortBy } from '../../types/config.types';
 export interface SortOption {
     value: SortBy;
+    labelKey: string;
     label: string;
 }
 export declare const MAIN_SORT_OPTIONS: SortOption[];

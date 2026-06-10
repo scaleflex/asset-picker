@@ -1,6 +1,7 @@
 import { LitElement, nothing } from 'lit';
 import { Asset } from '../../types/asset.types';
 import { Folder } from '../../types/folder.types';
+import { TFunction } from '../../store/store.types';
 export declare class ApSelectionBar extends LitElement {
     static styles: import('lit').CSSResult;
     selectedAssets: Asset[];
@@ -11,6 +12,7 @@ export declare class ApSelectionBar extends LitElement {
     multiSelect: boolean;
     maxSelections?: number;
     showTransform: boolean;
+    t: TFunction;
     private get _totalSelected();
     private _formatCount;
     private _confirm;

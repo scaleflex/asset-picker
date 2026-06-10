@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-06-10
+
+### Added
+
+- `transformRemoteThumbnail` config option to rewrite thumbnail/preview image URLs before they render as `<img src>` (e.g. wrap them in a CSP-permitted proxy). Applies to grid cards, list rows, folder previews and the preview panel — including the fullscreen image and video poster — and is forwarded to the integrated uploader (`'url-import'`/`'connector'` contexts).
+- `apiFields` config option — extra Files API fields to request on top of the default set (defaults to `['cdn_permalink']`, so the signed CDN permalink is now included on selected assets in the `onSelect`/`ap-select` payload). Set it to request additional computed fields, or `[]` to opt out.
+
 ### Fixed
 
 - Uploader not opening when loaded via CDN script tags

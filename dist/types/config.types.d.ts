@@ -1,25 +1,66 @@
 import { FilterKey, FiltersInput } from './filter.types';
-export type AuthMode = 'securityTemplate' | 'sassKey';
+export type AuthMode = "securityTemplate" | "sassKey";
 export interface SecurityTemplateAuth {
-    mode: 'securityTemplate';
+    mode: "securityTemplate";
     securityTemplateKey: string;
     projectToken: string;
 }
 export interface SassKeyAuth {
-    mode: 'sassKey';
+    mode: "sassKey";
     sassKey: string;
     projectToken: string;
 }
 export type AuthConfig = SecurityTemplateAuth | SassKeyAuth;
-export type DisplayMode = 'modal' | 'inline';
-export type ViewMode = 'grid' | 'list';
-export type GridSize = 'normal' | 'large';
-export type SortBy = 'name' | 'created_at' | 'modified_at' | 'size' | 'type' | 'relevance' | 'title' | 'color' | 'uploaded' | 'updated_at' | 'files_count_recursive' | 'files_size_recursive';
-export type SortDirection = 'asc' | 'desc';
-export type TabKey = 'assets' | 'folders' | 'labels' | 'collections';
+export type DisplayMode = "modal" | "inline";
+export type ViewMode = "grid" | "list";
+export type GridSize = "normal" | "large";
+export type SortBy = "name" | "created_at" | "modified_at" | "size" | "type" | "relevance" | "title" | "color" | "uploaded" | "updated_at" | "files_count_recursive" | "files_size_recursive";
+export type SortDirection = "asc" | "desc";
+export type TabKey = "assets" | "folders" | "labels" | "collections";
+/**
+ * Context describing what kind of thumbnail a URL is being produced for,
+ * passed to `transformRemoteThumbnail`.
+ */
+export interface RemoteThumbnailContext {
+    /**
+     * What the thumbnail represents.
+     *
+     * Emitted by the picker:
+     * - `'asset'`  — image thumbnail/preview in a grid card, list row or the preview panel
+     *                (including the fullscreen image).
+     * - `'video'`  — video poster thumbnail.
+     * - `'pdf'`    — PDF first-page preview.
+     * - `'folder'` — folder preview collage image.
+     *
+     * Emitted by the integrated uploader (when the same function is forwarded to it):
+     * - `'url-import'` — URL pasted into the uploader's "Import from URL" dialog.
+     * - `'connector'`  — listing/selection result from a Companion provider.
+     */
+    source: "asset" | "video" | "pdf" | "folder" | "url-import" | "connector";
+    /** The asset being rendered, when available (omitted for folder previews and uploader contexts). */
+    asset?: import('./asset.types').Asset;
+    /** Provider id when `source === 'connector'` (uploader contexts only). */
+    providerId?: string;
+}
+export interface TransformationsConfig {
+    /** Override label for the "Export Original" button. If omitted, the translated default is used. */
+    exportOriginalLabel?: string;
+    /** Override label for the "Apply & Export" button. If omitted, the translated default is used. */
+    applyExportLabel?: string;
+}
 export interface AssetPickerConfig {
     auth: AuthConfig;
     apiBase?: string;
+    /**
+     * Extra computed fields to request from the Files API, on top of the default
+     * response set. These are additive — they do not narrow the rest of the response.
+     *
+     * Defaults to `['cdn_permalink']` so the signed CDN permalink is available on
+     * selected assets (`url.cdn_permalink` in the `onSelect`/`ap-select` payload).
+     * Override to request additional fields (e.g. `['cdn_permalink', 'relations']`),
+     * or pass `[]` to request none.
+     */
+    apiFields?: string[];
     locale?: string;
     multiSelect?: boolean;
     maxSelections?: number;
@@ -33,6 +74,13 @@ export interface AssetPickerConfig {
     enabledFilters?: FilterKey[];
     /** Start browsing from a specific folder path (e.g. '/marketing/banners/'). */
     rootFolderPath?: string;
+    /**
+     * Open the picker pre-navigated to this folder path (e.g. '/marketing/banners/').
+     * Unlike rootFolderPath, this does not restrict navigation — users can still
+     * browse to any folder including parent folders.
+     * Overridden by rememberLastFolder if that option is also enabled.
+     */
+    initialFolderPath?: string;
     /** Show metadata sections in the preview panel. Defaults to true. */
     showMetadata?: boolean;
     /** Display mode: 'modal' (default) renders as a dialog overlay, 'inline' renders in page flow. */
@@ -56,12 +104,30 @@ export interface AssetPickerConfig {
     /** Allow selecting folders via checkboxes. Default: true. */
     folderSelection?: boolean;
     /**
+     * Show a "Create folder" button on the Folders tab. Default: false.
+     * Even when enabled, the button is only rendered if the security
+     * template grants `DIR_CREATE` (or in `sassKey` auth mode, where the
+     * integrator owns the key).
+     */
+    folderCreation?: boolean;
+    /**
+     * UUIDs of assets to display in the picker but prevent from being selected.
+     * Useful when integrating into a context where some assets are already picked
+     * (e.g. a "Compare assets" modal) — those assets appear greyed out and cannot
+     * be re-selected.
+     */
+    disabledAssetIds?: string[];
+    /**
+     * UUIDs of folders to display but prevent from being selected.
+     */
+    disabledFolderIds?: string[];
+    /**
      * What to return when folders are selected and user clicks Confirm:
      * - 'folder': Return Folder objects alongside Asset objects in ap-select event.
      * - 'assets': Show a dialog asking direct vs recursive, fetch folder contents, return only Assets.
      * Default: 'folder'.
      */
-    folderSelectionMode?: 'folder' | 'assets';
+    folderSelectionMode?: "folder" | "assets";
     onSelect?: (assets: import('./asset.types').Asset[], folders?: import('./folder.types').Folder[]) => void;
     onCancel?: () => void;
     /**
@@ -71,12 +137,43 @@ export interface AssetPickerConfig {
      *
      * Auth and target folder are derived automatically from the asset picker's state.
      */
-    /** Enable transformation options (format, quality, resize) before selection is finalized. Defaults to false. */
-    transformations?: boolean;
+    /** Enable transformation options (format, quality, resize) before selection is finalized. Defaults to false.
+     * Pass a `TransformationsConfig` object to enable and customise button labels. */
+    transformations?: boolean | TransformationsConfig;
     /** Enable AI-powered semantic search toggle in the search bar. Defaults to false. */
     enableAISearch?: boolean;
     /** Activate AI search mode by default when the picker opens. Requires `enableAISearch: true`. Defaults to false. */
     defaultAISearch?: boolean;
+    /**
+     * Rewrite remote thumbnail/preview image URLs before they are rendered as `<img src>`.
+     *
+     * Useful when the host page enforces a Content-Security-Policy that disallows the
+     * Filerobot CDN origin — wrap the URL in a CSP-permitted proxy here. Applies to every
+     * preview image the picker renders: grid cards, list rows, folder previews and the
+     * preview panel (including the fullscreen image). It does **not** rewrite the
+     * `<video>`/`<audio>` playback stream — only the video poster image. Return the
+     * original `url` (or any falsy value) to leave it unchanged.
+     *
+     * Mirrors the uploader's option of the same name and is forwarded to the integrated
+     * uploader, so a single function can handle both the picker's thumbnails and the
+     * uploader's (`'url-import' | 'connector'`) contexts — branch on `ctx.source`.
+     *
+     * Called once per image per render, so keep it pure and cheap (no network calls,
+     * no heavy allocation). Thrown errors are caught and the original URL is used.
+     *
+     * Note: the transform is registered process-wide, so if two pickers share a page the
+     * last one configured wins — and a picker mounted without this option clears any
+     * previously registered transform.
+     *
+     * Not covered: the `<video>`/`<audio>` playback stream (only the poster image is
+     * rewritten), and the built-in file-type fallback icons served from
+     * `scaleflex.cloudimg.io` — a strict CSP must allowlist that origin in `img-src`.
+     *
+     * @example
+     * transformRemoteThumbnail: (url) =>
+     *   `https://proxy.example.com/?u=${encodeURIComponent(url)}`
+     */
+    transformRemoteThumbnail?: (url: string, ctx: RemoteThumbnailContext) => string;
     uploader?: UploaderIntegrationConfig;
 }
 /**
@@ -84,6 +181,8 @@ export interface AssetPickerConfig {
  * Auth and targetFolder are derived automatically — do not set them here.
  */
 export interface UploaderIntegrationConfig {
+    /** BCP 47 locale string (e.g. 'fr', 'de', 'en-US'). Defaults to navigator.language. */
+    locale?: string;
     /** File restrictions (max size, allowed types, etc.). */
     restrictions?: {
         maxFileSize?: number | null;
@@ -102,7 +201,7 @@ export interface UploaderIntegrationConfig {
     /** Third-party connector config (Google Drive, Dropbox, etc.). */
     connectors?: {
         companionUrl: string;
-        providers: ('google-drive' | 'dropbox' | 'onedrive' | 'box' | 'instagram' | 'facebook' | 'unsplash')[];
+        providers: ("google-drive" | "dropbox" | "onedrive" | "box" | "instagram" | "facebook" | "unsplash")[];
         customSources?: Array<{
             id: string;
             name: string;
@@ -111,7 +210,7 @@ export interface UploaderIntegrationConfig {
         }>;
     };
     /** Layout for import-from sources: horizontal pills (default) or cards grid. */
-    sourcesLayout?: 'pills' | 'cards';
+    sourcesLayout?: "pills" | "cards";
     /**
      * Controls the standard header bar.
      * - `'close'` — header with X close button
@@ -119,7 +218,7 @@ export interface UploaderIntegrationConfig {
      * - `true`    — header visible, no button
      * - `false`   — no header at all
      */
-    header?: boolean | 'close' | 'back';
+    header?: boolean | "close" | "back";
     /** Whether closing clears all files. Default: true. */
     clearOnClose?: boolean;
     /** Whether the "Done" action clears all files. Default: true. */
@@ -154,11 +253,11 @@ export interface UploaderIntegrationConfig {
         /** Headers for Hub API requests (x-session-token, x-company-token, x-project-token). */
         hubHeaders?: Record<string, string>;
         /** Which metadata fields to show: 'all' or an array of field keys. */
-        fields?: 'all' | string[];
+        fields?: "all" | string[];
         /** Field keys that must be filled before upload. */
         requiredFields?: string[];
         /** Enforce required fields before upload. 'auto' enforces only when metadata is shown. */
-        enforceRequiredBeforeUpload?: boolean | 'auto';
+        enforceRequiredBeforeUpload?: boolean | "auto";
         /** Show the tags field. */
         showTags?: boolean;
         /** Language for field labels. */
