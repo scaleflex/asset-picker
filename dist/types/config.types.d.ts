@@ -48,6 +48,22 @@ export interface TransformationsConfig {
     /** Override label for the "Apply & Export" button. If omitted, the translated default is used. */
     applyExportLabel?: string;
 }
+/**
+ * A user that can be selected as an approver or requester in the Approval filter.
+ *
+ * `uuid` is what gets sent to the BE as the filter value (e.g.
+ * `task_approver:="<uuid>"`), so it must match the value stored on the asset.
+ */
+export interface ApprovalUser {
+    /** Unique user identifier — what's sent to the BE as the filter value. */
+    uuid: string;
+    /** Display name shown in the dropdown. */
+    name: string;
+    /** Optional email (shown as secondary text and used for filtering when searching). */
+    email?: string;
+    /** Optional avatar URL. */
+    avatarUrl?: string;
+}
 export interface AssetPickerConfig {
     auth: AuthConfig;
     apiBase?: string;
@@ -174,6 +190,26 @@ export interface AssetPickerConfig {
      *   `https://proxy.example.com/?u=${encodeURIComponent(url)}`
      */
     transformRemoteThumbnail?: (url: string, ctx: RemoteThumbnailContext) => string;
+    /**
+     * Users selectable in the Approval filter's "Approver" section.
+     *
+     * The picker has no Hub-backend access of its own, so it can't fetch a company
+     * users list. The integrator must supply it. When omitted or empty, the
+     * Approver section is hidden inside the Approval filter popover (and the chip
+     * shows only the Status / Due date sub-filters).
+     *
+     * The `uuid` of each user is sent to Filerobot as the filter value
+     * (`task_approver:="<uuid>"`). Free-text search against the BE is intentionally
+     * not supported — it triggered 509 "database query" errors on partial matches.
+     */
+    approverUsers?: ApprovalUser[];
+    /**
+     * Users selectable in the Approval filter's "Requester" section.
+     *
+     * Same semantics as `approverUsers` — see that prop for details. Section is
+     * hidden when omitted or empty; uuids are sent as `task_requester:="<uuid>"`.
+     */
+    requesterUsers?: ApprovalUser[];
     uploader?: UploaderIntegrationConfig;
 }
 /**

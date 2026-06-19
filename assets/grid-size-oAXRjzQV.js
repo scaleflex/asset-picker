@@ -1,4 +1,4 @@
-import{b as s}from"./index-DbKjKsY1.js";import{r as n}from"./code-block-Bk3NnwHF.js";const a={render(){return`
+import{b as s}from"./index-DAAE0gwp.js";import{r as n}from"./code-block-Bk3NnwHF.js";const a={render(){return`
       <div class="page-header">
         <h1>Grid size</h1>
         <p>Control the grid card density with the <code>gridSize</code> option. The default <code>'normal'</code> shows 4 columns at ~1200px, while <code>'large'</code> shows 3 columns with bigger cards.</p>

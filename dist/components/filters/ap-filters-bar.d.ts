@@ -3,6 +3,7 @@ import { TFunction } from '../../store/store.types';
 import { Filters, FiltersInput, MetadataFilters, AnyFilterKey, MetadataModelField } from '../../types/filter.types';
 import { TagWithLabel } from '../../types/tag.types';
 import { Label } from '../../types/label.types';
+import { ApprovalUser } from '../../types/config.types';
 export declare class ApFiltersBar extends LitElement {
     static styles: import('lit').CSSResult;
     appliedFilters: Filters;
@@ -13,6 +14,8 @@ export declare class ApFiltersBar extends LitElement {
     pinnedMetadataFields: string[];
     tags: TagWithLabel[];
     labels: Label[];
+    approverUsers: ApprovalUser[];
+    requesterUsers: ApprovalUser[];
     activeFilter: AnyFilterKey | null;
     activeMetadataField: string | null;
     pendingFilter: AnyFilterKey | null;
@@ -21,6 +24,7 @@ export declare class ApFiltersBar extends LitElement {
     private _mapTypeLabel;
     private _getSizeSummary;
     private _getFilterSummary;
+    private _getDuedateSummary;
     private _getDateSummary;
     private _getFilterIcon;
     private _getMetadataLabel;

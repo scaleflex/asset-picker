@@ -1,5 +1,5 @@
 import { LitElement } from 'lit';
-import { SortBy, SortDirection } from '../../types/config.types';
+import { SortBy, SortDirection, ApprovalUser } from '../../types/config.types';
 import { TFunction } from '../../store/store.types';
 import { FiltersState, FilterKey, AnyFilterKey, MetadataModelField } from '../../types/filter.types';
 import { Label } from '../../types/label.types';
@@ -25,6 +25,8 @@ export declare class ApContentToolbar extends LitElement {
     metadataFields: MetadataModelField[];
     pinnedFilters: AnyFilterKey[];
     forcedFilterKeys: string[];
+    approverUsers: ApprovalUser[];
+    requesterUsers: ApprovalUser[];
     apiClient?: ApiClient;
     t: TFunction;
     private _sortDropdown?;
@@ -52,6 +54,8 @@ export declare class ApContentToolbar extends LitElement {
     private _handleSort;
     private _toggleSortDirection;
     private _isFilterActive;
+    /** True if any approval sub-key (status / approver / requester / due-date) is applied. */
+    private _isApprovalActive;
     private _handleFilterChange;
     private _handleMetadataFilterChange;
     private _handleMetadataFieldToggle;

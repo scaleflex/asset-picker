@@ -199,15 +199,6 @@ export declare const APPROVAL_OPERATOR_OPTIONS: ({
     value: ":-";
     labelKey: string;
 })[];
-export declare const APPROVAL_PERSON_OPERATOR_OPTIONS: ({
-    label: string;
-    value: "~";
-    labelKey: string;
-} | {
-    label: string;
-    value: ":-";
-    labelKey: string;
-})[];
 export declare const APPROVAL_STATUS_ONLY_OPTIONS: {
     value: string;
     label: string;

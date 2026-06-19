@@ -1,4 +1,4 @@
-import{b as c}from"./index-DbKjKsY1.js";import{r as o}from"./code-block-Bk3NnwHF.js";const i={render(){return`
+import{b as c}from"./index-DAAE0gwp.js";import{r as o}from"./code-block-Bk3NnwHF.js";const i={render(){return`
       <div class="page-header">
         <h1>Basic usage</h1>
         <p>The minimal configuration to open the asset picker. Only authentication is required.</p>

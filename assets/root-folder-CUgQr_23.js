@@ -1,4 +1,4 @@
-import{b as c}from"./index-DbKjKsY1.js";import{r}from"./code-block-Bk3NnwHF.js";let o="/Images";function n(){const t=document.getElementById("code-container");if(!t)return;t.innerHTML="";const e=o||"/marketing/banners/";r("#code-container",[{label:"JavaScript",lang:"javascript",code:`
+import{b as c}from"./index-DAAE0gwp.js";import{r}from"./code-block-Bk3NnwHF.js";let o="/Images";function n(){const t=document.getElementById("code-container");if(!t)return;t.innerHTML="";const e=o||"/marketing/banners/";r("#code-container",[{label:"JavaScript",lang:"javascript",code:`
 picker.config = {
   auth: { /* ... */ },
   rootFolderPath: '${e}',

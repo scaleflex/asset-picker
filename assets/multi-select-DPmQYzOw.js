@@ -1,4 +1,4 @@
-import{b as l}from"./index-DbKjKsY1.js";import{r as a}from"./code-block-Bk3NnwHF.js";let t;function s(e){return e!=null?`
+import{b as l}from"./index-DAAE0gwp.js";import{r as a}from"./code-block-Bk3NnwHF.js";let t;function s(e){return e!=null?`
     maxSelections: ${e},`:""}function c(){const e=document.getElementById("code-container");e&&(e.innerHTML="",a("#code-container",[{label:"HTML",lang:"markup",code:`
 <sfx-asset-picker id="picker"></sfx-asset-picker>
 

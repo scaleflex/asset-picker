@@ -1,4 +1,4 @@
-import{b as o}from"./index-DbKjKsY1.js";import{r}from"./code-block-Bk3NnwHF.js";const n={render(){return`
+import{b as o}from"./index-DAAE0gwp.js";import{r}from"./code-block-Bk3NnwHF.js";const n={render(){return`
       <div class="page-header">
         <h1>Sticky filters</h1>
         <p>Keep the toolbar and filter bar pinned to the top of the content area while scrolling. Use <code>stickyFilters: true</code> to enable this behavior.</p>
