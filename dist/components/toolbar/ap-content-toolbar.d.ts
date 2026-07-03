@@ -2,9 +2,8 @@ import { LitElement } from 'lit';
 import { SortBy, SortDirection, ApprovalUser } from '../../types/config.types';
 import { TFunction } from '../../store/store.types';
 import { FiltersState, FilterKey, AnyFilterKey, MetadataModelField } from '../../types/filter.types';
-import { Label } from '../../types/label.types';
+import { Label, DamClient } from '@scaleflex/dam-core';
 import { TagWithLabel } from '../../types/tag.types';
-import { ApiClient } from '../../services/api-client';
 import { SortOption } from './sort.constants';
 export declare class ApContentToolbar extends LitElement {
     static styles: import('lit').CSSResult;
@@ -27,7 +26,7 @@ export declare class ApContentToolbar extends LitElement {
     forcedFilterKeys: string[];
     approverUsers: ApprovalUser[];
     requesterUsers: ApprovalUser[];
-    apiClient?: ApiClient;
+    apiClient?: DamClient;
     t: TFunction;
     private _sortDropdown?;
     private _showDropdown;
@@ -68,7 +67,7 @@ export declare class ApContentToolbar extends LitElement {
     private _getFilterIcon;
     private _renderFilterContent;
     private _renderFilterButton;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

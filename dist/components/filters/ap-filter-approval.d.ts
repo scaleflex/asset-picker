@@ -54,7 +54,7 @@ export declare class ApFilterApproval extends LitElement {
     private _renderApproverSection;
     private _renderRequesterSection;
     private _renderDueDateSection;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

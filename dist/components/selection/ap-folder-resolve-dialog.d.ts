@@ -10,7 +10,7 @@ export declare class ApFolderResolveDialog extends LitElement {
     private _handleConfirm;
     private _handleCancel;
     private _handleModeChange;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

@@ -5,7 +5,7 @@ export declare class ApCollectionFolderRow extends LitElement {
     folder: CollectionFolder;
     index: number;
     private _handleClick;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

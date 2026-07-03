@@ -28,7 +28,7 @@ export declare class ApHeader extends LitElement {
     private _handleRegionalChange;
     private _toggleAISearch;
     private _handleClose;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

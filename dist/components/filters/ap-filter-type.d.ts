@@ -20,7 +20,7 @@ export declare class ApFilterType extends LitElement {
     private _filteredGroups;
     private _toggleCategory;
     updated(changed: Map<string, unknown>): void;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
     private _renderGroup;
     private _renderFallback;
 }

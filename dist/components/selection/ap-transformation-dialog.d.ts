@@ -32,7 +32,7 @@ export declare class ApTransformationDialog extends LitElement {
     private _handleSkip;
     private _handleClose;
     private _handleBackdropClick;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

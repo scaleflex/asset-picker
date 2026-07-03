@@ -11,7 +11,7 @@ export declare class ApRegionalSettings extends LitElement {
     disconnectedCallback(): void;
     private _handleOutsideClick;
     private _selectVariant;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

@@ -8,7 +8,7 @@ export declare class ApSkeleton extends LitElement {
     gridSize: GridSize;
     multiSelect: boolean;
     folderCount: number;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

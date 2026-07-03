@@ -21,7 +21,7 @@ export declare class ApFilterTags extends LitElement {
     private _clearSearch;
     private _getTagBySid;
     private _renderTagItem;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
     private _renderSearchResults;
     private _renderSections;
 }

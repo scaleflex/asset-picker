@@ -1,10 +1,10 @@
 import { LitElement } from 'lit';
 import { TFunction } from '../../store/store.types';
-import { ApiClient } from '../../services/api-client';
+import { DamClient } from '@scaleflex/dam-core';
 export declare class ApFilterProductRef extends LitElement {
     static styles: import('lit').CSSResult[];
     selected: string[];
-    apiClient?: ApiClient;
+    apiClient?: DamClient;
     t: TFunction;
     private _searchInput?;
     private _search;
@@ -30,7 +30,7 @@ export declare class ApFilterProductRef extends LitElement {
     private _onAddListKeydown;
     private _submitAddList;
     private _renderProductItem;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

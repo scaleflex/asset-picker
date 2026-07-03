@@ -16,7 +16,7 @@ export declare class ApFilterSize extends LitElement {
     private _emitChange;
     private _onMinInput;
     private _onMaxInput;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

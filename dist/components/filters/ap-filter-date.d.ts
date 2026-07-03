@@ -25,7 +25,7 @@ export declare class ApFilterDate extends LitElement {
     private _renderDateTypeSection;
     private _renderRangeSection;
     private _renderDateInputs;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

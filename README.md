@@ -66,7 +66,7 @@
 
 `@scaleflex/asset-picker` is a drop-in modal component that connects to a [Scaleflex VXP](https://www.scaleflex.com) DAM project and lets users browse, search, filter, preview, and select digital assets. It ships as a standard [Web Component](https://developer.mozilla.org/en-US/docs/Web/API/Web_components) (Custom Element) built with [Lit 3](https://lit.dev/), so it works everywhere — vanilla JS, React, Vue, Angular, Svelte, or any other framework.
 
-The npm package contains **only pre-built, minified production files** (`dist/`). Source code is maintained in a private Scaleflex GitLab repository.
+The npm package contains **only pre-built, minified production files** (`dist/`). Source code is maintained in Scaleflex's `scaleflex-dam-tools` monorepo.
 
 ## Features
 
@@ -127,11 +127,11 @@ This auto-registers `<sfx-asset-picker>` — no imports needed. See the [CDN qui
 
 ### Package exports
 
-| Export path | Description |
-|---|---|
-| `@scaleflex/asset-picker` | `AssetPicker` class + all TypeScript types + asset utility functions |
-| `@scaleflex/asset-picker/react` | React wrapper component + `AssetPickerProvider` + `useAssetPicker` hook |
-| `@scaleflex/asset-picker/define` | Side-effect import — registers `<sfx-asset-picker>` custom element |
+| Export path                      | Description                                                             |
+| -------------------------------- | ----------------------------------------------------------------------- |
+| `@scaleflex/asset-picker`        | `AssetPicker` class + all TypeScript types + asset utility functions    |
+| `@scaleflex/asset-picker/react`  | React wrapper component + `AssetPickerProvider` + `useAssetPicker` hook |
+| `@scaleflex/asset-picker/define` | Side-effect import — registers `<sfx-asset-picker>` custom element      |
 
 Both ESM (`import`) and CJS (`require`) builds are provided.
 
@@ -186,9 +186,7 @@ function App() {
 
   return (
     <>
-      <button onClick={() => pickerRef.current?.open()}>
-        Pick assets
-      </button>
+      <button onClick={() => pickerRef.current?.open()}>Pick assets</button>
 
       <AssetPicker
         ref={pickerRef}
@@ -213,28 +211,28 @@ function App() {
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <script src="https://cdn.scaleflex.com/asset-picker/1.2.3/asset-picker.min.js"></script>
-</head>
-<body>
-  <sfx-asset-picker></sfx-asset-picker>
-  <button onclick="document.querySelector('sfx-asset-picker').open()">Open Picker</button>
+  <head>
+    <script src="https://cdn.scaleflex.com/asset-picker/1.2.3/asset-picker.min.js"></script>
+  </head>
+  <body>
+    <sfx-asset-picker></sfx-asset-picker>
+    <button onclick="document.querySelector('sfx-asset-picker').open()">Open Picker</button>
 
-  <script>
-    const picker = document.querySelector('sfx-asset-picker');
-    picker.config = {
-      auth: {
-        mode: 'securityTemplate',
-        securityTemplateKey: 'YOUR_KEY',
-        projectToken: 'YOUR_TOKEN',
-      },
-      locale: 'fr', // optional — defaults to 'en'
-    };
-    picker.addEventListener('ap-select', (e) => {
-      console.log('Selected:', e.detail.assets);
-    });
-  </script>
-</body>
+    <script>
+      const picker = document.querySelector('sfx-asset-picker');
+      picker.config = {
+        auth: {
+          mode: 'securityTemplate',
+          securityTemplateKey: 'YOUR_KEY',
+          projectToken: 'YOUR_TOKEN',
+        },
+        locale: 'fr', // optional — defaults to 'en'
+      };
+      picker.addEventListener('ap-select', (e) => {
+        console.log('Selected:', e.detail.assets);
+      });
+    </script>
+  </body>
 </html>
 ```
 
@@ -276,54 +274,54 @@ Use when your application already has a SASS key — e.g. inside the Scaleflex H
 
 ### Config Options
 
-| Property | Type | Default | Description |
-|---|---|---|---|
-| `auth` | `AuthConfig` | **required** | Authentication credentials (see above) |
-| `apiBase` | `string` | auto | Override the API base URL |
-| `apiFields` | `string[]` | `['cdn_permalink']` | Extra computed Files API fields to request, added on top of the default response (does not narrow it). The default exposes the signed CDN permalink as `url.cdn_permalink` on selected assets. Pass extra keys (e.g. `['cdn_permalink', 'relations']`) or `[]` to request none |
-| `locale` | `string` | `'en'` | BCP 47 locale tag for the UI language (e.g. `'fr'`, `'de'`, `'en-US'`). Translations are loaded lazily from the Scaleflex TMS CDN; falls back to English for any untranslated keys |
-| `multiSelect` | `boolean` | `true` | Enable multi-asset selection |
-| `maxSelections` | `number` | `undefined` | Maximum number of selectable assets |
-| `defaultViewMode` | `'grid' \| 'list'` | `'grid'` | Initial view mode |
-| `defaultSortBy` | `SortBy` | `'created_at'` | Initial sort field (see table below) |
-| `defaultSortDirection` | `'asc' \| 'desc'` | `'desc'` | Initial sort direction |
-| `tabs` | `TabKey[]` | `['assets', 'folders']` | Tabs to show (`'assets'`, `'folders'`, `'labels'`). If only one, the dropdown is hidden |
-| `defaultTab` | `TabKey` | first in `tabs` | Which tab to activate when the picker opens |
-| `enabledFilters` | `FilterKey[]` | all | Restrict which filters appear in the toolbar |
-| `rootFolderPath` | `string` | `'/'` | Start browsing from a specific folder path (e.g. `'/marketing/banners/'`) |
-| `showMetadata` | `boolean` | `true` | Show metadata sections in the preview panel |
-| `brandColor` | `string` | from API | Brand accent colour as hex (e.g. `'#3b82f6'`). Overrides the API-fetched value |
-| `rememberLastFolder` | `boolean` | `false` | Persist the last browsed folder and restore on next open |
-| `rememberLastView` | `boolean` | `false` | Persist the last used view mode (grid/list) and restore on next open |
-| `rememberLastTab` | `boolean` | `false` | Persist the last active tab and restore on next open |
-| `defaultFilters` | `FiltersInput` | `undefined` | Filters pre-applied on open. User can modify/remove |
-| `forcedFilters` | `FiltersInput` | `undefined` | Filters always active. Shown as locked chips the user cannot remove |
-| `displayMode` | `'modal' \| 'inline'` | `'modal'` | `'modal'` renders as a dialog overlay, `'inline'` renders in page flow |
-| `gridSize` | `'normal' \| 'large'` | `'normal'` | Grid card density: `'normal'` (4 cols at ~1200px) or `'large'` (3 cols) |
-| `stickyFilters` | `boolean` | `false` | Make the toolbar and filters bar sticky while scrolling content |
-| `folderSelection` | `boolean` | `true` | Allow selecting folders via checkboxes |
-| `folderSelectionMode` | `'folder' \| 'assets'` | `'folder'` | `'folder'` returns Folder objects; `'assets'` fetches folder contents and returns only Assets |
-| `uploader` | `UploaderIntegrationConfig` | `undefined` | Enable integrated uploader. Adds an "Upload" button and drop zone. Requires `@scaleflex/uploader` |
-| `transformRemoteThumbnail` | `(url: string, ctx: RemoteThumbnailContext) => string` | `undefined` | Rewrite every preview/thumbnail image URL before it renders (e.g. wrap in a CSP-permitted proxy). See [Content-Security-Policy](#content-security-policy--thumbnail-proxying) |
-| `onSelect` | `(assets: Asset[], folders?: Folder[]) => void` | `undefined` | Callback when assets are selected |
-| `onCancel` | `() => void` | `undefined` | Callback when the picker is cancelled |
+| Property                   | Type                                                   | Default                 | Description                                                                                                                                                                                                                                                                    |
+| -------------------------- | ------------------------------------------------------ | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `auth`                     | `AuthConfig`                                           | **required**            | Authentication credentials (see above)                                                                                                                                                                                                                                         |
+| `apiBase`                  | `string`                                               | auto                    | Override the API base URL                                                                                                                                                                                                                                                      |
+| `apiFields`                | `string[]`                                             | `['cdn_permalink']`     | Extra computed Files API fields to request, added on top of the default response (does not narrow it). The default exposes the signed CDN permalink as `url.cdn_permalink` on selected assets. Pass extra keys (e.g. `['cdn_permalink', 'relations']`) or `[]` to request none |
+| `locale`                   | `string`                                               | `'en'`                  | BCP 47 locale tag for the UI language (e.g. `'fr'`, `'de'`, `'en-US'`). Translations are loaded lazily from the Scaleflex TMS CDN; falls back to English for any untranslated keys                                                                                             |
+| `multiSelect`              | `boolean`                                              | `true`                  | Enable multi-asset selection                                                                                                                                                                                                                                                   |
+| `maxSelections`            | `number`                                               | `undefined`             | Maximum number of selectable assets                                                                                                                                                                                                                                            |
+| `defaultViewMode`          | `'grid' \| 'list'`                                     | `'grid'`                | Initial view mode                                                                                                                                                                                                                                                              |
+| `defaultSortBy`            | `SortBy`                                               | `'created_at'`          | Initial sort field (see table below)                                                                                                                                                                                                                                           |
+| `defaultSortDirection`     | `'asc' \| 'desc'`                                      | `'desc'`                | Initial sort direction                                                                                                                                                                                                                                                         |
+| `tabs`                     | `TabKey[]`                                             | `['assets', 'folders']` | Tabs to show (`'assets'`, `'folders'`, `'labels'`). If only one, the dropdown is hidden                                                                                                                                                                                        |
+| `defaultTab`               | `TabKey`                                               | first in `tabs`         | Which tab to activate when the picker opens                                                                                                                                                                                                                                    |
+| `enabledFilters`           | `FilterKey[]`                                          | all                     | Restrict which filters appear in the toolbar                                                                                                                                                                                                                                   |
+| `rootFolderPath`           | `string`                                               | `'/'`                   | Start browsing from a specific folder path (e.g. `'/marketing/banners/'`)                                                                                                                                                                                                      |
+| `showMetadata`             | `boolean`                                              | `true`                  | Show metadata sections in the preview panel                                                                                                                                                                                                                                    |
+| `brandColor`               | `string`                                               | from API                | Brand accent colour as hex (e.g. `'#3b82f6'`). Overrides the API-fetched value                                                                                                                                                                                                 |
+| `rememberLastFolder`       | `boolean`                                              | `false`                 | Persist the last browsed folder and restore on next open                                                                                                                                                                                                                       |
+| `rememberLastView`         | `boolean`                                              | `false`                 | Persist the last used view mode (grid/list) and restore on next open                                                                                                                                                                                                           |
+| `rememberLastTab`          | `boolean`                                              | `false`                 | Persist the last active tab and restore on next open                                                                                                                                                                                                                           |
+| `defaultFilters`           | `FiltersInput`                                         | `undefined`             | Filters pre-applied on open. User can modify/remove                                                                                                                                                                                                                            |
+| `forcedFilters`            | `FiltersInput`                                         | `undefined`             | Filters always active. Shown as locked chips the user cannot remove                                                                                                                                                                                                            |
+| `displayMode`              | `'modal' \| 'inline'`                                  | `'modal'`               | `'modal'` renders as a dialog overlay, `'inline'` renders in page flow                                                                                                                                                                                                         |
+| `gridSize`                 | `'normal' \| 'large'`                                  | `'normal'`              | Grid card density: `'normal'` (4 cols at ~1200px) or `'large'` (3 cols)                                                                                                                                                                                                        |
+| `stickyFilters`            | `boolean`                                              | `false`                 | Make the toolbar and filters bar sticky while scrolling content                                                                                                                                                                                                                |
+| `folderSelection`          | `boolean`                                              | `true`                  | Allow selecting folders via checkboxes                                                                                                                                                                                                                                         |
+| `folderSelectionMode`      | `'folder' \| 'assets'`                                 | `'folder'`              | `'folder'` returns Folder objects; `'assets'` fetches folder contents and returns only Assets                                                                                                                                                                                  |
+| `uploader`                 | `UploaderIntegrationConfig`                            | `undefined`             | Enable integrated uploader. Adds an "Upload" button and drop zone. Requires `@scaleflex/uploader`                                                                                                                                                                              |
+| `transformRemoteThumbnail` | `(url: string, ctx: RemoteThumbnailContext) => string` | `undefined`             | Rewrite every preview/thumbnail image URL before it renders (e.g. wrap in a CSP-permitted proxy). See [Content-Security-Policy](#content-security-policy--thumbnail-proxying)                                                                                                  |
+| `onSelect`                 | `(assets: Asset[], folders?: Folder[]) => void`        | `undefined`             | Callback when assets are selected                                                                                                                                                                                                                                              |
+| `onCancel`                 | `() => void`                                           | `undefined`             | Callback when the picker is cancelled                                                                                                                                                                                                                                          |
 
 #### Sort fields
 
-| Value | Available in |
-|---|---|
-| `'name'` | Assets, Folders |
-| `'created_at'` | Assets, Folders |
-| `'modified_at'` | Assets, Folders |
-| `'size'` | Assets |
-| `'type'` | Assets |
-| `'relevance'` | Search results only |
-| `'title'` | Assets |
-| `'color'` | Assets |
-| `'uploaded'` | Assets |
-| `'updated_at'` | Assets |
-| `'files_count_recursive'` | Folders only |
-| `'files_size_recursive'` | Folders only |
+| Value                     | Available in        |
+| ------------------------- | ------------------- |
+| `'name'`                  | Assets, Folders     |
+| `'created_at'`            | Assets, Folders     |
+| `'modified_at'`           | Assets, Folders     |
+| `'size'`                  | Assets              |
+| `'type'`                  | Assets              |
+| `'relevance'`             | Search results only |
+| `'title'`                 | Assets              |
+| `'color'`                 | Assets              |
+| `'uploaded'`              | Assets              |
+| `'updated_at'`            | Assets              |
+| `'files_count_recursive'` | Folders only        |
+| `'files_size_recursive'`  | Folders only        |
 
 ### Content-Security-Policy & thumbnail proxying
 
@@ -334,7 +332,9 @@ a CSP-permitted proxy:
 
 ```ts
 picker.config = {
-  auth: { /* ... */ },
+  auth: {
+    /* ... */
+  },
   transformRemoteThumbnail: (url, ctx) => {
     // ctx.source: 'asset' | 'video' | 'pdf' | 'folder' (+ 'url-import' | 'connector'
     // when forwarded to the integrated uploader). ctx.asset is the Asset when available.
@@ -370,7 +370,9 @@ You can pre-configure filters that are applied when the picker opens, and/or loc
 
 ```ts
 picker.config = {
-  auth: { /* ... */ },
+  auth: {
+    /* ... */
+  },
 
   // Pre-applied on open — user can modify or remove
   defaultFilters: {
@@ -403,7 +405,9 @@ The picker ships with English strings baked in as fallbacks. To render the UI in
 
 ```ts
 picker.config = {
-  auth: { /* ... */ },
+  auth: {
+    /* ... */
+  },
   locale: 'fr', // 'fr', 'de', 'en-US', etc. — defaults to 'en'
 };
 ```
@@ -418,10 +422,10 @@ localStorage.setItem('apTranslationsMissingKeysEnabled', 'true');
 
 ## Public Methods
 
-| Method | Returns | Description |
-|---|---|---|
-| `open()` | `Promise<void>` | Opens the picker modal. Initialises the API client and loads initial data if not already done. Fires `ap-open` on success. |
-| `close()` | `void` | Closes the picker modal and clears the selection state. |
+| Method    | Returns         | Description                                                                                                                |
+| --------- | --------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `open()`  | `Promise<void>` | Opens the picker modal. Initialises the API client and loads initial data if not already done. Fires `ap-open` on success. |
+| `close()` | `void`          | Closes the picker modal and clears the selection state.                                                                    |
 
 ```js
 // Open the picker
@@ -437,12 +441,12 @@ picker.close();
 
 All events bubble and cross shadow DOM boundaries (`composed: true`).
 
-| Event | Detail | Description |
-|---|---|---|
-| `ap-select` | `{ assets: Asset[] }` | Fired when the user confirms their selection |
+| Event       | Detail                                           | Description                                       |
+| ----------- | ------------------------------------------------ | ------------------------------------------------- |
+| `ap-select` | `{ assets: Asset[] }`                            | Fired when the user confirms their selection      |
 | `ap-cancel` | `{ reason: 'backdrop' \| 'escape' \| 'button' }` | Fired when the picker is closed without selecting |
-| `ap-open` | `{ timestamp: number }` | Fired when the picker opens successfully |
-| `ap-error` | `{ error: Error, context: string }` | Fired on initialisation or runtime errors |
+| `ap-open`   | `{ timestamp: number }`                          | Fired when the picker opens successfully          |
+| `ap-error`  | `{ error: Error, context: string }`              | Fired on initialisation or runtime errors         |
 
 ```js
 picker.addEventListener('ap-select', (e) => {
@@ -466,26 +470,30 @@ picker.addEventListener('ap-error', (e) => {
 ## React API
 
 ```tsx
-import { AssetPicker, type AssetPickerRef, type AssetPickerProps } from '@scaleflex/asset-picker/react';
+import {
+  AssetPicker,
+  type AssetPickerRef,
+  type AssetPickerProps,
+} from '@scaleflex/asset-picker/react';
 ```
 
 ### Props
 
-| Prop | Type | Description |
-|---|---|---|
-| `config` | `AssetPickerConfig` | Configuration object (see [Config Options](#config-options)) |
-| `open` | `boolean` | Controlled open state |
-| `onSelect` | `(assets: Asset[], folders?: Folder[]) => void` | Selection callback (assets + optional folders) |
-| `onSelectWithFolders` | `(result: { assets: Asset[]; folders: Folder[] }) => void` | Alternative callback that always includes folders |
-| `onCancel` | `() => void` | Cancel callback |
-| `className` | `string` | CSS class for the wrapper |
-| `style` | `CSSProperties` | Inline styles for the wrapper |
+| Prop                  | Type                                                       | Description                                                  |
+| --------------------- | ---------------------------------------------------------- | ------------------------------------------------------------ |
+| `config`              | `AssetPickerConfig`                                        | Configuration object (see [Config Options](#config-options)) |
+| `open`                | `boolean`                                                  | Controlled open state                                        |
+| `onSelect`            | `(assets: Asset[], folders?: Folder[]) => void`            | Selection callback (assets + optional folders)               |
+| `onSelectWithFolders` | `(result: { assets: Asset[]; folders: Folder[] }) => void` | Alternative callback that always includes folders            |
+| `onCancel`            | `() => void`                                               | Cancel callback                                              |
+| `className`           | `string`                                                   | CSS class for the wrapper                                    |
+| `style`               | `CSSProperties`                                            | Inline styles for the wrapper                                |
 
 ### Ref methods
 
-| Method | Description |
-|---|---|
-| `open()` | Open the picker imperatively |
+| Method    | Description                   |
+| --------- | ----------------------------- |
+| `open()`  | Open the picker imperatively  |
 | `close()` | Close the picker imperatively |
 
 ### Controlled mode
@@ -501,7 +509,7 @@ const [isOpen, setIsOpen] = useState(false);
     setIsOpen(false);
   }}
   onCancel={() => setIsOpen(false)}
-/>
+/>;
 ```
 
 ### Imperative mode
@@ -632,44 +640,44 @@ import {
 
 ### Type checks
 
-| Function | Returns | Description |
-|---|---|---|
+| Function         | Returns   | Description                                  |
+| ---------------- | --------- | -------------------------------------------- |
 | `isImage(asset)` | `boolean` | `true` if `asset.type` starts with `"image"` |
 | `isVideo(asset)` | `boolean` | `true` if `asset.type` starts with `"video"` |
 | `isAudio(asset)` | `boolean` | `true` if `asset.type` starts with `"audio"` |
 
 ### URLs
 
-| Function | Returns | Description |
-|---|---|---|
-| `getCdnUrl(asset)` | `string` | CDN URL, falling back to public URL, then `""` |
-| `getBestVideoUrl(asset)` | `string` | Transcoded HLS URL > CDN URL > public URL |
-| `getTranscodedUrl(asset)` | `string \| null` | HLS manifest URL, or `null` if not transcoded |
+| Function                  | Returns          | Description                                    |
+| ------------------------- | ---------------- | ---------------------------------------------- |
+| `getCdnUrl(asset)`        | `string`         | CDN URL, falling back to public URL, then `""` |
+| `getBestVideoUrl(asset)`  | `string`         | Transcoded HLS URL > CDN URL > public URL      |
+| `getTranscodedUrl(asset)` | `string \| null` | HLS manifest URL, or `null` if not transcoded  |
 
 ### Alt text
 
 ```ts
-const alt = getAltText(asset);        // uses first available language
-const alt = getAltText(asset, 'fr');  // prefers French title
+const alt = getAltText(asset); // uses first available language
+const alt = getAltText(asset, 'fr'); // prefers French title
 ```
 
 Resolution priority: `meta.alt` > `meta.title` (string or localized `Record<string, string>`) > filename without extension.
 
 ### Dimensions
 
-| Function | Returns | Description |
-|---|---|---|
-| `getAssetWidth(asset)` | `number` | Width in px (`0` if unknown). Works for images and videos. |
-| `getAssetHeight(asset)` | `number` | Height in px (`0` if unknown). Works for images and videos. |
-| `getAssetDimensions(asset)` | `{ width, height }` | Both dimensions as an object. |
+| Function                    | Returns             | Description                                                 |
+| --------------------------- | ------------------- | ----------------------------------------------------------- |
+| `getAssetWidth(asset)`      | `number`            | Width in px (`0` if unknown). Works for images and videos.  |
+| `getAssetHeight(asset)`     | `number`            | Height in px (`0` if unknown). Works for images and videos. |
+| `getAssetDimensions(asset)` | `{ width, height }` | Both dimensions as an object.                               |
 
 ### Video transcoding
 
-| Function | Returns | Description |
-|---|---|---|
-| `isTranscoded(asset)` | `boolean` | Whether the asset has a transcoded HLS version |
-| `getTranscodedUrl(asset)` | `string \| null` | The HLS manifest URL, or `null` |
-| `getBestVideoUrl(asset)` | `string` | Best playback URL (transcoded > CDN > public) |
+| Function                  | Returns          | Description                                    |
+| ------------------------- | ---------------- | ---------------------------------------------- |
+| `isTranscoded(asset)`     | `boolean`        | Whether the asset has a transcoded HLS version |
+| `getTranscodedUrl(asset)` | `string \| null` | The HLS manifest URL, or `null`                |
+| `getBestVideoUrl(asset)`  | `string`         | Best playback URL (transcoded > CDN > public)  |
 
 ---
 
@@ -681,7 +689,9 @@ The simplest way to theme the picker is via the `brandColor` config option. It a
 
 ```ts
 picker.config = {
-  auth: { /* ... */ },
+  auth: {
+    /* ... */
+  },
   brandColor: '#6366f1', // Indigo
 };
 ```
@@ -694,39 +704,39 @@ For fine-grained control, override these CSS custom properties on the `<sfx-asse
 
 #### Colours
 
-| Property | Default | Description |
-|---|---|---|
-| `--ap-primary` | `oklch(0.65 0.19 258)` | Primary accent colour |
-| `--ap-primary-foreground` | `#fff` | Text on primary backgrounds |
-| `--ap-primary-10` | primary @ 10% | Subtle primary tint |
-| `--ap-primary-20` | primary @ 20% | Light primary background |
-| `--ap-background` | `#ffffff` | Main background |
-| `--ap-foreground` | `#09090b` | Main text colour |
-| `--ap-card` | `#ffffff` | Card/panel background |
-| `--ap-border` | `#e4e4e7` | Border colour |
-| `--ap-muted` | `#f4f4f5` | Muted/disabled background |
-| `--ap-muted-foreground` | `#71717a` | Muted/disabled text |
-| `--ap-ring` | same as primary | Focus ring colour |
-| `--ap-selection-bg` | primary @ 8% | Selected item background |
+| Property                  | Default                | Description                 |
+| ------------------------- | ---------------------- | --------------------------- |
+| `--ap-primary`            | `oklch(0.65 0.19 258)` | Primary accent colour       |
+| `--ap-primary-foreground` | `#fff`                 | Text on primary backgrounds |
+| `--ap-primary-10`         | primary @ 10%          | Subtle primary tint         |
+| `--ap-primary-20`         | primary @ 20%          | Light primary background    |
+| `--ap-background`         | `#ffffff`              | Main background             |
+| `--ap-foreground`         | `#09090b`              | Main text colour            |
+| `--ap-card`               | `#ffffff`              | Card/panel background       |
+| `--ap-border`             | `#e4e4e7`              | Border colour               |
+| `--ap-muted`              | `#f4f4f5`              | Muted/disabled background   |
+| `--ap-muted-foreground`   | `#71717a`              | Muted/disabled text         |
+| `--ap-ring`               | same as primary        | Focus ring colour           |
+| `--ap-selection-bg`       | primary @ 8%           | Selected item background    |
 
 #### Modal
 
-| Property | Default | Description |
-|---|---|---|
-| `--ap-modal-backdrop` | `rgba(0,0,0,0.5)` | Backdrop overlay colour |
-| `--ap-modal-radius` | `12px` | Modal corner radius |
-| `--ap-modal-shadow` | large shadow | Modal box shadow |
-| `--ap-modal-max-width` | `1200px` | Maximum modal width |
-| `--ap-modal-max-height` | `85vh` | Maximum modal height |
+| Property                | Default           | Description             |
+| ----------------------- | ----------------- | ----------------------- |
+| `--ap-modal-backdrop`   | `rgba(0,0,0,0.5)` | Backdrop overlay colour |
+| `--ap-modal-radius`     | `12px`            | Modal corner radius     |
+| `--ap-modal-shadow`     | large shadow      | Modal box shadow        |
+| `--ap-modal-max-width`  | `1200px`          | Maximum modal width     |
+| `--ap-modal-max-height` | `85vh`            | Maximum modal height    |
 
 #### Typography & Radius
 
-| Property | Default | Description |
-|---|---|---|
-| `--ap-font-family` | `system-ui, -apple-system, sans-serif` | Font stack |
-| `--ap-radius` | `8px` | Default border radius |
-| `--ap-radius-sm` | `6px` | Small border radius |
-| `--ap-radius-lg` | `12px` | Large border radius |
+| Property           | Default                                | Description           |
+| ------------------ | -------------------------------------- | --------------------- |
+| `--ap-font-family` | `system-ui, -apple-system, sans-serif` | Font stack            |
+| `--ap-radius`      | `8px`                                  | Default border radius |
+| `--ap-radius-sm`   | `6px`                                  | Small border radius   |
+| `--ap-radius-lg`   | `12px`                                 | Large border radius   |
 
 ```css
 asset-picker {
@@ -745,25 +755,25 @@ asset-picker {
 
 These are the keys used in `enabledFilters`, `defaultFilters`, and `forcedFilters`.
 
-| Key | Constant | Description |
-|---|---|---|
-| `'type'` | `FILTER_KEYS.TYPE` | File format (image, video, audio, document, archive, font) |
-| `'mimetype'` | `FILTER_KEYS.MIME_TYPE` | MIME type |
-| `'date'` | `FILTER_KEYS.DATE` | Upload/modification date |
-| `'size'` | `FILTER_KEYS.SIZE` | File size range |
-| `'tags'` | `FILTER_KEYS.TAGS` | Asset tags |
-| `'labels'` | `FILTER_KEYS.LABELS` | Asset labels |
-| `'color'` | `FILTER_KEYS.COLOR` | Dominant colour search |
-| `'image'` | `FILTER_KEYS.IMAGE` | Image-specific (resolution, orientation, faces) |
-| `'approval'` | `FILTER_KEYS.APPROVAL` | Approval workflow status |
-| `'metadata'` | `FILTER_KEYS.METADATA` | Custom metadata fields |
-| `'product_ref'` | `FILTER_KEYS.PRODUCT_REF` | Product reference |
-| `'asset_expiration'` | `FILTER_KEYS.LICENSE_EXPIRY` | License/asset expiry date |
-| `'folders'` | `FILTER_KEYS.FOLDERS` | Folder location |
-| `'resolution'` | `FILTER_KEYS.RESOLUTION` | Image resolution |
-| `'orientation'` | `FILTER_KEYS.ORIENTATION` | Image orientation |
-| `'faces'` | `FILTER_KEYS.FACES` | Detected faces count |
-| `'products'` | `FILTER_KEYS.PRODUCTS` | Products |
+| Key                  | Constant                     | Description                                                |
+| -------------------- | ---------------------------- | ---------------------------------------------------------- |
+| `'type'`             | `FILTER_KEYS.TYPE`           | File format (image, video, audio, document, archive, font) |
+| `'mimetype'`         | `FILTER_KEYS.MIME_TYPE`      | MIME type                                                  |
+| `'date'`             | `FILTER_KEYS.DATE`           | Upload/modification date                                   |
+| `'size'`             | `FILTER_KEYS.SIZE`           | File size range                                            |
+| `'tags'`             | `FILTER_KEYS.TAGS`           | Asset tags                                                 |
+| `'labels'`           | `FILTER_KEYS.LABELS`         | Asset labels                                               |
+| `'color'`            | `FILTER_KEYS.COLOR`          | Dominant colour search                                     |
+| `'image'`            | `FILTER_KEYS.IMAGE`          | Image-specific (resolution, orientation, faces)            |
+| `'approval'`         | `FILTER_KEYS.APPROVAL`       | Approval workflow status                                   |
+| `'metadata'`         | `FILTER_KEYS.METADATA`       | Custom metadata fields                                     |
+| `'product_ref'`      | `FILTER_KEYS.PRODUCT_REF`    | Product reference                                          |
+| `'asset_expiration'` | `FILTER_KEYS.LICENSE_EXPIRY` | License/asset expiry date                                  |
+| `'folders'`          | `FILTER_KEYS.FOLDERS`        | Folder location                                            |
+| `'resolution'`       | `FILTER_KEYS.RESOLUTION`     | Image resolution                                           |
+| `'orientation'`      | `FILTER_KEYS.ORIENTATION`    | Image orientation                                          |
+| `'faces'`            | `FILTER_KEYS.FACES`          | Detected faces count                                       |
+| `'products'`         | `FILTER_KEYS.PRODUCTS`       | Products                                                   |
 
 ### Filter Data Structures
 
@@ -837,22 +847,22 @@ Filters used in `defaultFilters` and `forcedFilters` use these shapes:
 
 #### Filter operators
 
-| Operator | Symbol | Description |
-|---|---|---|
-| `IS` | `:` | Exact match (default) |
-| `EQUAL` | `=` | Equality |
-| `NOT_EQUAL` | `!=` | Inequality |
-| `RANGE` | `..` | Range match |
-| `IS_NOT` | `:-` | Negated match |
-| `IS_EXACT` | `:=` | Strict exact match |
-| `CONTAINS` | `~` | Contains substring |
-| `CONTAINS_IN_TEXT` | `~~~` | Full text search |
-| `STARTS_WITH` | `~^` | Starts with |
-| `GREATER_THAN` | `>` | Greater than |
-| `LESS_THAN` | `<` | Less than |
-| `GREATER_THAN_OR_EQUAL` | `>=` | Greater than or equal |
-| `LESS_THAN_OR_EQUAL` | `<=` | Less than or equal |
-| `SIMILAR_TO` | `~~` | Similarity match |
+| Operator                | Symbol | Description           |
+| ----------------------- | ------ | --------------------- |
+| `IS`                    | `:`    | Exact match (default) |
+| `EQUAL`                 | `=`    | Equality              |
+| `NOT_EQUAL`             | `!=`   | Inequality            |
+| `RANGE`                 | `..`   | Range match           |
+| `IS_NOT`                | `:-`   | Negated match         |
+| `IS_EXACT`              | `:=`   | Strict exact match    |
+| `CONTAINS`              | `~`    | Contains substring    |
+| `CONTAINS_IN_TEXT`      | `~~~`  | Full text search      |
+| `STARTS_WITH`           | `~^`   | Starts with           |
+| `GREATER_THAN`          | `>`    | Greater than          |
+| `LESS_THAN`             | `<`    | Less than             |
+| `GREATER_THAN_OR_EQUAL` | `>=`   | Greater than or equal |
+| `LESS_THAN_OR_EQUAL`    | `<=`   | Less than or equal    |
+| `SIMILAR_TO`            | `~~`   | Similarity match      |
 
 ---
 
@@ -894,48 +904,49 @@ interface Asset {
   uuid: string;
   name: string;
   extension: string;
-  type: string;                  // 'image', 'video', 'audio', 'document', ...
-  mime?: string;                 // MIME type
+  type: string; // 'image', 'video', 'audio', 'document', ...
+  mime?: string; // MIME type
   size: {
     bytes: number;
     pretty: string;
   };
   url?: {
-    public: string;              // Public URL
-    cdn: string;                 // CDN-optimised URL
-    path: string;                // Relative path
-    permalink?: string;          // Permanent link
+    public: string; // Public URL
+    cdn: string; // CDN-optimised URL
+    path: string; // Relative path
+    permalink?: string; // Permanent link
   };
-  created_at: string;           // ISO timestamp
-  modified_at: string;          // ISO timestamp
-  tags: Record<string, Array<{ label: string; sid: string }>>
-      | Record<string, { label: string; sid: string }>
-      | string[];
+  created_at: string; // ISO timestamp
+  modified_at: string; // ISO timestamp
+  tags:
+    | Record<string, Array<{ label: string; sid: string }>>
+    | Record<string, { label: string; sid: string }>
+    | string[];
   labels: string[];
   meta: {
-    title?: string | Record<string, string>;  // plain or localized by language code
+    title?: string | Record<string, string>; // plain or localized by language code
     description?: string;
     alt?: string;
     [key: string]: unknown;
   };
   info: {
-    img_type?: string;           // Image format (e.g. "jpeg", "png")
-    img_w?: number;              // Image width (px)
-    img_h?: number;              // Image height (px)
-    duration?: number;           // Audio duration (seconds)
-    video_duration?: number;     // Video duration (seconds)
-    video_w?: number;            // Video width (px)
-    video_h?: number;            // Video height (px)
-    thumbnail?: string;          // Thumbnail URL
-    preview?: string;            // Preview URL
-    video_thumbnail?: string;    // Video poster image URL
-    video_gif?: string;          // Animated GIF preview URL
-    image_thumbnail?: string;    // Image thumbnail URL
-    main_colors?: string[];      // Dominant colours (names)
-    main_colors_hex?: string[];  // Dominant colours (hex)
-    dominant_color?: string;     // Most dominant colour (name)
+    img_type?: string; // Image format (e.g. "jpeg", "png")
+    img_w?: number; // Image width (px)
+    img_h?: number; // Image height (px)
+    duration?: number; // Audio duration (seconds)
+    video_duration?: number; // Video duration (seconds)
+    video_w?: number; // Video width (px)
+    video_h?: number; // Video height (px)
+    thumbnail?: string; // Thumbnail URL
+    preview?: string; // Preview URL
+    video_thumbnail?: string; // Video poster image URL
+    video_gif?: string; // Animated GIF preview URL
+    image_thumbnail?: string; // Image thumbnail URL
+    main_colors?: string[]; // Dominant colours (names)
+    main_colors_hex?: string[]; // Dominant colours (hex)
+    dominant_color?: string; // Most dominant colour (name)
     dominant_color_hex?: string; // Most dominant colour (hex)
-    color_space?: string;        // Colour space (e.g. "sRGB")
+    color_space?: string; // Colour space (e.g. "sRGB")
     metadata?: Record<string, unknown>; // Embedded metadata (EXIF, IPTC, etc.)
     playlists?: Array<{ playlists: string[]; resolution?: string }>; // HLS transcoded playlists
   };
@@ -993,12 +1004,12 @@ interface FolderOwner {
 
 ## Browser Support
 
-| Browser | Minimum version |
-|---|---|
-| Chrome | 67+ |
-| Firefox | 63+ |
-| Safari | 13.1+ |
-| Edge (Chromium) | 79+ |
+| Browser         | Minimum version |
+| --------------- | --------------- |
+| Chrome          | 67+             |
+| Firefox         | 63+             |
+| Safari          | 13.1+           |
+| Edge (Chromium) | 79+             |
 
 Requires native support for Custom Elements v1, Shadow DOM, and ES2020+. Internet Explorer is **not** supported.
 
@@ -1006,13 +1017,17 @@ Requires native support for Custom Elements v1, Shadow DOM, and ES2020+. Interne
 
 ## Release
 
+asset-picker ships from the `scaleflex-dam-tools` monorepo. Versioning and npm publishing
+are centralized via [Changesets](https://github.com/changesets/changesets); the CDN bundle
+is built per-app. From the monorepo root:
+
 ```bash
-npm run release            # patch bump (0.2.8 → 0.2.9)
-npm run release -- minor   # minor bump (0.2.8 → 0.3.0)
-npm run release -- major   # major bump (0.2.8 → 1.0.0)
+pnpm changeset                                    # record the bump (patch/minor/major)
+pnpm --filter @scaleflex/asset-picker build:cdn   # → dist-cdn/asset-picker.min.js
 ```
 
-This single command handles the full pipeline: version bump, CDN build + upload, library build, npm publish, git commit + tag + push.
+Merging to `main` opens a Changesets "Version Packages" PR; merging that PR publishes to
+npm. See [`DEPLOYING.md`](./DEPLOYING.md) for the full flow.
 
 ---
 

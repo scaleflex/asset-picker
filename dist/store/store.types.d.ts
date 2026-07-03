@@ -1,6 +1,6 @@
 import { Asset } from '../types/asset.types';
 import { Folder } from '../types/folder.types';
-import { Label } from '../types/label.types';
+import { Label } from '@scaleflex/dam-core';
 import { Collection, CollectionFolder } from '../types/collection.types';
 import { TagWithLabel } from '../types/tag.types';
 import { AssetPickerConfig, ViewMode, SortBy, SortDirection, TabKey } from '../types/config.types';

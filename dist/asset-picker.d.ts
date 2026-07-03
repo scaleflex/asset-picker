@@ -127,7 +127,7 @@ export declare class AssetPicker extends LitElement {
     private _handleFiltersSet;
     private _getSortOptions;
     private _buildSearchNotation;
-    render(): import('lit-html').TemplateResult<1> | typeof nothing;
+    render(): import('lit').TemplateResult<1> | typeof nothing;
     private _renderContent;
 }
 declare global {

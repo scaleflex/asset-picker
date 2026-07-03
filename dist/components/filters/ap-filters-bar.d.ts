@@ -2,7 +2,7 @@ import { LitElement, nothing } from 'lit';
 import { TFunction } from '../../store/store.types';
 import { Filters, FiltersInput, MetadataFilters, AnyFilterKey, MetadataModelField } from '../../types/filter.types';
 import { TagWithLabel } from '../../types/tag.types';
-import { Label } from '../../types/label.types';
+import { Label } from '@scaleflex/dam-core';
 import { ApprovalUser } from '../../types/config.types';
 export declare class ApFiltersBar extends LitElement {
     static styles: import('lit').CSSResult;
@@ -38,7 +38,7 @@ export declare class ApFiltersBar extends LitElement {
     private _renderForcedChip;
     private _renderFilterChip;
     private _renderMetadataChip;
-    render(): import('lit-html').TemplateResult<1> | typeof nothing;
+    render(): import('lit').TemplateResult<1> | typeof nothing;
 }
 declare global {
     interface HTMLElementTagNameMap {

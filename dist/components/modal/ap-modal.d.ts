@@ -7,7 +7,7 @@ export declare class ApModal extends LitElement {
     private _animateClose;
     private _handleBackdropClick;
     private _handleCancel;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

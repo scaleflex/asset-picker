@@ -1,5 +1,5 @@
 import { LitElement } from 'lit';
-import { Label } from '../../types/label.types';
+import { Label } from '@scaleflex/dam-core';
 import { TFunction } from '../../store/store.types';
 export declare class ApFilterLabels extends LitElement {
     static styles: import('lit').CSSResult[];
@@ -18,7 +18,7 @@ export declare class ApFilterLabels extends LitElement {
     private _clearSearch;
     private _getLabelBySid;
     private _renderLabelItem;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

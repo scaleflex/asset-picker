@@ -24,7 +24,7 @@ export declare class ApListView extends LitElement {
     private _getGridColumns;
     private get _allVisibleSelected();
     private _handleHeaderCheckboxClick;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

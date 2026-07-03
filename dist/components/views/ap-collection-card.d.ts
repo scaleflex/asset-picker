@@ -7,7 +7,7 @@ export declare class ApCollectionCard extends LitElement {
     connectedCallback(): void;
     updated(changed: Map<string, unknown>): void;
     private _handleClick;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

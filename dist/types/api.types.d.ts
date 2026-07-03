@@ -1,6 +1,6 @@
 import { Asset } from './asset.types';
 import { Folder } from './folder.types';
-import { Label } from './label.types';
+import { Label } from '@scaleflex/dam-core';
 import { Collection, CollectionFolder } from './collection.types';
 import { SortBy, SortDirection } from './config.types';
 import { Permission } from './permission.types';

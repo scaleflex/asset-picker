@@ -13,7 +13,7 @@ export declare class ApFilterImage extends LitElement {
     private _toggleFaces;
     private _clearAll;
     private _dispatchChange;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

@@ -1,5 +1,5 @@
 import { LitElement, nothing } from 'lit';
-import { ApiClient } from '../../services/api-client';
+import { DamClient } from '@scaleflex/dam-core';
 import { TFunction } from '../../store/store.types';
 import { MetadataModelField } from '../../types/filter.types';
 interface MetadataFilterValue {
@@ -16,7 +16,7 @@ export declare class ApFilterMetadata extends LitElement {
     activeFieldKey: string;
     pinnedFields: string[];
     appliedMetadata: Record<string, MetadataFilterValue>;
-    apiClient?: ApiClient;
+    apiClient?: DamClient;
     t: TFunction;
     private _showFieldSelection;
     private _fieldSearch;
@@ -92,7 +92,7 @@ export declare class ApFilterMetadata extends LitElement {
     private _renderFieldSection;
     private _renderSelectorMode;
     private _renderFieldMode;
-    render(): import('lit-html').TemplateResult<1> | typeof nothing;
+    render(): import('lit').TemplateResult<1> | typeof nothing;
 }
 declare global {
     interface HTMLElementTagNameMap {

@@ -1,6 +1,6 @@
 import { LitElement, nothing } from 'lit';
 import { Asset } from '../../types/asset.types';
-import { Label } from '../../types/label.types';
+import { Label } from '@scaleflex/dam-core';
 import { MetadataModelField, RegionalFilters } from '../../types/filter.types';
 import { TFunction } from '../../store/store.types';
 export declare class ApPreviewPanel extends LitElement {
@@ -73,7 +73,7 @@ export declare class ApPreviewPanel extends LitElement {
     private _getAssetLabels;
     private _renderLabelsRow;
     private _renderTagsRow;
-    render(): import('lit-html').TemplateResult<1> | typeof nothing;
+    render(): import('lit').TemplateResult<1> | typeof nothing;
 }
 declare global {
     interface HTMLElementTagNameMap {

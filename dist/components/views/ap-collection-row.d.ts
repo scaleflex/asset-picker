@@ -6,7 +6,7 @@ export declare class ApCollectionRow extends LitElement {
     index: number;
     private _formatDate;
     private _handleClick;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

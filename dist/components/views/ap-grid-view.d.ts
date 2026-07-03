@@ -23,7 +23,7 @@ export declare class ApGridView extends LitElement {
     /** Track how many items existed before the latest batch for stagger offset */
     private _prevCount;
     willUpdate(changed: Map<string, unknown>): void;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

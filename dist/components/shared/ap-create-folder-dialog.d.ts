@@ -1,24 +1,26 @@
 import { LitElement } from 'lit';
+import { TFunction } from '../../store/store.types';
+/**
+ * Create-folder dialog — a thin wrapper over the shared `<sfx-dialog>` (plan/12 D13).
+ * Keeps its existing public API (`currentFolderPath`/`loading`/`error` props and the
+ * `create-folder-confirm`/`create-folder-cancel` events) so the parent is unchanged; it
+ * owns only the folder-name validation and the "In /path" context line.
+ */
 export declare class ApCreateFolderDialog extends LitElement {
-    static styles: import('lit').CSSResult[];
+    static styles: import('lit').CSSResult;
+    t: TFunction;
     currentFolderPath: string;
     loading: boolean;
     error: string | null;
     private _name;
     private _localError;
     private _apiErrorDismissed;
-    private _input;
-    connectedCallback(): void;
-    disconnectedCallback(): void;
     updated(changed: Map<string, unknown>): void;
-    private _handleDocKeyDown;
-    private _handleInput;
-    private _canSubmit;
-    private _handleConfirm;
-    private _handleCancel;
-    private _handleBackdropClick;
-    private _handleKeyDown;
-    render(): import('lit-html').TemplateResult<1>;
+    private _onInput;
+    private _validateName;
+    private _onConfirm;
+    private _onCancel;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

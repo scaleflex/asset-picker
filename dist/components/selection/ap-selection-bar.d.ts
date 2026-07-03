@@ -22,7 +22,7 @@ export declare class ApSelectionBar extends LitElement {
     private get _scopeTotal();
     private get _selectScope();
     private _selectAll;
-    render(): import('lit-html').TemplateResult<1> | typeof nothing;
+    render(): import('lit').TemplateResult<1> | typeof nothing;
 }
 declare global {
     interface HTMLElementTagNameMap {

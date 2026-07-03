@@ -15,7 +15,7 @@ export declare class ApFolderRow extends LitElement {
     private _renderThumb;
     private _handleClick;
     private _handleOpen;
-    render(): import('lit-html').TemplateResult<1>;
+    render(): import('lit').TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {
