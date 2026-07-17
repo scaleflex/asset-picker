@@ -1,4 +1,4 @@
-import{b as a}from"./index-BnI4DLxv.js";import{r as l}from"./code-block-Bk3NnwHF.js";let o="#155bcd";const d={render(){return`
+import{b as a}from"./index-BZ9dNCUM.js";import{r as l}from"./code-block-Bk3NnwHF.js";let o="#155bcd";const d={render(){return`
       <div class="page-header">
         <h1>Theming</h1>
         <p>Use the <code>brandColor</code> option to theme the picker to match your brand. Pass any hex color and the picker derives all accent shades automatically.</p>

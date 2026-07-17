@@ -1,4 +1,4 @@
-import{b as n}from"./index-BnI4DLxv.js";import{r as s}from"./code-block-Bk3NnwHF.js";const l={render(){return`
+import{b as n}from"./index-BZ9dNCUM.js";import{r as s}from"./code-block-Bk3NnwHF.js";const l={render(){return`
       <div class="page-header">
         <h1>Inline display</h1>
         <p>Render the picker directly in the page flow instead of as a modal overlay. Use <code>displayMode: 'inline'</code> to embed the picker inside any container.</p>
