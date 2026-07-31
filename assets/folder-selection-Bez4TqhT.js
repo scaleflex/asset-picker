@@ -1,4 +1,4 @@
-import{b as a}from"./index-BZ9dNCUM.js";import{r as p}from"./code-block-Bk3NnwHF.js";let d="folder",n="";function c(){const o=document.getElementById("code-container");if(!o)return;o.innerHTML="";const s=n?`
+import{b as a}from"./index-CJeQEtvq.js";import{r as p}from"./code-block-Bk3NnwHF.js";let d="folder",n="";function c(){const o=document.getElementById("code-container");if(!o)return;o.innerHTML="";const s=n?`
     initialFolderPath: '${n}',`:"";p("#code-container",[{label:"HTML",lang:"markup",code:`
 <sfx-asset-picker id="picker"></sfx-asset-picker>
 

@@ -1,8 +1,7 @@
-import{f as x,a as s,A as p,c as m,n as l,r as n}from"./index-BZ9dNCUM.js";import{u as g,v as b,O as u}from"./define-CMPy5nMe.js";var v=Object.defineProperty,o=(c,e,t,r)=>{for(var i=void 0,d=c.length-1,h;d>=0;d--)(h=c[d])&&(i=h(e,t,i)||i);return i&&v(e,t,i),i};const f=class extends x{constructor(){super(...arguments),this.t=g,this.provider="unsplash",this.companionUrl="",this.transformThumbnail=e=>e,this.multi=!0,this.maxSelect=null,this._loading=!1,this._loadingMore=!1,this._items=[],this._selectedIds=new Set,this._error=null,this._searchQuery="",this._nextPageQuery=null,this._searched=!1,this._onResultsScroll=e=>{if(!this._nextPageQuery||this._loadingMore)return;const t=e.target;t.scrollHeight-t.scrollTop-t.clientHeight<200&&this._onLoadMore()},this._onSearchInput=e=>{this._searchQuery=e.target.value},this._onSearchKeydown=e=>{e.key==="Enter"&&this._doSearch()},this._onAddSelected=()=>{const e=this._items.filter(t=>this._selectedIds.has(t.id)).map(t=>({companionUrl:this.companionUrl,provider:this.provider,token:"",requestPath:t.requestPath,fileId:t.id,name:t.name||t.id,mimeType:t.mimeType,size:t.size,thumbnail:t.thumbnail}));this.dispatchEvent(new CustomEvent("connector-files-selected",{detail:{files:e},bubbles:!0,composed:!0}))},this._onClose=()=>{this.dispatchEvent(new CustomEvent("connector-close",{bubbles:!0,composed:!0}))}}get _providerLabel(){var e;return((e=b([this.provider])[0])==null?void 0:e.label)??this.provider}async _doSearch(){const e=this._searchQuery.trim();if(e){this._loading=!0,this._error=null,this._items=[],this._selectedIds=new Set,this._nextPageQuery=null,this._searched=!0;try{const t=await u(this.companionUrl,this.provider,e),r=new Set;this._items=t.items.filter(i=>r.has(i.id)?!1:(r.add(i.id),!0)),this._nextPageQuery=t.nextPageQuery}catch(t){this._error=t instanceof Error?t.message:this.t("searchFailed","Search failed")}finally{this._loading=!1}}}async _onLoadMore(){if(!(!this._nextPageQuery||this._loadingMore)){this._loadingMore=!0;try{const e=await u(this.companionUrl,this.provider,this._searchQuery.trim(),this._nextPageQuery),t=new Set(this._items.map(i=>i.id)),r=e.items.filter(i=>!t.has(i.id));this._items=[...this._items,...r],this._nextPageQuery=e.nextPageQuery}catch{}finally{this._loadingMore=!1}}}_toggleSelect(e){if(!this.multi){this._selectedIds=this._selectedIds.has(e.id)?new Set:new Set([e.id]);return}const t=this.maxSelect!==null&&this._selectedIds.size>=this.maxSelect,r=new Set(this._selectedIds);r.has(e.id)?r.delete(e.id):t||r.add(e.id),this._selectedIds=r}render(){return s`
-      ${this._renderHeader()}
-      ${this._renderSearchBar()}
+import{g as x,f as g,h as b,d as o,A as c,n as d,r as n}from"./index-CJeQEtvq.js";import{g as m,s as f}from"./define-DXXTAKfd.js";var v=Object.defineProperty,a=(u,e,r,t)=>{for(var s=void 0,p=u.length-1,l;p>=0;p--)(l=u[p])&&(s=l(e,r,s)||s);return s&&v(e,r,s),s};const h=class h extends x{constructor(){super(...arguments),this.t=g,this.provider="unsplash",this.companionUrl="",this.transformThumbnail=e=>e,this.multi=!0,this.maxSelect=null,this._loading=!1,this._loadingMore=!1,this._items=[],this._selectedIds=new Set,this._error=null,this._searchQuery="",this._nextPageQuery=null,this._searched=!1,this._onResultsScroll=e=>{if(!this._nextPageQuery||this._loadingMore)return;const r=e.target;r.scrollHeight-r.scrollTop-r.clientHeight<200&&this._onLoadMore()},this._onSearchInput=e=>{this._searchQuery=e.target.value},this._onSearchKeydown=e=>{e.key==="Enter"&&this._doSearch()},this._onAddSelected=()=>{const r=this._items.filter(t=>this._selectedIds.has(t.id)).map(t=>({companionUrl:this.companionUrl,provider:this.provider,token:"",requestPath:t.requestPath,fileId:t.id,name:t.name||t.id,mimeType:t.mimeType,size:t.size,thumbnail:t.thumbnail}));this.dispatchEvent(new CustomEvent("connector-files-selected",{detail:{files:r},bubbles:!0,composed:!0}))},this._onClose=()=>{this.dispatchEvent(new CustomEvent("connector-close",{bubbles:!0,composed:!0}))}}get _providerLabel(){var r;return((r=m([this.provider])[0])==null?void 0:r.label)??this.provider}async _doSearch(){const e=this._searchQuery.trim();if(e){this._loading=!0,this._error=null,this._items=[],this._selectedIds=new Set,this._nextPageQuery=null,this._searched=!0;try{const r=await f(this.companionUrl,this.provider,e),t=new Set;this._items=r.items.filter(s=>t.has(s.id)?!1:(t.add(s.id),!0)),this._nextPageQuery=r.nextPageQuery}catch(r){this._error=r instanceof Error?r.message:this.t("searchFailed","Search failed")}finally{this._loading=!1}}}async _onLoadMore(){if(!(!this._nextPageQuery||this._loadingMore)){this._loadingMore=!0;try{const e=await f(this.companionUrl,this.provider,this._searchQuery.trim(),this._nextPageQuery),r=new Set(this._items.map(s=>s.id)),t=e.items.filter(s=>!r.has(s.id));this._items=[...this._items,...t],this._nextPageQuery=e.nextPageQuery}catch{}finally{this._loadingMore=!1}}}_toggleSelect(e){if(!this.multi){this._selectedIds=this._selectedIds.has(e.id)?new Set:new Set([e.id]);return}const r=this.maxSelect!==null&&this._selectedIds.size>=this.maxSelect,t=new Set(this._selectedIds);t.has(e.id)?t.delete(e.id):r||t.add(e.id),this._selectedIds=t}render(){return o`
+      ${this._renderHeader()} ${this._renderSearchBar()}
       ${this._loading?this._renderLoading():this._error?this._renderError():this._renderResults()}
-    `}_renderHeader(){return s`
+    `}_renderHeader(){return o`
       <div class="browser-header">
         <button
           class="back-btn"
@@ -10,13 +9,19 @@ import{f as x,a as s,A as p,c as m,n as l,r as n}from"./index-BZ9dNCUM.js";impor
           title=${this.t("close","Close")}
           aria-label=${this.t("close","Close")}
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          >
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
         <span class="browser-title">${this._providerLabel}</span>
       </div>
-    `}_renderSearchBar(){return s`
+    `}_renderSearchBar(){return o`
       <div class="search-bar">
         <input
           class="search-input"
@@ -34,39 +39,54 @@ import{f as x,a as s,A as p,c as m,n as l,r as n}from"./index-BZ9dNCUM.js";impor
           ${this.t("search","Search")}
         </button>
       </div>
-    `}_renderLoading(){return s`
+    `}_renderLoading(){return o`
       <div class="loading">
         <div class="spinner"></div>
       </div>
-    `}_renderError(){return s`
+    `}_renderError(){return o`
       <div class="error-view">
         <div class="error-text">${this._error}</div>
-        <button class="retry-btn" @click=${()=>this._doSearch()}>${this.t("retry","Retry")}</button>
+        <button class="retry-btn" @click=${()=>this._doSearch()}>
+          ${this.t("retry","Retry")}
+        </button>
       </div>
-    `}_renderResults(){const e=this._selectedIds.size;return this._searched?this._items.length===0?s`
+    `}_renderResults(){const e=this._selectedIds.size;return this._searched?this._items.length===0?o`
         <div class="empty-state">
           <div class="empty-text">${this.t("noSearchResults","No results found")}</div>
         </div>
-      `:s`
+      `:o`
       <div class="results" @scroll=${this._onResultsScroll}>
         <div class="results-grid">
-          ${(()=>{const t=this.maxSelect!==null&&this._selectedIds.size>=this.maxSelect;return this._items.map(r=>{var i;const d=this._selectedIds.has(r.id);return s`
-              <div
-                class="result-item ${d?"selected":""} ${!d&&t?"disabled":""}"
-                @click=${()=>this._toggleSelect(r)}
-              >
-                ${r.thumbnail?s`<img src=${this.transformThumbnail(r.thumbnail)} alt=${r.name} loading="lazy" referrerpolicy="no-referrer" />`:p}
-                <div class="check">
-                  ${d?s`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12" /></svg>`:p}
+          ${(()=>{const r=this.maxSelect!==null&&this._selectedIds.size>=this.maxSelect;return this._items.map(t=>{var l;const s=this._selectedIds.has(t.id);return o`
+                <div
+                  class="result-item ${s?"selected":""} ${!s&&r?"disabled":""}"
+                  @click=${()=>this._toggleSelect(t)}
+                >
+                  ${t.thumbnail?o`<img
+                        src=${this.transformThumbnail(t.thumbnail)}
+                        alt=${t.name}
+                        loading="lazy"
+                        referrerpolicy="no-referrer"
+                      />`:c}
+                  <div class="check">
+                    ${s?o`<svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="3"
+                          stroke-linecap="round"
+                        >
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>`:c}
+                  </div>
+                  ${(l=t.author)!=null&&l.name?o`<div class="author">${t.author.name}</div>`:c}
                 </div>
-                ${(i=r.author)!=null&&i.name?s`<div class="author">${r.author.name}</div>`:p}
-              </div>
-            `})})()}
+              `})})()}
         </div>
-        ${this._loadingMore?s`<div class="loading loading-more"><div class="spinner"></div></div>`:p}
+        ${this._loadingMore?o`<div class="loading loading-more"><div class="spinner"></div></div>`:c}
       </div>
 
-      ${this._items.length>0?s`
+      ${this._items.length>0?o`
             <div class="browser-footer">
               <span class="selected-count">
                 ${e>0?this.t("imagesSelected",{count:e,defaultValue_one:"{{count}} image selected",defaultValue_other:"{{count}} images selected"}):this.t("selectImagesToAdd","Select images to add")}
@@ -79,12 +99,14 @@ import{f as x,a as s,A as p,c as m,n as l,r as n}from"./index-BZ9dNCUM.js";impor
                 ${this.t("addImages",{count:e>0?e:0,defaultValue_one:"Add {{count}} image",defaultValue_other:"Add {{count}} images"})}
               </button>
             </div>
-          `:p}
-    `:s`
+          `:c}
+    `:o`
         <div class="empty-state">
-          <div class="empty-text">${this.t("enterSearchHint","Enter text to search for images")}</div>
+          <div class="empty-text">
+            ${this.t("enterSearchHint","Enter text to search for images")}
+          </div>
         </div>
-      `}};f.styles=m`
+      `}};h.styles=b`
     :host {
       display: flex;
       flex-direction: column;
@@ -172,7 +194,11 @@ import{f as x,a as s,A as p,c as m,n as l,r as n}from"./index-BZ9dNCUM.js";impor
       padding: 0 16px;
       border: none;
       border-radius: 9px;
-      background: linear-gradient(135deg, var(--sfx-up-primary, #2563eb), var(--sfx-up-primary-mid, #3b82f6));
+      background: linear-gradient(
+        135deg,
+        var(--sfx-up-primary, #2563eb),
+        var(--sfx-up-primary-mid, #3b82f6)
+      );
       color: var(--primary-foreground, #fff);
       font-family: inherit;
       font-size: 13px;
@@ -268,7 +294,7 @@ import{f as x,a as s,A as p,c as m,n as l,r as n}from"./index-BZ9dNCUM.js";impor
       left: 0;
       right: 0;
       padding: 4px 8px;
-      background: linear-gradient(transparent, rgba(0,0,0,0.5));
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
       font-size: 10px;
       color: #fff;
       white-space: nowrap;
@@ -303,7 +329,11 @@ import{f as x,a as s,A as p,c as m,n as l,r as n}from"./index-BZ9dNCUM.js";impor
       padding: 0 20px;
       border: none;
       border-radius: 9px;
-      background: linear-gradient(135deg, var(--sfx-up-primary, #2563eb), var(--sfx-up-primary-mid, #3b82f6));
+      background: linear-gradient(
+        135deg,
+        var(--sfx-up-primary, #2563eb),
+        var(--sfx-up-primary-mid, #3b82f6)
+      );
       color: var(--primary-foreground, #fff);
       font-family: inherit;
       font-size: 13px;
@@ -324,7 +354,9 @@ import{f as x,a as s,A as p,c as m,n as l,r as n}from"./index-BZ9dNCUM.js";impor
     }
 
     /* --- States --- */
-    .loading, .error-view, .empty-state {
+    .loading,
+    .error-view,
+    .empty-state {
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -398,10 +430,14 @@ import{f as x,a as s,A as p,c as m,n as l,r as n}from"./index-BZ9dNCUM.js";impor
     }
 
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .spinner { animation: none; }
+      .spinner {
+        animation: none;
+      }
     }
-  `;let a=f;o([l({attribute:!1})],a.prototype,"t");o([l({type:String})],a.prototype,"provider");o([l({type:String})],a.prototype,"companionUrl");o([l({attribute:!1})],a.prototype,"transformThumbnail");o([l({type:Boolean})],a.prototype,"multi");o([l({type:Number})],a.prototype,"maxSelect");o([n()],a.prototype,"_loading");o([n()],a.prototype,"_loadingMore");o([n()],a.prototype,"_items");o([n()],a.prototype,"_selectedIds");o([n()],a.prototype,"_error");o([n()],a.prototype,"_searchQuery");o([n()],a.prototype,"_nextPageQuery");o([n()],a.prototype,"_searched");export{a as SfxSearchProviderBrowser};
+  `;let i=h;a([d({attribute:!1})],i.prototype,"t");a([d({type:String})],i.prototype,"provider");a([d({type:String})],i.prototype,"companionUrl");a([d({attribute:!1})],i.prototype,"transformThumbnail");a([d({type:Boolean})],i.prototype,"multi");a([d({type:Number})],i.prototype,"maxSelect");a([n()],i.prototype,"_loading");a([n()],i.prototype,"_loadingMore");a([n()],i.prototype,"_items");a([n()],i.prototype,"_selectedIds");a([n()],i.prototype,"_error");a([n()],i.prototype,"_searchQuery");a([n()],i.prototype,"_nextPageQuery");a([n()],i.prototype,"_searched");export{i as SfxSearchProviderBrowser};

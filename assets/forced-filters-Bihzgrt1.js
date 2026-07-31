@@ -1,4 +1,4 @@
-import{b as d}from"./index-BZ9dNCUM.js";import{r as p}from"./code-block-Bk3NnwHF.js";let l=["image"],o="",i="";function u(){const e={type:{values:l}};return o.trim()&&i.trim()&&(e[o.trim()]={values:[i.trim()]}),e}function s(e){const t=[`${e}type: { values: [${l.map(a=>`'${a}'`).join(", ")}] },`];return o.trim()&&i.trim()&&(t.push(`${e}// Custom metadata — use the RAW api key, value as a string`),t.push(`${e}${o.trim()}: { values: ['${i.trim()}'] },`)),t.join(`
+import{b as d}from"./index-CJeQEtvq.js";import{r as p}from"./code-block-Bk3NnwHF.js";let l=["image"],o="",i="";function u(){const e={type:{values:l}};return o.trim()&&i.trim()&&(e[o.trim()]={values:[i.trim()]}),e}function s(e){const t=[`${e}type: { values: [${l.map(a=>`'${a}'`).join(", ")}] },`];return o.trim()&&i.trim()&&(t.push(`${e}// Custom metadata — use the RAW api key, value as a string`),t.push(`${e}${o.trim()}: { values: ['${i.trim()}'] },`)),t.join(`
 `)}function n(){const e=document.getElementById("code-container");e&&(e.innerHTML="",p("#code-container",[{label:"JavaScript",lang:"javascript",code:`
 picker.config = {
   auth: { /* ... */ },

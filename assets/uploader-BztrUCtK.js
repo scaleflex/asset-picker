@@ -1,10 +1,15 @@
-import{b as o}from"./index-BZ9dNCUM.js";import{r as a}from"./code-block-Bk3NnwHF.js";const i={render(){return`
+import{b as o}from"./index-CJeQEtvq.js";import{r as a}from"./code-block-Bk3NnwHF.js";const i={render(){return`
       <div class="page-header">
         <h1>Uploader integration</h1>
         <p>
           Enable the integrated <code>@scaleflex/uploader</code> by passing the <code>uploader</code>
           config option. An "Upload" button appears in the toolbar, and the entire content area becomes
           a drop zone. Auth and target folder are derived automatically.
+        </p>
+        <p>
+          Metadata works here too &mdash; pass <code>uploader.metadataConfig.projectUuid</code> and the
+          schema loads with the security template alone (no Hub session token). See the
+          <strong>With metadata</strong> tab below.
         </p>
       </div>
 
@@ -56,10 +61,33 @@ import{b as o}from"./index-BZ9dNCUM.js";import{r as a}from"./code-block-Bk3NnwHF
       },
       autoProceed: false,    // Review files before uploading
       concurrency: 2,        // Upload 2 files at a time
-      showFillMetadata: true, // Show metadata form
     },
     onSelect: (assets) => console.log('Selected:', assets),
   };
+<\/script>`},{label:"With metadata",lang:"markup",code:`
+<script>
+  picker.config = {
+    auth: {
+      mode: 'securityTemplate',
+      securityTemplateKey: 'SECU_...',
+      projectToken: 'YOUR_CONTAINER',
+    },
+    uploader: {
+      // A projectUuid is all it takes — the "Fill Metadata" button is
+      // auto-enabled, and the schema loads from the container's
+      // /v5/settings endpoint using the SASS key exchanged from the
+      // security template. No Hub session token, no proxy.
+      metadataConfig: {
+        projectUuid: 'YOUR_PROJECT_UUID',
+        enforceRequiredBeforeUpload: 'auto',
+      },
+    },
+    onSelect: (assets) => console.log('Selected:', assets),
+  };
+
+  // Dependency rules and the project's force_filling_metadata_on_upload
+  // toggle are the only Hub-only parts. If your app has a Hub session,
+  // add metadataConfig.hubHeaders to get them back.
 <\/script>`},{label:"React",lang:"tsx",code:`
 import { useRef } from 'react';
 import { AssetPicker, type AssetPickerRef } from '@scaleflex/asset-picker/react';
