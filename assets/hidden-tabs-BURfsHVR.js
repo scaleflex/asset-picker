@@ -1,4 +1,4 @@
-import{b as i}from"./index-CJeQEtvq.js";import{r as l}from"./code-block-Bk3NnwHF.js";let e=new Set(["assets"]);function n(){const s=document.getElementById("code-container");if(!s)return;s.innerHTML="";const t=[...e].map(a=>`'${a}'`).join(", ");l("#code-container",[{label:"JavaScript",lang:"javascript",code:`
+import{b as i}from"./index-DasbB4sM.js";import{r as l}from"./code-block-Bk3NnwHF.js";let e=new Set(["assets"]);function n(){const s=document.getElementById("code-container");if(!s)return;s.innerHTML="";const t=[...e].map(a=>`'${a}'`).join(", ");l("#code-container",[{label:"JavaScript",lang:"javascript",code:`
 picker.config = {
   auth: { /* ... */ },
   tabs: [${t}],

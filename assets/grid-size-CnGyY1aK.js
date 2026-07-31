@@ -1,19 +1,21 @@
-import{b as o}from"./index-CJeQEtvq.js";import{r}from"./code-block-Bk3NnwHF.js";const n={render(){return`
+import{b as s}from"./index-DasbB4sM.js";import{r as n}from"./code-block-Bk3NnwHF.js";const a={render(){return`
       <div class="page-header">
-        <h1>Sticky filters</h1>
-        <p>Keep the toolbar and filter bar pinned to the top of the content area while scrolling. Use <code>stickyFilters: true</code> to enable this behavior.</p>
+        <h1>Grid size</h1>
+        <p>Control the grid card density with the <code>gridSize</code> option. The default <code>'normal'</code> shows 4 columns at ~1200px, while <code>'large'</code> shows 3 columns with bigger cards.</p>
       </div>
 
       <section class="page-section">
-        <p>Open the picker below — the toolbar and applied filters remain visible as you scroll through assets.</p>
-        <button id="open-sticky" class="btn btn-primary">Open picker</button>
+        <div style="display: flex; gap: 12px;">
+          <button id="open-normal" class="btn btn-primary">Normal (default)</button>
+          <button id="open-large" class="btn btn-primary">Large</button>
+        </div>
       </section>
 
       <section class="page-section">
         <h2>Code</h2>
         <div id="code-container"></div>
       </section>
-    `},init(e){var t;(t=document.getElementById("open-sticky"))==null||t.addEventListener("click",()=>{e.config=o({stickyFilters:!0,onSelect:s=>alert(`Selected ${s.length} asset(s)`)}),e.open()}),r("#code-container",[{label:"HTML",lang:"markup",code:`
+    `},init(e){var o,r;(o=document.getElementById("open-normal"))==null||o.addEventListener("click",()=>{e.config=s({gridSize:"normal",onSelect:t=>alert(`Selected ${t.length} asset(s)`)}),e.open()}),(r=document.getElementById("open-large"))==null||r.addEventListener("click",()=>{e.config=s({gridSize:"large",onSelect:t=>alert(`Selected ${t.length} asset(s)`)}),e.open()}),n("#code-container",[{label:"HTML",lang:"markup",code:`
 <sfx-asset-picker id="picker"></sfx-asset-picker>
 
 <script type="module">
@@ -26,7 +28,7 @@ import{b as o}from"./index-CJeQEtvq.js";import{r}from"./code-block-Bk3NnwHF.js";
       securityTemplateKey: 'YOUR_KEY',
       projectToken: 'YOUR_TOKEN',
     },
-    stickyFilters: true,
+    gridSize: 'large', // default is 'normal'
     onSelect: (assets) => console.log('Selected:', assets),
   };
   picker.open();
@@ -48,10 +50,10 @@ export function App() {
             securityTemplateKey: 'YOUR_KEY',
             projectToken: 'YOUR_TOKEN',
           },
-          stickyFilters: true,
+          gridSize: 'large',
           onSelect: (assets) => console.log('Selected:', assets),
         }}
       />
     </>
   );
-}`}])}};export{n as default};
+}`}])}};export{a as default};

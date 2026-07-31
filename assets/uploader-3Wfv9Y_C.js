@@ -1,4 +1,4 @@
-import{b as o}from"./index-CJeQEtvq.js";import{r as a}from"./code-block-Bk3NnwHF.js";const i={render(){return`
+import{b as o}from"./index-DasbB4sM.js";import{r as a}from"./code-block-Bk3NnwHF.js";const r={render(){return`
       <div class="page-header">
         <h1>Uploader integration</h1>
         <p>
@@ -7,9 +7,9 @@ import{b as o}from"./index-CJeQEtvq.js";import{r as a}from"./code-block-Bk3NnwHF
           a drop zone. Auth and target folder are derived automatically.
         </p>
         <p>
-          Metadata works here too &mdash; pass <code>uploader.metadataConfig.projectUuid</code> and the
-          schema loads with the security template alone (no Hub session token). See the
-          <strong>With metadata</strong> tab below.
+          Metadata works here too &mdash; set <code>uploader.metadataConfig</code> and the schema
+          loads with the security template alone (no Hub session token, and no
+          <code>projectUuid</code>). See the <strong>With metadata</strong> tab below.
         </p>
       </div>
 
@@ -73,12 +73,13 @@ import{b as o}from"./index-CJeQEtvq.js";import{r as a}from"./code-block-Bk3NnwHF
       projectToken: 'YOUR_CONTAINER',
     },
     uploader: {
-      // A projectUuid is all it takes — the "Fill Metadata" button is
-      // auto-enabled, and the schema loads from the container's
-      // /v5/settings endpoint using the SASS key exchanged from the
-      // security template. No Hub session token, no proxy.
+      // An empty metadataConfig is all it takes — the "Fill Metadata" button
+      // is auto-enabled, and the schema loads from the container's
+      // /v5/settings endpoint using the SASS key exchanged from the security
+      // template. No Hub session token, no proxy, no projectUuid (that
+      // request is scoped to the container). Add projectUuid only to reach
+      // the Hub, which is what dependency rules need.
       metadataConfig: {
-        projectUuid: 'YOUR_PROJECT_UUID',
         enforceRequiredBeforeUpload: 'auto',
       },
     },
@@ -119,4 +120,4 @@ export function App() {
       />
     </>
   );
-}`}]),document.getElementById("open-btn").addEventListener("click",()=>{e.config=o({uploader:{},onSelect:t=>alert(`Selected ${t.length} asset(s)`),onCancel:()=>console.log("Cancelled")}),e.open()})}};export{i as default};
+}`}]),document.getElementById("open-btn").addEventListener("click",()=>{e.config=o({uploader:{},onSelect:t=>alert(`Selected ${t.length} asset(s)`),onCancel:()=>console.log("Cancelled")}),e.open()})}};export{r as default};
