@@ -1,4 +1,4 @@
-import{b as o}from"./index-DasbB4sM.js";import{r as a}from"./code-block-Bk3NnwHF.js";const r={render(){return`
+import{b as o}from"./index-Dn1iy44q.js";import{r as a}from"./code-block-Bk3NnwHF.js";const r={render(){return`
       <div class="page-header">
         <h1>Uploader integration</h1>
         <p>

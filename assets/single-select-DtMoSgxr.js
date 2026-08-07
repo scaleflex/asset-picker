@@ -1,4 +1,4 @@
-import{b as c}from"./index-DasbB4sM.js";import{r as i}from"./code-block-Bk3NnwHF.js";const a={render(){return`
+import{b as c}from"./index-Dn1iy44q.js";import{r as i}from"./code-block-Bk3NnwHF.js";const a={render(){return`
       <div class="page-header">
         <h1>Single select</h1>
         <p>Set <code>multiSelect: false</code> to restrict the picker to a single asset selection. The picker will close immediately after selecting one asset.</p>
