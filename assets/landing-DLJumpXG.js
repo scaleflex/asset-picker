@@ -1,4 +1,4 @@
-import{b as f}from"./index-Dn1iy44q.js";import{r as m}from"./code-block-Bk3NnwHF.js";const l={render(){return`
+import{b as m}from"./index-Y5wmoV4G.js";import{r as v}from"./code-block-Bk3NnwHF.js";const l={render(){return`
       <section class="hero">
         <div class="hero-inner">
           <div class="hero-badge">@scaleflex/asset-picker</div>
@@ -141,6 +141,10 @@ import{b as f}from"./index-Dn1iy44q.js";import{r as m}from"./code-block-Bk3NnwHF
               <h3>Forced filters</h3>
               <p>Lock filters that users cannot remove.</p>
             </a>
+            <a href="#/examples/enabled-filters" class="quick-start-card">
+              <h3>Enabled filters</h3>
+              <p>Restrict which filters the picker offers in the toolbar.</p>
+            </a>
             <a href="#/examples/hidden-tabs" class="quick-start-card">
               <h3>Tabs</h3>
               <p>Control which navigation tabs are available.</p>
@@ -270,7 +274,7 @@ import{b as f}from"./index-Dn1iy44q.js";import{r as m}from"./code-block-Bk3NnwHF
           <p>Made with care by the <a href="https://www.scaleflex.com" target="_blank" rel="noopener">Scaleflex</a> team</p>
         </div>
       </footer>
-    `},init(d){const c=document.getElementById("demo-inline-picker");c.config=f({displayMode:"inline",onSelect:e=>alert(`Selected ${e.length} asset(s)`)}),document.querySelectorAll(".quick-start-tab").forEach(e=>{e.addEventListener("click",()=>{const i=e.dataset.tab;document.querySelectorAll(".quick-start-tab").forEach(t=>t.classList.remove("active")),e.classList.add("active"),document.querySelectorAll("[data-tab-content]").forEach(t=>{t.style.display=t.dataset.tabContent===i?"":"none"})})}),document.querySelectorAll(".step-copy").forEach(e=>{e.addEventListener("click",async()=>{const i=e.dataset.code??"";try{await navigator.clipboard.writeText(i),e.classList.add("copied"),e.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'}catch{}setTimeout(()=>{e.classList.remove("copied"),e.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>'},1500)})}),m("#quick-start-code",[{label:"HTML",lang:"markup",code:`
+    `},init(d){const c=document.getElementById("demo-inline-picker");c.config=m({displayMode:"inline",onSelect:e=>alert(`Selected ${e.length} asset(s)`)}),document.querySelectorAll(".quick-start-tab").forEach(e=>{e.addEventListener("click",()=>{const i=e.dataset.tab;document.querySelectorAll(".quick-start-tab").forEach(t=>t.classList.remove("active")),e.classList.add("active"),document.querySelectorAll("[data-tab-content]").forEach(t=>{t.style.display=t.dataset.tabContent===i?"":"none"})})}),document.querySelectorAll(".step-copy").forEach(e=>{e.addEventListener("click",async()=>{const i=e.dataset.code??"";try{await navigator.clipboard.writeText(i),e.classList.add("copied"),e.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'}catch{}setTimeout(()=>{e.classList.remove("copied"),e.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>'},1500)})}),v("#quick-start-code",[{label:"HTML",lang:"markup",code:`
 <script type="module">
   import '@scaleflex/asset-picker/define';
 <\/script>
@@ -314,4 +318,4 @@ export function App() {
       />
     </>
   );
-}`}]);const o=document.querySelectorAll(".demo-also-slide"),n=document.getElementById("also-dots");if(o.length&&n){let e=function(r){if(r===t||p)return;p=!0;const s=r>t?"left":"right",a=o[t],g=o[r];a.classList.add(`slide-out-${s}`),g.classList.add(`slide-in-${s}`,"active"),g.addEventListener("animationend",()=>{a.classList.remove("active",`slide-out-${s}`),g.classList.remove(`slide-in-${s}`),v[t].classList.remove("active"),v[r].classList.add("active"),t=r,p=!1},{once:!0}),i()},i=function(){clearInterval(h),h=setInterval(()=>e((t+1)%o.length),5e3)},t=0,p=!1,h;o.forEach((r,s)=>{const a=document.createElement("button");a.className=`demo-also-dot${s===0?" active":""}`,a.setAttribute("aria-label",`Slide ${s+1}`),a.addEventListener("click",()=>e(s)),n.appendChild(a)});const v=n.querySelectorAll(".demo-also-dot");i(),l._cleanupSlider=()=>clearInterval(h)}},destroy(){var c;const d=document.getElementById("demo-inline-picker");d&&d.close(),(c=l._cleanupSlider)==null||c.call(l),delete l._cleanupSlider}};export{l as default};
+}`}]);const o=document.querySelectorAll(".demo-also-slide"),n=document.getElementById("also-dots");if(o.length&&n){let e=function(r){if(r===t||p)return;p=!0;const s=r>t?"left":"right",a=o[t],g=o[r];a.classList.add(`slide-out-${s}`),g.classList.add(`slide-in-${s}`,"active"),g.addEventListener("animationend",()=>{a.classList.remove("active",`slide-out-${s}`),g.classList.remove(`slide-in-${s}`),f[t].classList.remove("active"),f[r].classList.add("active"),t=r,p=!1},{once:!0}),i()},i=function(){clearInterval(h),h=setInterval(()=>e((t+1)%o.length),5e3)},t=0,p=!1,h;o.forEach((r,s)=>{const a=document.createElement("button");a.className=`demo-also-dot${s===0?" active":""}`,a.setAttribute("aria-label",`Slide ${s+1}`),a.addEventListener("click",()=>e(s)),n.appendChild(a)});const f=n.querySelectorAll(".demo-also-dot");i(),l._cleanupSlider=()=>clearInterval(h)}},destroy(){var c;const d=document.getElementById("demo-inline-picker");d&&d.close(),(c=l._cleanupSlider)==null||c.call(l),delete l._cleanupSlider}};export{l as default};

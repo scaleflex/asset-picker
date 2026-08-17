@@ -1,4 +1,4 @@
-import{b as o}from"./index-Dn1iy44q.js";import{r as l}from"./code-block-Bk3NnwHF.js";const c=[{id:"btn-en",label:"English",code:"en"},{id:"btn-fr",label:"French",code:"fr"},{id:"btn-de",label:"German",code:"de"}],i={render(){return`
+import{b as o}from"./index-Y5wmoV4G.js";import{r as l}from"./code-block-Bk3NnwHF.js";const c=[{id:"btn-en",label:"English",code:"en"},{id:"btn-fr",label:"French",code:"fr"},{id:"btn-de",label:"German",code:"de"}],i={render(){return`
       <div class="page-header">
         <h1>Language switcher</h1>
         <p>Pass a <code>locale</code> option to the picker config to load the UI in a different language. Translations are fetched from the Scaleflex TMS CDN. Falls back to English if a translation is unavailable.</p>

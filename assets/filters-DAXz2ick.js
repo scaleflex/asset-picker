@@ -1,29 +1,30 @@
-import{h as d,c as t,d as e}from"./doc-utils-XkOyWBCy.js";const c={render(){return`
+import{h as e,c as t,d}from"./doc-utils-XkOyWBCy.js";const c={render(){return`
       <div class="doc-content">
         <h1>Filters</h1>
         <p class="doc-lead">Filter keys, data structures, and operators used in <code>enabledFilters</code>, <code>defaultFilters</code>, and <code>forcedFilters</code>.</p>
+        <p>Keys marked <strong>No — config only</strong> have no entry in the Filters menu: users cannot add them, and <code>enabledFilters</code> does not govern them. They stay available to <code>defaultFilters</code> / <code>forcedFilters</code> whatever <code>enabledFilters</code> lists. See <a href="#/examples/enabled-filters">Enabled filters</a>.</p>
 
         <h2>Filter keys</h2>
         <table>
-          <thead><tr><th>Key</th><th>Constant</th><th>Description</th></tr></thead>
+          <thead><tr><th>Key</th><th>Constant</th><th>Description</th><th>In Filters menu</th></tr></thead>
           <tbody>
-            <tr><td><code>'type'</code></td><td><code>FILTER_KEYS.TYPE</code></td><td>File format (image, video, audio, document, archive, font)</td></tr>
-            <tr><td><code>'mimetype'</code></td><td><code>FILTER_KEYS.MIME_TYPE</code></td><td>MIME type</td></tr>
-            <tr><td><code>'date'</code></td><td><code>FILTER_KEYS.DATE</code></td><td>Upload/modification date</td></tr>
-            <tr><td><code>'size'</code></td><td><code>FILTER_KEYS.SIZE</code></td><td>File size range</td></tr>
-            <tr><td><code>'tags'</code></td><td><code>FILTER_KEYS.TAGS</code></td><td>Asset tags</td></tr>
-            <tr><td><code>'labels'</code></td><td><code>FILTER_KEYS.LABELS</code></td><td>Asset labels</td></tr>
-            <tr><td><code>'color'</code></td><td><code>FILTER_KEYS.COLOR</code></td><td>Dominant colour search</td></tr>
-            <tr><td><code>'image'</code></td><td><code>FILTER_KEYS.IMAGE</code></td><td>Image-specific (resolution, orientation, faces)</td></tr>
-            <tr><td><code>'approval'</code></td><td><code>FILTER_KEYS.APPROVAL</code></td><td>Approval workflow status</td></tr>
-            <tr><td><code>'metadata'</code></td><td><code>FILTER_KEYS.METADATA</code></td><td>Custom metadata fields</td></tr>
-            <tr><td><code>'product_ref'</code></td><td><code>FILTER_KEYS.PRODUCT_REF</code></td><td>Product reference</td></tr>
-            <tr><td><code>'asset_expiration'</code></td><td><code>FILTER_KEYS.LICENSE_EXPIRY</code></td><td>License/asset expiry date</td></tr>
-            <tr><td><code>'folders'</code></td><td><code>FILTER_KEYS.FOLDERS</code></td><td>Folder location</td></tr>
-            <tr><td><code>'resolution'</code></td><td><code>FILTER_KEYS.RESOLUTION</code></td><td>Image resolution</td></tr>
-            <tr><td><code>'orientation'</code></td><td><code>FILTER_KEYS.ORIENTATION</code></td><td>Image orientation</td></tr>
-            <tr><td><code>'faces'</code></td><td><code>FILTER_KEYS.FACES</code></td><td>Detected faces count</td></tr>
-            <tr><td><code>'products'</code></td><td><code>FILTER_KEYS.PRODUCTS</code></td><td>Products</td></tr>
+            <tr><td><code>'type'</code></td><td><code>FILTER_KEYS.TYPE</code></td><td>File format (image, video, audio, document, archive, font)</td><td>Yes</td></tr>
+            <tr><td><code>'mimetype'</code></td><td><code>FILTER_KEYS.MIME_TYPE</code></td><td>MIME type</td><td>No — config only</td></tr>
+            <tr><td><code>'date'</code></td><td><code>FILTER_KEYS.DATE</code></td><td>Upload/modification date</td><td>Yes</td></tr>
+            <tr><td><code>'size'</code></td><td><code>FILTER_KEYS.SIZE</code></td><td>File size range</td><td>Yes</td></tr>
+            <tr><td><code>'tags'</code></td><td><code>FILTER_KEYS.TAGS</code></td><td>Asset tags</td><td>Yes</td></tr>
+            <tr><td><code>'labels'</code></td><td><code>FILTER_KEYS.LABELS</code></td><td>Asset labels</td><td>Yes</td></tr>
+            <tr><td><code>'color'</code></td><td><code>FILTER_KEYS.COLOR</code></td><td>Dominant colour search</td><td>Yes</td></tr>
+            <tr><td><code>'image'</code></td><td><code>FILTER_KEYS.IMAGE</code></td><td>Image-specific (resolution, orientation, faces)</td><td>Yes</td></tr>
+            <tr><td><code>'approval'</code></td><td><code>FILTER_KEYS.APPROVAL</code></td><td>Approval workflow status</td><td>Yes</td></tr>
+            <tr><td><code>'metadata'</code></td><td><code>FILTER_KEYS.METADATA</code></td><td>Custom metadata fields</td><td>Yes</td></tr>
+            <tr><td><code>'product_ref'</code></td><td><code>FILTER_KEYS.PRODUCT_REF</code></td><td>Product reference</td><td>Yes</td></tr>
+            <tr><td><code>'asset_expiration'</code></td><td><code>FILTER_KEYS.LICENSE_EXPIRY</code></td><td>License/asset expiry date</td><td>Yes</td></tr>
+            <tr><td><code>'folders'</code></td><td><code>FILTER_KEYS.FOLDERS</code></td><td>Folder location</td><td>No — config only</td></tr>
+            <tr><td><code>'resolution'</code></td><td><code>FILTER_KEYS.RESOLUTION</code></td><td>Image resolution</td><td>No — config only</td></tr>
+            <tr><td><code>'orientation'</code></td><td><code>FILTER_KEYS.ORIENTATION</code></td><td>Image orientation</td><td>No — config only</td></tr>
+            <tr><td><code>'faces'</code></td><td><code>FILTER_KEYS.FACES</code></td><td>Detected faces count</td><td>No — config only</td></tr>
+            <tr><td><code>'products'</code></td><td><code>FILTER_KEYS.PRODUCTS</code></td><td>Products</td><td>No — config only</td></tr>
           </tbody>
         </table>
 
@@ -92,6 +93,6 @@ import{h as d,c as t,d as e}from"./doc-utils-XkOyWBCy.js";const c={render(){retu
           </tbody>
         </table>
 
-        ${e({href:"#/docs/theming",label:"Theming"},{href:"#/docs/types",label:"Types"})}
+        ${d({href:"#/docs/theming",label:"Theming"},{href:"#/docs/types",label:"Types"})}
       </div>
-    `},init(){d()}};export{c as default};
+    `},init(){e()}};export{c as default};

@@ -1,4 +1,4 @@
-import{h as t,c as e,d}from"./doc-utils-XkOyWBCy.js";const r={render(){return`
+import{h as t,c as e,d}from"./doc-utils-XkOyWBCy.js";const c={render(){return`
       <div class="doc-content">
         <h1>Configuration</h1>
         <p class="doc-lead">All configuration is passed via the <code>config</code> property on the <code>&lt;sfx-asset-picker&gt;</code> element.</p>
@@ -44,7 +44,7 @@ import{h as t,c as e,d}from"./doc-utils-XkOyWBCy.js";const r={render(){return`
             <tr><td><code>defaultSortDirection</code></td><td><code>'asc' | 'desc'</code></td><td><code>'desc'</code></td><td>Initial sort direction</td></tr>
             <tr><td><code>tabs</code></td><td><code>TabKey[]</code></td><td><code>['assets', 'folders']</code></td><td>Tabs to show (<code>'assets'</code>, <code>'folders'</code>, <code>'labels'</code>, <code>'collections'</code>). If only one, the dropdown is hidden</td></tr>
             <tr><td><code>defaultTab</code></td><td><code>TabKey</code></td><td>first in <code>tabs</code></td><td>Which tab to activate when the picker opens</td></tr>
-            <tr><td><code>enabledFilters</code></td><td><code>FilterKey[]</code></td><td>all</td><td>Restrict which filters appear in the toolbar</td></tr>
+            <tr><td><code>enabledFilters</code></td><td><code>FilterKey[]</code></td><td>all</td><td>Restrict which filters the Filters menu offers. Excluded keys are also hidden from the pinned chips and dropped from <code>defaultFilters</code>. Only governs menu filters — <code>forcedFilters</code> and integrator-only keys (<code>mimetype</code>, <code>folders</code>, <code>resolution</code>, <code>orientation</code>, <code>faces</code>, <code>products</code>) always pass. <code>[]</code> hides the Filters button</td></tr>
             <tr><td><code>rootFolderPath</code></td><td><code>string</code></td><td><code>'/'</code></td><td>Restrict browsing to a folder subtree. Users can navigate into subfolders but cannot go above this path. Also sets the initial folder.</td></tr>
             <tr><td><code>initialFolderPath</code></td><td><code>string</code></td><td><code>undefined</code></td><td>Open the picker pre-navigated to this folder path (e.g. <code>'/marketing/banners/'</code>). Unlike <code>rootFolderPath</code>, this does not restrict navigation — users can still browse to any folder including parent folders. When set, the picker defaults to the Folders tab. Overridden by <code>rememberLastFolder</code>.</td></tr>
             <tr><td><code>folderSelection</code></td><td><code>boolean</code></td><td><code>true</code></td><td>Allow selecting folders via checkboxes alongside assets</td></tr>
@@ -127,4 +127,4 @@ picker.config = {
 
         ${d({href:"#/docs/getting-started",label:"Getting started"},{href:"#/docs/api",label:"API"})}
       </div>
-    `},init(){t()}};export{r as default};
+    `},init(){t()}};export{c as default};
