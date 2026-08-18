@@ -1,4 +1,4 @@
-import{b as m}from"./index-Y5wmoV4G.js";import{r as v}from"./code-block-Bk3NnwHF.js";const l={render(){return`
+import{b as m}from"./index-Df_1wNo8.js";import{r as v}from"./code-block-Bk3NnwHF.js";const l={render(){return`
       <section class="hero">
         <div class="hero-inner">
           <div class="hero-badge">@scaleflex/asset-picker</div>

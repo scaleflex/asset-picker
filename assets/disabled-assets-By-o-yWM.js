@@ -1,4 +1,4 @@
-import{b as m}from"./index-Y5wmoV4G.js";import{r as f}from"./code-block-Bk3NnwHF.js";let c=[],a=[],d=[],n=[];function r(){const e=document.getElementById("code-container");if(!e)return;e.innerHTML="";const o=c.length?`
+import{b as m}from"./index-Df_1wNo8.js";import{r as f}from"./code-block-Bk3NnwHF.js";let c=[],a=[],d=[],n=[];function r(){const e=document.getElementById("code-container");if(!e)return;e.innerHTML="";const o=c.length?`
     disabledAssetIds: [${c.map(s=>`'${s}'`).join(", ")}],`:"",i=a.length?`
     disabledFolderIds: [${a.map(s=>`'${s}'`).join(", ")}],`:"";f("#code-container",[{label:"HTML",lang:"markup",code:`
 <sfx-asset-picker id="picker"></sfx-asset-picker>
