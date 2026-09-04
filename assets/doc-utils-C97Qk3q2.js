@@ -1,0 +1,6 @@
+function e(e,t){return`<div class="doc-code-block"><button class="doc-code-copy" aria-label="Copy to clipboard">Copy</button><pre><code class="language-${e}">${t.trim().replace(/&/g,`&amp;`).replace(/</g,`&lt;`).replace(/>/g,`&gt;`)}</code></pre></div>`}function t(e,t){return`
+    <nav class="doc-nav">
+      ${e?`<a href="${e.href}" class="doc-nav-link doc-nav-prev"><span class="doc-nav-dir">Previous</span><span class="doc-nav-label">${e.label}</span></a>`:`<span></span>`}
+      ${t?`<a href="${t.href}" class="doc-nav-link doc-nav-next"><span class="doc-nav-dir">Next</span><span class="doc-nav-label">${t.label}</span></a>`:`<span></span>`}
+    </nav>
+  `}function n(){requestAnimationFrame(()=>{document.querySelectorAll(`code[class*="language-"]`).forEach(e=>{typeof Prism<`u`&&Prism.highlightElement(e)}),document.querySelectorAll(`.doc-code-copy`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.closest(`.doc-code-block`)?.querySelector(`code`)?.textContent??``;try{await navigator.clipboard.writeText(t),e.textContent=`Copied!`}catch{e.textContent=`Failed`}setTimeout(()=>e.textContent=`Copy`,1500)})})})}export{t as n,n as r,e as t};
