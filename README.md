@@ -40,8 +40,10 @@
 - [Configuration](#configuration)
   - [Authentication](#authentication)
   - [Config Options](#config-options)
+  - [Integrated uploader](#integrated-uploader)
   - [Content-Security-Policy & thumbnail proxying](#content-security-policy--thumbnail-proxying)
   - [Default & Forced Filters](#default--forced-filters)
+  - [Restricting the filter menu](#restricting-the-filter-menu)
 - [Public Methods](#public-methods)
 - [Events](#events)
 - [React API](#react-api)
@@ -274,37 +276,16 @@ Use when your application already has a SASS key — e.g. inside the Scaleflex H
 
 ### Config Options
 
-| Property                   | Type                                                   | Default                 | Description                                                                                                                                                                                                                                                                    |
-| -------------------------- | ------------------------------------------------------ | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `auth`                     | `AuthConfig`                                           | **required**            | Authentication credentials (see above)                                                                                                                                                                                                                                         |
-| `apiBase`                  | `string`                                               | auto                    | Override the API base URL                                                                                                                                                                                                                                                      |
-| `apiFields`                | `string[]`                                             | `['cdn_permalink']`     | Extra computed Files API fields to request, added on top of the default response (does not narrow it). The default exposes the signed CDN permalink as `url.cdn_permalink` on selected assets. Pass extra keys (e.g. `['cdn_permalink', 'relations']`) or `[]` to request none |
-| `locale`                   | `string`                                               | `'en'`                  | BCP 47 locale tag for the UI language (e.g. `'fr'`, `'de'`, `'en-US'`). Translations are loaded lazily from the Scaleflex TMS CDN; falls back to English for any untranslated keys                                                                                             |
-| `multiSelect`              | `boolean`                                              | `true`                  | Enable multi-asset selection                                                                                                                                                                                                                                                   |
-| `maxSelections`            | `number`                                               | `undefined`             | Maximum number of selectable assets                                                                                                                                                                                                                                            |
-| `defaultViewMode`          | `'grid' \| 'list'`                                     | `'grid'`                | Initial view mode                                                                                                                                                                                                                                                              |
-| `defaultSortBy`            | `SortBy`                                               | `'created_at'`          | Initial sort field (see table below)                                                                                                                                                                                                                                           |
-| `defaultSortDirection`     | `'asc' \| 'desc'`                                      | `'desc'`                | Initial sort direction                                                                                                                                                                                                                                                         |
-| `tabs`                     | `TabKey[]`                                             | `['assets', 'folders']` | Tabs to show (`'assets'`, `'folders'`, `'labels'`). If only one, the dropdown is hidden                                                                                                                                                                                        |
-| `defaultTab`               | `TabKey`                                               | first in `tabs`         | Which tab to activate when the picker opens                                                                                                                                                                                                                                    |
-| `enabledFilters`           | `FilterKey[]`                                          | all                     | Restrict which filters appear in the toolbar                                                                                                                                                                                                                                   |
-| `rootFolderPath`           | `string`                                               | `'/'`                   | Start browsing from a specific folder path (e.g. `'/marketing/banners/'`)                                                                                                                                                                                                      |
-| `showMetadata`             | `boolean`                                              | `true`                  | Show metadata sections in the preview panel                                                                                                                                                                                                                                    |
-| `brandColor`               | `string`                                               | from API                | Brand accent colour as hex (e.g. `'#3b82f6'`). Overrides the API-fetched value                                                                                                                                                                                                 |
-| `rememberLastFolder`       | `boolean`                                              | `false`                 | Persist the last browsed folder and restore on next open                                                                                                                                                                                                                       |
-| `rememberLastView`         | `boolean`                                              | `false`                 | Persist the last used view mode (grid/list) and restore on next open                                                                                                                                                                                                           |
-| `rememberLastTab`          | `boolean`                                              | `false`                 | Persist the last active tab and restore on next open                                                                                                                                                                                                                           |
-| `defaultFilters`           | `FiltersInput`                                         | `undefined`             | Filters pre-applied on open. User can modify/remove                                                                                                                                                                                                                            |
-| `forcedFilters`            | `FiltersInput`                                         | `undefined`             | Filters always active. Shown as locked chips the user cannot remove                                                                                                                                                                                                            |
-| `displayMode`              | `'modal' \| 'inline'`                                  | `'modal'`               | `'modal'` renders as a dialog overlay, `'inline'` renders in page flow                                                                                                                                                                                                         |
-| `gridSize`                 | `'normal' \| 'large'`                                  | `'normal'`              | Grid card density: `'normal'` (4 cols at ~1200px) or `'large'` (3 cols)                                                                                                                                                                                                        |
-| `stickyFilters`            | `boolean`                                              | `false`                 | Make the toolbar and filters bar sticky while scrolling content                                                                                                                                                                                                                |
-| `folderSelection`          | `boolean`                                              | `true`                  | Allow selecting folders via checkboxes                                                                                                                                                                                                                                         |
-| `folderSelectionMode`      | `'folder' \| 'assets'`                                 | `'folder'`              | `'folder'` returns Folder objects; `'assets'` fetches folder contents and returns only Assets                                                                                                                                                                                  |
-| `uploader`                 | `UploaderIntegrationConfig`                            | `undefined`             | Enable integrated uploader. Adds an "Upload" button and drop zone. Requires `@scaleflex/uploader`                                                                                                                                                                              |
-| `transformRemoteThumbnail` | `(url: string, ctx: RemoteThumbnailContext) => string` | `undefined`             | Rewrite every preview/thumbnail image URL before it renders (e.g. wrap in a CSP-permitted proxy). See [Content-Security-Policy](#content-security-policy--thumbnail-proxying)                                                                                                  |
-| `onSelect`                 | `(assets: Asset[], folders?: Folder[]) => void`        | `undefined`             | Callback when assets are selected                                                                                                                                                                                                                                              |
-| `onCancel`                 | `() => void`                                           | `undefined`             | Callback when the picker is cancelled                                                                                                                                                                                                                                          |
+The full, always-current list of `AssetPickerConfig` properties lives on the live demo docs
+site, not duplicated here to avoid two copies drifting apart:
+
+**→ [Config Options reference](https://scaleflex.github.io/asset-picker/#/docs/configuration)**
+
+Highlights: `auth` (required), `locale`, `multiSelect` / `maxSelections`, `tabs`,
+`defaultFilters` / `forcedFilters`, `enabledFilters` / `enabledMetadataFields`, `variants`,
+`transformations`, `uploader` (integrated uploader), `brandColor`,
+`transformRemoteThumbnail`, `onSelect` / `onCancel`. The authoritative shape is always
+[`src/types/config.types.ts`](./src/types/config.types.ts).
 
 #### Sort fields
 
@@ -322,6 +303,83 @@ Use when your application already has a SASS key — e.g. inside the Scaleflex H
 | `'updated_at'`            | Assets              |
 | `'files_count_recursive'` | Folders only        |
 | `'files_size_recursive'`  | Folders only        |
+
+### Integrated uploader
+
+Set `uploader` to add an "Upload" button to the toolbar and turn the content area into a
+drop zone. Requires `@scaleflex/uploader` to be installed. **Auth and target folder are
+derived automatically** from the picker's own `auth` and current folder — do not set them:
+
+```js
+picker.config = {
+  auth: {
+    mode: 'securityTemplate',
+    projectToken: 'YOUR_CONTAINER',
+    securityTemplateKey: 'SECU_...',
+  },
+  uploader: {
+    autoProceed: false,
+    showCopyCdnButton: true,
+  },
+};
+```
+
+#### Metadata in the uploader
+
+Pass `uploader.metadataConfig` to let users fill project metadata before upload. An empty
+object is all it takes — **including in `securityTemplate` auth mode**:
+
+```js
+picker.config = {
+  auth: {
+    mode: 'securityTemplate',
+    projectToken: 'YOUR_CONTAINER',
+    securityTemplateKey: 'SECU_...',
+  },
+  uploader: {
+    metadataConfig: {
+      enforceRequiredBeforeUpload: 'auto',
+    },
+  },
+};
+```
+
+The "Fill Metadata" button appears automatically once `metadataConfig` is set. With no
+`hubHeaders`, the schema is loaded from the container's `/v5/settings` endpoint using the
+SASS key the uploader exchanges from your security template — no session token, no proxy,
+no pre-fetched schema and **no `projectUuid`**: that request is scoped to your container,
+which already identifies the project. Field groups, select options, regional variants,
+required-field enforcement and product fields all work on this path.
+
+Add `projectUuid` only when you want the Hub — it is the id in the Hub's `/project/{uuid}`
+URL, and metadata **dependency rules** are Hub-only. Without it the uploader goes straight
+to `/v5/settings` and leaves dependency rules off.
+
+Two things need Hub session auth, which a security template cannot provide:
+
+| Feature                                           | Without `hubHeaders`                                                                                         |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Metadata **dependency rules**                     | Disabled — unless you pass `metadataConfig.rawDependencies` yourself                                         |
+| Project toggle `force_filling_metadata_on_upload` | Not read; `enforceRequiredBeforeUpload: 'auto'` infers enforcement from the schema's required fields instead |
+
+If your app does have a Hub session, pass the tokens to get both back:
+
+```js
+uploader: {
+  metadataConfig: {
+    projectUuid: 'YOUR_PROJECT_UUID',
+    hubHeaders: {
+      'x-session-token': sessionUuid,
+      'x-company-token': companyUuid,
+      'x-project-token': projectUuid,
+    },
+  },
+}
+```
+
+When the session token arrives asynchronously, assign a **new** config object once it is
+available — in-place mutation is not detected. `metadataConfig.schemaSource` (`'auto'` by
+default, or `'hub'` / `'settings'`) overrides which source is used.
 
 ### Content-Security-Policy & thumbnail proxying
 
@@ -398,6 +456,70 @@ forcedFilters: {
 - **`defaultFilters`** are seeded into the applied filters state when `open()` is called. The user sees them as normal filter chips and can modify or remove them freely.
 - **`forcedFilters`** are merged into every API request but are **not** stored in the mutable applied state. They render as locked chips (with a lock icon instead of an X button). The user cannot remove them, and "Clear filters" does not affect them. Forced filter keys are also hidden from the "Add filter" dropdown.
 - If the same key appears in both `defaultFilters` and `forcedFilters`, the forced filter takes precedence — the default filter for that key is skipped.
+
+### Restricting the filter menu
+
+`enabledFilters` limits which filters the **Filters** menu offers:
+
+```ts
+picker.config = {
+  auth: {
+    /* ... */
+  },
+  enabledFilters: ['type', 'date', 'size'],
+};
+```
+
+**Behaviour:**
+
+- Only the listed keys appear in the Filters menu. Pass `[]` to hide the Filters button entirely; omit the option for all filters.
+- Excluded keys are also hidden from the pinned-filter chips, and dropped from `defaultFilters` — otherwise the user would get a chip they can remove but not add back. The saved pin list itself is **not** rewritten: it is keyed by project token and shared across every picker on the origin, so a restricted picker hides pins without erasing them for an unrestricted one.
+- `forcedFilters` are unaffected — a locked filter always applies, since it is never user-removable in the first place.
+- Only filters that **have a menu entry** are governed. `mimetype`, `folders`, `resolution`, `orientation`, `faces` and `products` are integrator-only keys reachable solely through `defaultFilters` / `forcedFilters`; they always pass through, whatever `enabledFilters` lists.
+- Approval sub-keys (`approval_status`, `task_approver`, `task_requester`, `task_duedate`) follow their parent `approval` entry.
+
+#### Approval sub-filters
+
+`approval` is a container, like `metadata`: its menu entry opens a list of four independent
+filters rather than a panel of its own. Each one gets its own chip, popover and pin.
+
+| Sub-key             | Constant                         | Filter          |
+| ------------------- | -------------------------------- | --------------- |
+| `'approval_status'` | `APPROVAL_FILTER_KEYS.STATUS`    | Approval status |
+| `'task_approver'`   | `APPROVAL_FILTER_KEYS.APPROVER`  | Approver        |
+| `'task_requester'`  | `APPROVAL_FILTER_KEYS.REQUESTOR` | Requester       |
+| `'task_duedate'`    | `APPROVAL_FILTER_KEYS.DUE_DATE`  | Due date        |
+
+Approver and Requester are listed only when the matching user list is configured — see
+[`approverUsers` / `requesterUsers`](#configuration). All four are usable as `defaultFilters` /
+`forcedFilters` keys whether or not the menu offers them.
+
+### Restricting the metadata filter fields
+
+`enabledMetadataFields` limits which metadata fields can be added as filters, independently of
+`enabledFilters` (which governs the `metadata` entry as a whole):
+
+```ts
+picker.config = {
+  auth: {
+    /* ... */
+  },
+  enabledMetadataFields: ['campaign_name', 'photographer'],
+};
+```
+
+**Behaviour:**
+
+- Keys are the raw `MetadataModelField.key` from the project's schema (unprefixed — e.g.
+  `'campaign_name'`, not `'text_campaign_name'`).
+- Only the listed fields appear in the "Add metadata field" popup, the toolbar's metadata filter,
+  and the metadata filter chips. Pass `[]` to make no metadata fields available; omit the option
+  for all fields.
+- A pinned field excluded here is hidden from the filters bar even if it is still present in
+  localStorage — the saved pin list itself is left intact, same as `enabledFilters`.
+- Keys with no match in the project's metadata schema are ignored silently.
+- Does **not** affect the preview panel, which always shows the full metadata field list —
+  that's governed separately by [`showMetadata`](#configuration).
 
 ### Internationalisation
 
@@ -755,6 +877,8 @@ asset-picker {
 
 These are the keys used in `enabledFilters`, `defaultFilters`, and `forcedFilters`.
 
+Only some of them have an entry in the **Filters** menu. `mimetype`, `folders`, `resolution`, `orientation`, `faces` and `products` are config-only: users cannot add them, and [`enabledFilters`](#restricting-the-filter-menu) does not govern them — they stay available to `defaultFilters` / `forcedFilters` regardless.
+
 | Key                  | Constant                     | Description                                                |
 | -------------------- | ---------------------------- | ---------------------------------------------------------- |
 | `'type'`             | `FILTER_KEYS.TYPE`           | File format (image, video, audio, document, archive, font) |
@@ -765,7 +889,7 @@ These are the keys used in `enabledFilters`, `defaultFilters`, and `forcedFilter
 | `'labels'`           | `FILTER_KEYS.LABELS`         | Asset labels                                               |
 | `'color'`            | `FILTER_KEYS.COLOR`          | Dominant colour search                                     |
 | `'image'`            | `FILTER_KEYS.IMAGE`          | Image-specific (resolution, orientation, faces)            |
-| `'approval'`         | `FILTER_KEYS.APPROVAL`       | Approval workflow status                                   |
+| `'approval'`         | `FILTER_KEYS.APPROVAL`       | Approval — opens its four sub-filters (see below)          |
 | `'metadata'`         | `FILTER_KEYS.METADATA`       | Custom metadata fields                                     |
 | `'product_ref'`      | `FILTER_KEYS.PRODUCT_REF`    | Product reference                                          |
 | `'asset_expiration'` | `FILTER_KEYS.LICENSE_EXPIRY` | License/asset expiry date                                  |
